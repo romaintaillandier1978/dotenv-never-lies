@@ -1,0 +1,29 @@
+# Ignorer les fichiers EJS
+*.ejs
+
+# Ignorer les fichiers de build
+build/
+dist/
+
+# Ignorer les dépendances
+node_modules/
+
+# Ignorer les fichiers de logs
+logs/
+
+# Ignorer les fichiers temporaires
+tmp/
+uploads/
+
+# Ignorer les fichiers PDF générés
+pdf/
+
+# Ignorer les fichiers de session
+sessions/
+
+# Ignorer les fichiers Docker
+docker/
+
+# Ignorer les fichiers de configuration spécifiques
+ecosystem.config.js
+nodemon.json

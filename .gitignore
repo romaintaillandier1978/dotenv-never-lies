@@ -1,0 +1,10 @@
+node_modules
+dist/
+DnlTest.ts
+env.dnl.source.ts
+.env
+.env.*
+
+dotenv-never-lies-v0.1.0.tgz
+env.dnl.ts
+.dnl/

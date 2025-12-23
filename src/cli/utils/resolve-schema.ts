@@ -1,0 +1,32 @@
+import fs from "node:fs";
+import path from "node:path";
+
+const CANDIDATES = ["env.dnl.ts", "env.dnl.js", "dnl.config.ts", "dnl.config.js"];
+
+export const resolveSchemaPath = (cliPath?: string): string => {
+    // 1. --schema
+    if (cliPath) {
+        return path.resolve(process.cwd(), cliPath);
+    }
+
+    // 2. package.json
+    const pkgPath = path.resolve(process.cwd(), "package.json");
+    if (fs.existsSync(pkgPath)) {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+        const schema = pkg?.["dotenv-never-lies"]?.schema;
+        if (schema) {
+            return path.resolve(process.cwd(), schema);
+        }
+    }
+
+    // 3. convention
+    for (const file of CANDIDATES) {
+        const full = path.resolve(process.cwd(), file);
+        console.log("full", full);
+        if (fs.existsSync(full)) {
+            return full;
+        }
+    }
+
+    throw new Error("No env schema found. Use --schema or define one in package.json.");
+};
