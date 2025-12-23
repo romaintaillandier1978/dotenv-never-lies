@@ -84,11 +84,3 @@ type GlobalAssertFn = <T extends EnvDefinition>(envDef: EnvDefinitionHelper<T>, 
 export const assertEnv: GlobalAssertFn = (envDef, source, mode) => {
     envDef.assert(source, mode);
 };
-
-// Pour le readme :
-
-// This library relies on TypeScript value-based inference.
-// Do not explicitly type your environment definition — let TypeScript infer it.
-
-// ⚠️ Ne tapez jamais la définition d’environnement avec un type générique de la lib.
-// Laissez TypeScript inférer depuis la valeur, sinon vous perdrez l’IntelliSense.

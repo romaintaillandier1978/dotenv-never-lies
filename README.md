@@ -37,12 +37,67 @@ Et parce que `.env` est :
 
 ---
 
+## Ce que dotenv-never-lies n’est pas
+
+Ce package a un périmètre volontairement **limité**.
+
+- ❌ **Ce n’est pas un outil frontend**  
+  Il n’est pas destiné à être utilisé dans un navigateur.  
+  Pas de bundler, pas de `import.meta.env`, pas de variables exposées au client.
+
+- ❌ **Ce n’est pas un gestionnaire de secrets**  
+  Il ne chiffre rien, ne stocke rien, ne remplace ni Vault, ni AWS Secrets Manager,
+  ni les variables sécurisées de ton provider CI/CD.
+
+- ❌ **Ce n’est pas une solution cross-runtime**  
+  Support ciblé : **Node.js**.  
+  Deno, Bun, Cloudflare Workers, edge runtimes : hors scope (pour l’instant).
+
+- ❌ **Ce n’est pas un framework de configuration global**  
+  Il ne gère ni les fichiers YAML/JSON, ni les profiles dynamiques,
+  ni les overrides magiques par environnement.
+
+- ❌ **Ce n’est pas permissif**  
+  S’il manque une variable ou qu’une valeur est invalide, ça plante.  
+  C’est le but.
+
+En résumé :  
+**dotenv-never-lies** est fait pour des **APIs Node.js** et des **services backend**  
+qui préfèrent **échouer proprement au démarrage** plutôt que **bugger silencieusement en prod**.
+
+---
+
+## Dependency warnings
+
+⚠️ Important
+dotenv-never-lies expose des schémas Zod dans son API publique.
+Zod v4 est requis.
+Mélanger les versions cassera l’inférence de types (et oui, ça fait mal).
+
 ## Installation
 
 ```bash
 yarn add dotenv-never-lies
 # ou
 npm install dotenv-never-lies
+```
+
+## Expansion des variables (`dotenv-expand`)
+
+**dotenv-never-lies** gère automatiquement l’expansion des variables d’environnement,
+via [`dotenv-expand`](https://www.npmjs.com/package/dotenv-expand).
+
+Cela permet de définir des variables composées à partir d’autres variables,
+sans duplication ni copier-coller fragile.
+
+### Exemple
+
+```env
+FRONT_A=https://a.site.com
+FRONT_B=https://b.site.com
+FRONT_C=https://c.site.com
+
+NODE_CORS_ORIGIN="${FRONT_A};${FRONT_B};${FRONT_C}"
 ```
 
 ## Définir un schéma
@@ -55,44 +110,45 @@ import { define } from "dotenv-never-lies";
 
 export default define({
     NODE_ENV: {
-        schema: z.enum(["test", "development", "staging", "production"]),
         description: "Environnement d’exécution",
+        schema: z.enum(["test", "development", "staging", "production"]),
     },
 
     NODE_PORT: {
-        schema: z.coerce.number(),
         description: "Port de l’API",
+        schema: z.coerce.number(),
+    },
+
+    FRONT_A: {
+        description: "Mon site A",
+        schema: z.url(),
+    },
+
+    FRONT_B: {
+        description: "Mon site B",
+        schema: z.url(),
+    },
+
+    FRONT_C: {
+        description: "Mon site C",
+        schema: z.url(),
+    },
+
+    NODE_CORS_ORIGIN: {
+        description: "URLs frontend autorisées à appeler cette API",
+        schema: z.string().transform((v) =>
+            v
+                .split(";")
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .map((url) => z.url().parse(url))
+        ),
     },
 
     JWT_SECRET: {
-        schema: z.string(),
         description: "JWT Secret",
+        schema: z.string(),
         secret: true,
-    },
-
-    SOME_API_BASE_URL: {
-        schema: z.string().url(),
-        description: "L’URL d’une super API",
-    },
-
-    ALL_TEST_RECIPIENT_BCC: {
-        schema: z
-            .string()
-            .transform((v) =>
-                v
-                    .split(";")
-                    .map((s) => s.trim())
-                    .filter(Boolean)
-                    .map((email) => {
-                        const res = z.string().email().safeParse(email);
-                        if (!res.success) {
-                            throw new Error(`ALL_TEST_RECIPIENT_BCC contient un email invalide : "${email}"`);
-                        }
-                        return email;
-                    })
-            )
-            .optional(),
-        description: "Emails de test ajoutés en BCC en local/dev. Séparés par des points-virgules.",
     },
 });
 ```
@@ -103,17 +159,41 @@ export default define({
 import envDef from "./env.dnl";
 
 export const ENV = envDef.load();
+
+if(ENV.NODE_ENV === "test"){...}
+
+
 ```
 
 Résultat :
 
 - ENV.NODE_ENV est un enum
 - ENV.NODE_PORT est un number
-- ENV.SOME_API_BASE_URL est une URL valide
-- ENV.ALL_TEST_RECIPIENT_BCC est un string[] | undefined
+- ENV.FRONT_A ENV.FRONT_B ENV.FRONT_C sont des URLs valides
+- ENV.NODE_CORS_ORIGIN est un string[] contenant des URLs valides
+- ENV.JWT_SECRET est une string
 
 Si une variable est absente ou invalide → le process s’arrête immédiatement. \
 C’est volontaire.
+
+## Éviter `process.env` dans le code applicatif
+
+Une fois le schéma chargé, l’accès aux variables d’environnement
+doit se faire exclusivement via l’objet `ENV`.
+
+Cela garantit :
+
+- un typage strict
+- des valeurs validées
+- un point d’entrée unique pour la configuration
+
+Pour identifier les usages résiduels de `process.env` dans votre codebase, un simple outil de recherche suffit :
+
+```bash
+grep -R "process\.env" src
+```
+
+Le choix de corriger (ou non) ces usages dépend du contexte et reste volontairement laissé au développeur.
 
 ## CLI
 
@@ -134,13 +214,14 @@ dnl check --schema env.dnl.ts
 ```
 
 → échoue si :
-• une variable est manquante
-• une valeur est invalide
-• le schéma n’est pas respecté
+
+- une variable est manquante
+- une valeur est invalide
+- le schéma n’est pas respecté
 
 ### Charger les variables dans le process
 
-Charge et valide les variables dans process.env.
+Charge et valide les variables dans `process.env`.
 
 ```bash
 dnl load --schema env.dnl.ts
@@ -157,9 +238,10 @@ dnl generate --schema env.dnl.ts --out .env
 ```
 
 Utile pour :
-• initialiser un projet
-• partager un template
-• éviter les .env.example obsolètes
+
+- initialiser un projet
+- partager un template
+- éviter les .env.example obsolètes
 
 ### Générer un schéma depuis un .env existant
 
@@ -170,8 +252,9 @@ dnl reverse-env --source .env
 ```
 
 Utile pour :
-• migrer un projet existant
-• documenter a posteriori une configuration legacy
+
+- migrer un projet existant
+- documenter a posteriori une configuration legacy
 
 ### Afficher la documentation des variables
 
@@ -179,12 +262,15 @@ Affiche la liste des variables connues et leur description.
 
 ```bash
 dnl print
+```
 
+Exemple de sortie :
 
-NODE_ENV: Environnement d’exécution
-NODE_PORT: Port de l’API
-JWT_SECRET: Emails de test ajoutés en BCC en local/dev. Séparés par des points-virgules.
-SOME_API_BASE_URL: L’URL d’une super API
-ALL_TEST_RECIPIENT_BCC: Emails de test ajoutés en BCC en local/dev
+```bash
+FRONT_A: Mon site A
+FRONT_B: Mon site B
+FRONT_C: Mon site C
+NODE_CORS_ORIGIN: URLs frontend autorisées à appeler cette API
+JWT_SECRET: JWT Secret
 
 ```

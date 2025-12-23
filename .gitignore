@@ -5,6 +5,6 @@ env.dnl.source.ts
 .env
 .env.*
 
-dotenv-never-lies-v0.1.0.tgz
+dotenv-never-lies-v*.tgz
 env.dnl.ts
 .dnl/
