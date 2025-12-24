@@ -1,6 +1,6 @@
 {
     "name": "dotenv-never-lies",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "description": "Typed, validated, and explicit environment variables — powered by Zod.",
     "license": "MIT",
     "author": "Romain TAILLANDIER",
@@ -31,6 +31,10 @@
         ".": {
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js"
+        },
+        "./cli": {
+            "types": "./dist/cli/index.d.ts",
+            "import": "./dist/cli/index.js"
         }
     },
     "bin": {
@@ -38,6 +42,7 @@
     },
     "scripts": {
         "build": "tsc",
+        "test": "yarn build &&  yarn tsx src/DnlTest.ts",
         "dev": "tsx src/cli/index.ts",
         "gen": "rm -rf dist; rm dotenv-never-lies-v*.tgz; yarn build && yarn pack"
     },
@@ -56,7 +61,6 @@
         "@typescript-eslint/parser": "^8.50.0",
         "eslint": "^9.39.2",
         "prettier": "^3.7.4",
-        "tsx": "^4.21.0",
         "typescript": "^5.9.3",
         "zod": "^4.2.1"
     }

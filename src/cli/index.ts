@@ -41,23 +41,27 @@ Valide, charge et génère des variables d’environnement typées à partir d�
 program
     .command("check")
     .description("Valide un fichier d’environnement sans le charger dans le process.")
-    .option("-s, --schema <file>", "Fichier de schéma env (ex: env.dnl.ts)")
-    .option("-m, --mode <mode>", "Mode de chargement (runtime | build)", "runtime" as dnl.LoadMode)
-    .option("--source <source>", "Source des variables (défaut : process.env)")
+    .addHelpText(
+        "after",
+        `
+      des trucs spécifiques à check
+      `
+    )
+    .option("--schema <file>", "Fichier de schéma env (par défaut : env.dnl.ts)")
+    .option("-s, --source <source>", "Source des variables (défaut : process.env)")
     .action(checkCommand);
 
 program
     .command("load")
     .description("Valide et charge les variables d’environnement dans le process.")
-    .option("-s, --schema <file>", "Fichier de schéma env (ex: env.dnl.ts)")
-    .option("-m, --mode <mode>", "Mode de chargement (runtime | build)", "runtime" as dnl.LoadMode)
-    .option("--source <source>", "Source des variables (défaut : process.env)")
+    .option("--schema <file>", "Fichier de schéma env (ex: env.dnl.ts)")
+    .option("-s, --source <source>", "Source des variables (défaut : process.env)")
     .action(loadCommand);
 
 program
     .command("generate")
     .description("Génère un fichier .env à partir d’un schéma dotenv-never-lies.")
-    .option("-s, --schema <file>", "Fichier de schéma env (ex: env.dnl.ts)")
+    .option("--schema <file>", "Fichier de schéma env (ex: env.dnl.ts)")
     .option("-o, --out <file>", "Fichier de sortie (défaut : .env)")
     .option("-f, --force", "Écraser le fichier existant")
     .option("--include-secret", "Inclure les variables marquées comme secrètes")
