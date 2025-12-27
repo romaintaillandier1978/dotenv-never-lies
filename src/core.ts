@@ -25,6 +25,10 @@ export interface EnvVarDefinition<T extends z.ZodType = z.ZodType> {
      * Indique si la variable d'environnement est secrète (pour les token, les mots de passe), RFU.
      */
     secret?: boolean;
+    /**
+     * Indique des exemple pour cette variable
+     */
+    examples?: string[];
 }
 
 // any est nécessaire ici. Pour tirer le meilleur de l'inférence ts.
@@ -49,7 +53,6 @@ export type InferEnv<T extends EnvDefinition> = {
 
 type CheckFn = (options?: { source?: EnvSource | undefined }) => boolean;
 type LoadFn<T extends EnvDefinition> = (options?: { source?: EnvSource | undefined }) => InferEnv<T>;
-type HelpFn = () => void;
 
 /**
  * Un objet contenant les fonctions pour vérifier, charger et afficher les variables d'environnement.
@@ -89,11 +92,6 @@ export type EnvDefinitionHelper<T extends EnvDefinition> = {
      * @throws Si les variables d'environnement sont invalides.
      */
     load: LoadFn<T>;
-    /**
-     * Affiche la liste des variables d'environnement connues et leur description. (pas les valeurs). N'affiche pas les valeursUtilise console.log.
-     * @returns void
-     */
-    help: HelpFn;
 };
 
 /**
@@ -123,15 +121,7 @@ export const define = <T extends EnvDefinition>(def: T): EnvDefinitionHelper<T> 
         return getSchema(strict).parse(source) as InferEnv<T>;
     };
 
-    const help: HelpFn = () => {
-        // any est nécessaire ici. Pour tirer le meilleur de l'inférence ts.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        Object.entries(def).forEach(([key, value]) => {
-            console.log(`${key}: ${value.description}`);
-        });
-    };
-
-    return { def, zodShape, zodSchema, check, load, help };
+    return { def, zodShape, zodSchema, check, load };
 };
 
 /**

@@ -2,11 +2,11 @@
 
 import { program } from "commander";
 import { checkCommand } from "./commands/check.js";
-import { printCommand } from "./commands/help.js";
 import { loadCommand } from "./commands/load.js";
 import { generateCommand } from "./commands/generate.js";
 import dnl from "../index.js";
 import { reverseEnvCommand } from "./commands/reverseEnv.js";
+import { explainCommand } from "./commands/explain.js";
 program
     .name("dnl")
     .version("0.1.0")
@@ -47,14 +47,14 @@ program
       des trucs spécifiques à check
       `
     )
-    .option("--schema <file>", "Fichier de schéma env (par défaut : env.dnl.ts)")
+    .option("--schema <file>", "Fichier de schéma env (par défaut : env.dnl.ts)", "env.dnl.ts")
     .option("-s, --source <source>", "Source des variables (défaut : process.env)")
     .action(checkCommand);
 
 program
     .command("load")
     .description("Valide et charge les variables d’environnement dans le process.")
-    .option("--schema <file>", "Fichier de schéma env (ex: env.dnl.ts)")
+    .option("--schema <file>", "Fichier de schéma env (ex: env.dnl.ts)", "env.dnl.ts")
     .option("-s, --source <source>", "Source des variables (défaut : process.env)")
     .action(loadCommand);
 
@@ -77,9 +77,34 @@ program
     .action(reverseEnvCommand);
 
 program
-    .command("print")
-    .option("-s, --schema <file>", "Fichier de schéma env (ex: env.dnl.ts)")
+    .command("explain")
     .description("Affiche la liste des variables d’environnement connues et leur description.")
-    .action(printCommand);
+    .argument("[keys...]", "Clés à expliquer (0..N). Sans argument, toutes les clés.")
+    .option("--schema <file>", "Fichier de schéma env (ex: env.dnl.ts)")
+    .option("-f, --format <format>", 'Format d\'affichage ("human" | "json")', "human")
+    .action(async (keys: string[] | undefined, opts: { schema?: string | undefined; format?: "human" | "json" | undefined }) => {
+        const result = await explainCommand({ keys: keys ?? [], schema: opts.schema, format: opts.format });
+        process.exit(result);
+    })
+    .addHelpText(
+        "after",
+        `\nExemples :
+        
+        # expliquer toutes les variables connues et leur description
+        dnl explain
+        
+        # expliquer une variable en détail
+        dnl explain NODE_ENV
 
+        # sortie machine
+        dnl explain --format json
+
+        # expliquer toutes les variables connues et leur description à partir d'un schéma
+        dnl explain --schema another-env.ts
+       
+        # expliquer une partie des variables connues et leur description
+        dnl explain NODE_ENV NODE_PORT 
+        
+      `
+    );
 program.parse(process.argv);
