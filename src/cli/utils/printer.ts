@@ -62,7 +62,9 @@ export function printZodType(def: z.core.$ZodTypeDef): string {
         case "default":
             if ("innerType" in def) {
                 const result = printZodType(def.innerType as z.core.$ZodTypeDef);
-                const defaultValue = (def as any).defaultValue;
+                const defaultValue = typeof (def as any).defaultValue === "function" ? (def as any).defaultValue() : ((def as any).defaultValue ?? undefined);
+
+                // const defaultValue = (def as any).defaultValue;
                 if (defaultValue) {
                     return result + " (default: " + defaultValue.toString() + ")";
                 }
@@ -115,7 +117,7 @@ function stringifyEnvValue(value: unknown): string | undefined {
 export function getDefaultEnvValue(def: z.core.$ZodTypeDef): string | undefined {
     switch (def.type) {
         case "default": {
-            const raw = typeof (def as any).defaultValue === "function" ? (def as any).defaultValue() : undefined;
+            const raw = typeof (def as any).defaultValue === "function" ? (def as any).defaultValue() : ((def as any).defaultValue ?? undefined);
 
             return stringifyEnvValue(raw);
         }

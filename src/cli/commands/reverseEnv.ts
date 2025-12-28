@@ -3,8 +3,8 @@ import dnl from "../../index.js";
 import { guessSecret, inferSchema } from "../utils/infer-schema.js";
 import fs from "node:fs";
 
-export const reverseEnvCommand = async (opts: { source: string; out: string; force?: boolean; guessSecret?: boolean }) => {
-    const source = path.resolve(process.cwd(), opts.source);
+export const reverseEnvCommand = async (opts: { source?: string; out?: string; force?: boolean; guessSecret?: boolean }) => {
+    const source = path.resolve(process.cwd(), opts.source ?? ".env");
     const out = opts.out ?? "env.dnl.ts";
     const target = path.resolve(process.cwd(), out);
     if (fs.existsSync(target) && !opts.force) {

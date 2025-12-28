@@ -2,8 +2,9 @@ import { build } from "esbuild";
 import path from "node:path";
 import fs from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import { EnvDefinitionHelper } from "../../core.js";
 
-export async function loadSchema(schemaPath: string) {
+export const loadDef = async (schemaPath: string): Promise<EnvDefinitionHelper<any>> => {
     const outDir = path.join(process.cwd(), ".dnl");
     await fs.mkdir(outDir, { recursive: true });
 
@@ -25,4 +26,4 @@ export async function loadSchema(schemaPath: string) {
     }
 
     return mod.default;
-}
+};

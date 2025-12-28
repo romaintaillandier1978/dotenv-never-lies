@@ -1,5 +1,5 @@
 import dnl from "../../index.js";
-import { loadSchema } from "../utils/load-schema.js";
+import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { Explanation, toExplanation } from "../utils/printer.js";
 
@@ -11,7 +11,7 @@ type ExplainCliOptions = {
 
 export const explainCommand = async (options?: ExplainCliOptions): Promise<number> => {
     const schemaPath = resolveSchemaPath(options?.schema);
-    const envDef = (await loadSchema(schemaPath)) as dnl.EnvDefinitionHelper<any>;
+    const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<any>;
 
     const format = options?.format ?? "human";
     const keysToSerialize = new Array<string>();

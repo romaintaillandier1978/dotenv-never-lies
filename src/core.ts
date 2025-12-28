@@ -52,7 +52,7 @@ export type InferEnv<T extends EnvDefinition> = {
 };
 
 type CheckFn = (options?: { source?: EnvSource | undefined }) => boolean;
-type LoadFn<T extends EnvDefinition> = (options?: { source?: EnvSource | undefined }) => InferEnv<T>;
+type AssertFn<T extends EnvDefinition> = (options?: { source?: EnvSource | undefined }) => InferEnv<T>;
 
 /**
  * Un objet contenant les fonctions pour vérifier, charger et afficher les variables d'environnement.
@@ -82,7 +82,7 @@ export type EnvDefinitionHelper<T extends EnvDefinition> = {
      */
     check: CheckFn;
     /**
-     * Charge les variables d'environnement.
+     * Vérifie les variables d'environnement et arrête le process si elle ne sont pas conformes au schéma.
      *
      * Si `options.source` est fourni, il est utilisé avec le mode strict (zod.strict())
      * Si `options.source` est fourni, on utilise `process.env`, en mode non strict
@@ -91,7 +91,7 @@ export type EnvDefinitionHelper<T extends EnvDefinition> = {
      * @returns Les variables d'environnement chargées.
      * @throws Si les variables d'environnement sont invalides.
      */
-    load: LoadFn<T>;
+    assert: AssertFn<T>;
 };
 
 /**
@@ -116,12 +116,12 @@ export const define = <T extends EnvDefinition>(def: T): EnvDefinitionHelper<T> 
         return getSchema(strict).safeParse(source).success;
     };
 
-    const load: LoadFn<T> = (options) => {
+    const assert: AssertFn<T> = (options) => {
         const { source, strict } = extractParams(options);
         return getSchema(strict).parse(source) as InferEnv<T>;
     };
 
-    return { def, zodShape, zodSchema, check, load };
+    return { def, zodShape, zodSchema, check, assert };
 };
 
 /**

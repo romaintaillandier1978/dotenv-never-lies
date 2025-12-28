@@ -1,8 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import dnl from "../../index.js";
-import { loadSchema } from "../utils/load-schema.js";
+import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
+import { getDefaultEnvValue } from "../utils/printer.js";
 
 export const generateCommand = async (opts: { schema?: string; out?: string; includeSecret?: boolean; force?: boolean }) => {
     const outFile = opts.out ?? ".env";
@@ -14,7 +15,7 @@ export const generateCommand = async (opts: { schema?: string; out?: string; inc
     }
 
     const schemaPath = resolveSchemaPath(opts.schema);
-    const envDef = (await loadSchema(schemaPath)) as dnl.EnvDefinitionHelper<any>;
+    const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<any>;
 
     const lines: string[] = [];
 
@@ -23,7 +24,8 @@ export const generateCommand = async (opts: { schema?: string; out?: string; inc
         if (typedDef.description) {
             lines.push(`# ${typedDef.description}`);
         }
-        lines.push(`${key}=`);
+        const defaultValue = getDefaultEnvValue(typedDef.schema.def);
+        lines.push(`${key}=${defaultValue ?? ""}`);
         lines.push(""); // blank line
     }
 
