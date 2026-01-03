@@ -67,19 +67,19 @@ qui préfèrent **échouer proprement au démarrage** plutôt que **bugger silen
 
 ---
 
-## Dépendances et compatibilité
+## Dependency warnings
 
 ⚠️ Important
 dotenv-never-lies expose des schémas Zod dans son API publique.
 Zod v4 est requis.
-Utiliser Zod v3 entraînera des erreurs de typage ou d’inférence.
+Mélanger les versions cassera l’inférence de types (et oui, ça fait mal).
 
 ## Installation
 
 ```bash
-npm install @romaintaillandier1978/dotenv-never-lies
+yarn add dotenv-never-lies
 # ou
-yarn add @romaintaillandier1978/dotenv-never-lies
+npm install dotenv-never-lies
 ```
 
 ## Expansion des variables (`dotenv-expand`)
@@ -106,7 +106,7 @@ env.dnl.ts
 
 ```typescript
 import { z } from "zod";
-import { define } from "@romaintaillandier1978/dotenv-never-lies";
+import { define } from "dotenv-never-lies";
 
 export default define({
     NODE_ENV: {
@@ -205,16 +205,13 @@ Il est conçu pour être utilisé :
 - en CI (sans surprise)
 - avant que l’application ne démarre (et pas après)
 
-### assert : Valider un fichier `.env` (CI-friendly)
+### Valider un fichier `.env` (CI-friendly)
 
 Valide les variables sans les injecter dans `process.env`.
 
 ```bash
-dnl assert --source .env --schema env.dnl.ts
+dnl check --schema env.dnl.ts
 ```
-
-Sans --source, dnl assert valide process.env
-C'est le mode recommandé lorsque les variables sont injectées par le runtime ou la CI.
 
 → échoue si :
 
@@ -222,7 +219,17 @@ C'est le mode recommandé lorsque les variables sont injectées par le runtime o
 - une valeur est invalide
 - le schéma n’est pas respecté
 
-### generate : Générer un fichier .env à partir du schéma
+### Charger les variables dans le process
+
+Charge et valide les variables dans `process.env`.
+
+```bash
+dnl load --schema env.dnl.ts
+```
+
+Usage typique : scripts de démarrage, tooling local.
+
+### Générer un fichier .env à partir du schéma
 
 Génère un .env documenté à partir du schéma.
 
@@ -236,7 +243,7 @@ Utile pour :
 - partager un template
 - éviter les .env.example obsolètes
 
-### reverse-env : Générer un schéma depuis un .env existant
+### Générer un schéma depuis un .env existant
 
 Crée un fichier env.dnl.ts à partir d’un .env.
 
@@ -249,12 +256,12 @@ Utile pour :
 - migrer un projet existant
 - documenter a posteriori une configuration legacy
 
-### explain : Afficher la documentation des variables
+### Afficher la documentation des variables
 
 Affiche la liste des variables connues et leur description.
 
 ```bash
-dnl explain
+dnl print
 ```
 
 Exemple de sortie :
@@ -268,12 +275,9 @@ JWT_SECRET: JWT Secret
 
 ```
 
+TODO : check CI in real life.
+
 ## Usages dans la vraie vie
-
-### GitIgnore
-
-dotenv-never-lies crée des fichiers temporaires dans votre répertoire projet.
-Ajoutez `.dnl/` à votre `.gitignore`.
 
 ### Git
 
@@ -312,52 +316,4 @@ yarn dnl assert --source .env || true
 EOF
 
 chmod +x .githooks/pre-commit .githooks/post-merge
-```
-
-### Gitlab CI
-
-Step de validation des variables d'environnement.
-
-```yaml
-# .gitlab-ci.yml
-check-env:
-    stage: test
-    image: node:20-alpine
-    script:
-        - corepack enable
-        - yarn install --frozen-lockfile
-        - yarn dnl assert --source $DOT_ENV_FILE
-```
-
-### GitHub Actions
-
-```yaml
-# .github/workflows/check-env.yml
-name: Check environment
-
-on: [push, pull_request]
-
-jobs:
-    check-env:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: 20
-
-            - run: corepack enable
-            - run: yarn install --frozen-lockfile
-
-            # Exemple avec un fichier .env fourni par un secret
-            - run: yarn dnl assert --source .env
-```
-
-Le fichier .env peut être généré à partir d’un secret GitHub ou monté dynamiquement.
-
-```yaml
-- run: echo "$ENV_FILE_CONTENT" > .env
-  env:
-      ENV_FILE_CONTENT: ${{ secrets.ENV_FILE }}
 ```
