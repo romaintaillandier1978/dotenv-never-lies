@@ -138,8 +138,8 @@ program
     .option("-f, --force", "Overwrite the existing file, in conjunction with -o or --out")
     .option("--k8s-name <name>", "Name for the k8s resource. Default: env-secret for k8s-secret, env-config for k8s-configmap")
     .option("--github-org <org>", "GitHub organization name")
-    .action(async (opts: ExportCliOptions) => {
-        const { content, warnings, out } = await exportCommand(opts);
+    .action(async (format: ExportFormat, opts: Omit<ExportCliOptions, "format">) => {
+        const { content, warnings, out } = await exportCommand({ ...opts, format });
 
         if (out) {
             await toFile(content, out, opts.force ?? false);
