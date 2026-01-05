@@ -4,17 +4,28 @@ import dnl from "../../index.js";
 import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { getDefaultEnvValue } from "../utils/printer.js";
+import { ExportError } from "../../errors.js";
 
-export const generateCommand = async (opts: { schema?: string; out?: string; includeSecret?: boolean; force?: boolean }) => {
-    const outFile = opts.out ?? ".env";
+export type GenerateCliOptions = {
+    schema?: string;
+    out?: string;
+    includeSecret?: boolean;
+    force?: boolean;
+};
+export type GenerateResult = {
+    content: string;
+    out: string;
+};
+
+export const generateCommand = async (opts?: GenerateCliOptions | undefined): Promise<{ content: string; out: string }> => {
+    const outFile = opts?.out ?? ".env";
     const target = path.resolve(process.cwd(), outFile);
 
-    if (fs.existsSync(target) && !opts.force) {
-        console.error(`❌ ${outFile} already exists. Use --force to overwrite.`);
-        process.exit(1);
+    if (fs.existsSync(target) && !opts?.force) {
+        throw new ExportError(`${outFile} already exists. Use --force to overwrite.`);
     }
 
-    const schemaPath = resolveSchemaPath(opts.schema);
+    const schemaPath = resolveSchemaPath(opts?.schema);
     const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<any>;
 
     const lines: string[] = [];
@@ -31,6 +42,8 @@ export const generateCommand = async (opts: { schema?: string; out?: string; inc
 
     const output = lines.join("\n");
 
-    fs.writeFileSync(target, output);
-    console.log(`✅ ${outFile} generated`);
+    return {
+        content: output,
+        out: target,
+    };
 };

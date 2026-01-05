@@ -1,12 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
+import { SchemaNotFoundError } from "../../errors.js";
 
 const CANDIDATES = ["env.dnl.ts", "env.dnl.js", "dnl.config.ts", "dnl.config.js"];
 
 export const resolveSchemaPath = (cliPath?: string): string => {
     // 1. --schema
     if (cliPath) {
-        return path.resolve(process.cwd(), cliPath);
+        const full = path.resolve(process.cwd(), cliPath);
+        if (!fs.existsSync(full)) {
+            throw new SchemaNotFoundError(`Schema file not found: ${cliPath}`);
+        }
+        return full;
     }
 
     // 2. package.json
@@ -22,11 +27,10 @@ export const resolveSchemaPath = (cliPath?: string): string => {
     // 3. convention
     for (const file of CANDIDATES) {
         const full = path.resolve(process.cwd(), file);
-        console.log("full", full);
         if (fs.existsSync(full)) {
             return full;
         }
     }
 
-    throw new Error("No env schema found. Use --schema or define one in package.json.");
+    throw new SchemaNotFoundError("No env schema found. Use --schema, define dotenv-never-lies.schema in package.json, or add env.dnl.ts");
 };

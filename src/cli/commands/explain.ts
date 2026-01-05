@@ -2,6 +2,7 @@ import dnl from "../../index.js";
 import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { Explanation, toExplanation } from "../utils/printer.js";
+import { UsageError } from "../../errors.js";
 
 type ExplainCliOptions = {
     schema?: string | undefined;
@@ -9,11 +10,15 @@ type ExplainCliOptions = {
     format?: "human" | "json" | undefined;
 };
 
-export const explainCommand = async (options?: ExplainCliOptions): Promise<number> => {
+export const explainCommand = async (options?: ExplainCliOptions): Promise<{ format: "human" | "json"; result: Explanation[] }> => {
+    const format = options?.format ?? "human";
+    if (format !== "human" && format !== "json") {
+        throw new UsageError(`Invalid format: ${format}`);
+    }
+
     const schemaPath = resolveSchemaPath(options?.schema);
     const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<any>;
 
-    const format = options?.format ?? "human";
     const keysToSerialize = new Array<string>();
     if (options?.keys) {
         keysToSerialize.push(...options.keys);
@@ -29,27 +34,15 @@ export const explainCommand = async (options?: ExplainCliOptions): Promise<numbe
     }
 
     if (result.length === 0) {
-        console.error("No variables found");
-        return 1;
+        throw new UsageError("No matching environment variables found");
     }
-
-    switch (format) {
-        case "json":
-            console.log(JSON.stringify(result, null, 2));
-            return 0;
-        case "human":
-            printHuman(result);
-            return 0;
-        default:
-            console.error(`Invalid format: ${format}`);
-            return 1;
-    }
+    return { format, result };
 };
 
-const printHuman = (result: Explanation[]) => {
+export const printHuman = (result: Explanation[]) => {
     if (result.length > 1) {
         for (const item of result) {
-            console.log(`${item.key}: ${item.description}  --- dnl explain ${item.key} --format human  for more details`);
+            console.log(`${item.key}: ${item.description}  \t\tfor more details :  dnl explain ${item.key}`);
         }
         return;
     }

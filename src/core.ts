@@ -1,7 +1,7 @@
 import { z } from "zod";
 import dotenv from "dotenv";
 import dotenvExpand from "dotenv-expand";
-import { EnvFileNotFoundError } from "./errors.js";
+import { DnlError, ExitCodes } from "./errors.js";
 import fs from "fs";
 
 /**
@@ -137,7 +137,7 @@ export const define = <T extends EnvDefinition>(def: T): EnvDefinitionHelper<T> 
  */
 export const readEnvFile = (path: string): EnvSource => {
     if (!fs.existsSync(path)) {
-        throw new EnvFileNotFoundError(path);
+        throw new DnlError(`Env file not found: ${path}`, ExitCodes.usageError);
     }
     const content = fs.readFileSync(path);
     const parsed = dotenv.parse(content);

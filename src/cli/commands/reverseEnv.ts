@@ -2,14 +2,29 @@ import path from "node:path";
 import dnl from "../../index.js";
 import { guessSecret, inferSchema } from "../utils/infer-schema.js";
 import fs from "node:fs";
+import { ExportError } from "../../errors.js";
 
-export const reverseEnvCommand = async (opts: { source?: string; out?: string; force?: boolean; guessSecret?: boolean }) => {
-    const source = path.resolve(process.cwd(), opts.source ?? ".env");
-    const out = opts.out ?? "env.dnl.ts";
+export type ReverseEnvCliOptions = {
+    source?: string;
+    out?: string;
+    force?: boolean;
+    guessSecret?: boolean;
+};
+
+export type ReverseEnvResult = {
+    content: string;
+    out: string;
+    warnings: string[];
+};
+export const reverseEnvCommand = async (opts?: ReverseEnvCliOptions | undefined): Promise<ReverseEnvResult> => {
+    const source = path.resolve(process.cwd(), opts?.source ?? ".env");
+    if (!fs.existsSync(source)) {
+        throw new ExportError(`Source env file not found: ${source}`);
+    }
+    const out = opts?.out ?? "env.dnl.ts";
     const target = path.resolve(process.cwd(), out);
-    if (fs.existsSync(target) && !opts.force) {
-        console.error(`❌ ${out} already exists. Use --force to overwrite.`);
-        process.exit(1);
+    if (fs.existsSync(target) && !opts?.force) {
+        throw new ExportError(`${out} already exists. Use --force to overwrite.`);
     }
 
     const env = dnl.readEnvFile(source);
@@ -27,7 +42,7 @@ export const reverseEnvCommand = async (opts: { source?: string; out?: string; f
         lines.push(`    ${key}: {`);
         lines.push(`        description: "TODO",`);
         lines.push(`        schema: ${inferSchema(value)},`);
-        if (opts.guessSecret && guessSecret(key)) {
+        if (opts?.guessSecret && guessSecret(key)) {
             lines.push(`        secret: true,`);
         }
         lines.push(`    },`);
@@ -35,5 +50,9 @@ export const reverseEnvCommand = async (opts: { source?: string; out?: string; f
 
     lines.push(`});`);
 
-    fs.writeFileSync(target, lines.join("\n"));
+    return {
+        content: lines.join("\n"),
+        out: target,
+        warnings: ["Generated schema is a prototype. Review schemas, descriptions and secrets before using."],
+    };
 };
