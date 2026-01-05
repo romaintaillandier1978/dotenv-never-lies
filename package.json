@@ -9,6 +9,13 @@
         "type": "git",
         "url": "https://github.com/romaintaillandier1978/dotenv-never-lies"
     },
+    "scripts": {
+        "build": "tsc",
+        "gen": "rm -rf dist && yarn build && npm pack --pack-destination ./dist",
+        "release:patch": "npm version patch",
+        "release:minor": "npm version minor",
+        "release:major": "npm version major"
+    },
     "keywords": [
         "env",
         "environment",
@@ -41,14 +48,6 @@
     },
     "bin": {
         "dnl": "./dist/cli/index.js"
-    },
-    "scripts": {
-        "build": "tsc",
-        "prepublishOnly": "npm test && npm run build",
-        "test": "yarn build &&  node dist/DnlTest.js",
-        "dev": "tsx src/cli/index.ts",
-        "devold": "yarn build && node dist/cli/index.js",
-        "gen": "rm -rf dist; rm dotenv-never-lies-v*.tgz; yarn build && yarn pack"
     },
     "peerDependencies": {
         "zod": ">=4.2.1"
