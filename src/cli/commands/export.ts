@@ -40,11 +40,11 @@ export type ExportCliOptions = {
 
 export const exportCommand = async (options: ExportCliOptions): Promise<ExportResult> => {
     if (options.githubOrg && options.format !== "github-secret") {
-        throw new UsageError("--github-org ne peut être utilisé qu’avec le format github-secret");
+        throw new UsageError("--github-org can only be used with the github-secret format");
     }
 
     if (options.k8sName && !options.format.startsWith("k8s-")) {
-        throw new UsageError("--k8s-name ne peut être utilisé qu’avec un format k8s-*");
+        throw new UsageError("--k8s-name can only be used with a k8s-* format");
     }
 
     const schemaPath = resolveSchemaPath(options?.schema);
@@ -85,13 +85,13 @@ export const contentByFormat = (format: ExportFormat, envDef: dnl.EnvDefinitionH
         case "docker-env":
             return exportDockerEnv(envDef, options, warnings);
         default:
-            throw new UsageError(`Format ${format} non supporté`);
+            throw new UsageError(`Unsupported format: ${format}`);
     }
 };
 
 export const exportJson = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
     if (options?.includeComments) {
-        warnings.push("--include-comments option ignorée pour le format json");
+        warnings.push("The --include-comments option is ignored for the json format");
     }
     const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
     const values = envDef.assert({ source });
@@ -110,7 +110,7 @@ export const exportJson = (envDef: dnl.EnvDefinitionHelper<any>, options: Export
     return JSON.stringify(args, null, 2);
 };
 
-// ca clone le .env
+// this clones the .env
 export const exportEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
     const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
     const values = envDef.assert({ source });
@@ -133,7 +133,7 @@ export const exportEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportC
 
 export const exportDockerArgs = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
     if (options?.includeComments) {
-        warnings.push("--include-comments option invalide avec le format docker-args");
+        warnings.push("The --include-comments option is invalid with the docker-args format");
     }
     const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
     const values = envDef.assert({ source });
@@ -187,7 +187,7 @@ export const exportK8sConfigmap = (envDef: dnl.EnvDefinitionHelper<any>, options
         if (envDef.def[key].secret) {
             if (options?.excludeSecret) continue;
             if (!options?.hideSecret) {
-                warnings.push(`Secret ${key} exporté dans un ConfigMap. Utilisez le format k8s-secret.`);
+                warnings.push(`Secret ${key} exported in a ConfigMap. Use the k8s-secret format.`);
             }
         }
 
@@ -213,7 +213,7 @@ export const exportK8sSecret = (envDef: dnl.EnvDefinitionHelper<any>, options: E
 
     for (const [key, value] of Object.entries(values)) {
         if (options?.excludeSecret && envDef.def[key].secret) continue;
-        if (!envDef.def[key].secret) continue; // Secret = uniquement les variables marquées secret
+        if (!envDef.def[key].secret) continue; // Secret = only variables marked as secret
 
         const v = options?.hideSecret ? "********" : value;
         args.push(`  ${key}: ${JSON.stringify(v)}`);
@@ -284,10 +284,10 @@ export const exportGithubEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: E
 
 export const exportGithubSecret = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
     if (options?.hideSecret) {
-        warnings.push("--hide-secret est incompatible avec github-secret");
+        warnings.push("The --hide-secret option is incompatible with github-secret");
     }
     if (options?.githubOrg && options.githubOrg.includes(" ")) {
-        warnings.push("github-org contient un espace, commande gh probablement invalide");
+        warnings.push("github-org contains a space; gh command likely invalid");
     }
     const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
     const values = envDef.assert({ source });

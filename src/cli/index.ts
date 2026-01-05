@@ -15,11 +15,11 @@ const require = createRequire(import.meta.url);
 const packageJson = require("../../package.json") as { version: string };
 
 const exitCodeHelp: { [key in ExitCodes]: string } = {
-    [ExitCodes.success]: "Succès (tout est valide, sortie OK)",
-    [ExitCodes.usageError]: "Erreur d’usage ou erreur système",
-    [ExitCodes.schemaNotFound]: "Schéma DNL introuvable ou non résolu",
-    [ExitCodes.validationError]: "Validation échouée (env invalide)",
-    [ExitCodes.exportError]: "Erreur d’export (format, écriture fichier, secret, etc.)",
+    [ExitCodes.success]: "Success (everything is valid, exit OK)",
+    [ExitCodes.usageError]: "Usage error or internal error",
+    [ExitCodes.schemaNotFound]: "DNL schema not found or not resolved",
+    [ExitCodes.validationError]: "Validation failed (invalid environment)",
+    [ExitCodes.exportError]: "Export error (format, file writing, secret, etc.)",
 } as const;
 
 // #region Program
@@ -27,57 +27,57 @@ program
     .name("dnl")
     //.version("0.3.0")
     .version(packageJson.version)
-    // permet de passer des arguments positionnels, avant / après les options
+    // allows passing positional arguments, before/after options
     .enablePositionalOptions()
     .exitOverride()
     .addHelpText(
         "before",
-        `Résumé :
-  CLI pour dotenv-never-lies.
-  Valide les variables d’environnement typées à partir d’un schéma TypeScript/Zod.
+        `Summary:
+  CLI for dotenv-never-lies.
+  Validates typed environment variables from a TypeScript/Zod schema.
       `
     )
-    .option("--schema <file>", "Fichier de schéma dnl (ex: path/to/my-dnl.ts). Voir la section Schéma d’environnement pour plus de détails.")
+    .option("--schema <file>", "DNL schema file (e.g., path/to/my-dnl.ts). See the Environment schema section for details.")
     .addHelpText(
         "after",
-        `\nExit codes :\n${Object.entries(exitCodeHelp)
+        `\nExit codes:\n${Object.entries(exitCodeHelp)
             .map(([key, value]) => `  - ${key}: ${value}`)
             .join("\n")}
         `
     )
     .addHelpText(
         "after",
-        `\nSchéma d’environnement :
-  Le schéma dotenv-never-lies est résolu dans l’ordre suivant :
-  1. Option --schema si fournie
-  2. Clé "dotenv-never-lies.schema" dans package.json
-  3. Fichiers par convention :
+        `\nEnvironment schema:
+  The dotenv-never-lies schema is resolved in the following order:
+  1. --schema option if provided
+  2. "dotenv-never-lies.schema" key in package.json
+  3. Convention files:
     - env.dnl.ts
     - env.dnl.js
     - dnl.config.ts
     - dnl.config.js
-  Si aucun schéma n’est trouvé, la commande échoue.
+  If no schema is found, the command fails.
         `
     )
     .addHelpText(
         "after",
-        `\nExemples :
+        `\nExamples:
         
-  # Vérifier l’environnement à l’exécution et arrêter le process si le schéma n’est pas respecté
+  # Check the environment at runtime and exit the process if the schema is not satisfied
   dnl assert 
   dnl assert --schema my-dnl.ts
   
-  # Générer un fichier .env documenté à partir du schéma
+  # Generate a documented .env file from the schema
   dnl generate 
   dnl generate --schema my-dnl.ts --out .env
   
-  # Créer un schéma env.dnl.ts depuis un .env existant
+  # Create an env.dnl.ts schema from an existing .env
   dnl reverse-env --source .env
   
-  # Afficher les variables connues et leur description
+  # Display known variables and their description
   dnl explain
 
-  # Exporter les variables au format docker-args
+  # Export variables in docker-args format
   dnl export docker-args --source .env
   
     `
@@ -87,24 +87,24 @@ program
 // #region assert
 program
     .command("assert")
-    .description("Vérifie l’environnement runtime et termine le process si le schéma n’est pas respecté.")
-    .option("-s, --source <source>", "Source des variables (défaut : process.env)")
+    .description("Verifies the runtime environment and exits the process if the schema is not satisfied.")
+    .option("-s, --source <source>", "Variables source (default: process.env)")
     .action(assertCommand)
     .addHelpText(
         "after",
-        `\nExemples :
+        `\nExamples:
         
-  # Valider les variables d’environnement de process.env
-  # Recommandé en CI pour empêcher un démarrage avec une configuration invalide
+  # Validate environment variables from process.env
+  # Recommended in CI to prevent starting with an invalid configuration
   dnl assert
   dnl assert --schema my-dnl.ts
   
-  # Valider les variables d’environnement depuis un fichier .env
-  # Recommandé en local (préparation du schéma, onboarding)
+  # Validate environment variables from a .env file
+  # Recommended locally (schema preparation, onboarding)
   dnl assert --source .env
   dnl assert --schema my-dnl.ts --source .env
   
-  # valider les variables d'environnement du fichier fourni par la CI
+  # validate environment variables from the file provided by the CI
   dnl assert --source $ENV_FILE
   dnl assert --schema my-dnl.ts --source $ENV_FILE
       `
@@ -113,31 +113,31 @@ program
 
 // #region export
 const exportHelp: { [key in ExportFormat]: string } = {
-    "docker-args": "Arguments `--env KEY=VALUE` pour `docker run`",
-    "docker-env": "Fichier compatible `--env-file` Docker",
-    "github-env": "Injection dans l’environnement d’un job GitHub Actions",
-    "github-secret": "Secrets GitHub via gh CLI (repo ou organisation)",
-    "gitlab-env": "Variables d’environnement GitLab CI",
-    "k8s-configmap": "ConfigMap Kubernetes (variables NON sensibles)",
-    "k8s-secret": "Secret Kubernetes (variables sensibles uniquement)",
-    env: "Fichier .env nettoyé (sans commentaires inutiles)",
-    json: "Objet JSON clé/valeur",
-    ts: "Objet TypeScript typé",
-    js: "Objet JavaScript",
+    "docker-args": "Arguments `--env KEY=VALUE` for `docker run`",
+    "docker-env": "File compatible with Docker `--env-file`",
+    "github-env": "Inject into a GitHub Actions job environment",
+    "github-secret": "GitHub Secrets via gh CLI (repo or organization)",
+    "gitlab-env": "GitLab CI environment variables",
+    "k8s-configmap": "Kubernetes ConfigMap (NON-sensitive variables)",
+    "k8s-secret": "Kubernetes Secret (sensitive variables only)",
+    env: ".env file cleaned (without unnecessary comments)",
+    json: "Key/value JSON object",
+    ts: "Typed TypeScript object",
+    js: "JavaScript object",
 } as const;
 
 program
     .command("export")
-    .description("Exporte les variables d'environnement dans un format spécifié")
-    .argument("<format>", "Format d'exportation. Voir liste et exemples à la fin")
-    .option("-s, --source <source>", "Source des variables (sans source process.env sera utilisé)")
-    .option("--hide-secret", 'Masquer les variables sensibles (rempalcer par "********")')
-    .option("--exclude-secret", "Exclure les variables sensibles (ne pas les montrer du tout)")
-    .option("--include-comments", "Inclure les commentaires dans l'exportation (ne fonctionne pas avec le format json)")
-    .option("-o, --out <file>", "Fichier de sortie")
-    .option("-f, --force", "Écraser le fichier existant, en conjonction avec l'option -o ou --out")
-    .option("--k8s-name <name>", "Nom du secret k8s default: env-secret pour le format k8s-secret, env-config pour le format k8s-configmap")
-    .option("--github-org <org>", "Nom de l'organisation github")
+    .description("Exports environment variables to a specified format")
+    .argument("<format>", "Export format. See list and examples at the end")
+    .option("-s, --source <source>", "Variables source (default: process.env if none provided)")
+    .option("--hide-secret", 'Mask sensitive variables (replace with "********")')
+    .option("--exclude-secret", "Exclude sensitive variables (do not show them at all)")
+    .option("--include-comments", "Include comments in the export (does not work with the json format)")
+    .option("-o, --out <file>", "Output file")
+    .option("-f, --force", "Overwrite the existing file, in conjunction with -o or --out")
+    .option("--k8s-name <name>", "Name for the k8s resource. Default: env-secret for k8s-secret, env-config for k8s-configmap")
+    .option("--github-org <org>", "GitHub organization name")
     .action(async (opts: ExportCliOptions) => {
         const { content, warnings, out } = await exportCommand(opts);
 
@@ -152,32 +152,32 @@ program
     })
     .addHelpText(
         "after",
-        `\nFormats d'exportation :\n${Object.entries(exportHelp)
+        `\nExport formats:\n${Object.entries(exportHelp)
             .map(([key, value]) => `  - ${key}: ${value}`)
             .join("\n")}
         `
     )
     .addHelpText(
         "after",
-        `\nExemples :
+        `\nExamples:
       
-  # --- Cas simples ----------------------------------------------------
+  # --- Simple cases ----------------------------------------------------
   
-  # Exporter les variables d'environnement au format JSON depuis un fichier .env
+  # Export environment variables as JSON from a .env file
   dnl export json --source .env
   
-  # Nettoyer un fichier .env (retirer commentaires et lignes inutiles)
+  # Clean a .env file (remove comments and extraneous lines)
   dnl export env --source .env --out .env.clean
   dnl export env --source .env -fo .env
   
   
   # --- Docker / CI ----------------------------------------------------
   
-  # Exporter les variables au format docker-args
+  # Export variables as docker-args
   dnl export docker-args --source .env
   
-  # Exemple concret en CI pour lancer un conteneur Docker
-  # (les variables sont injectées dynamiquement)
+  # Concrete CI example to run a Docker container
+  # (variables are injected dynamically)
   docker run \\
     $(dnl export docker-args --source $DOTENV_FILE) \\
     --restart always \\
@@ -186,35 +186,35 @@ program
   
   # --- GitHub Actions -------------------------------------------------
   
-  # Exporter les variables comme secrets GitHub (repo courant)
-  # Nécessite gh CLI configuré (gh auth login)
+  # Export variables as GitHub secrets (current repo)
+  # Requires gh CLI configured (gh auth login)
   dnl export github-secret
   
-  # Exporter les variables comme secrets d'une organisation GitHub
+  # Export variables as GitHub organization secrets
   dnl export github-secret --github-org my-org
   
-  # Exemple d'usage dans un job GitHub Actions :
-  # (les variables sont injectées dans l'environnement du job)
+  # Example usage in a GitHub Actions job:
+  # (variables are injected into the job environment)
   dnl export github-env >> $GITHUB_ENV
   
   
   # --- Kubernetes -----------------------------------------------------
   
-  # Générer un ConfigMap Kubernetes (variables NON sensibles)
+  # Generate a Kubernetes ConfigMap (NON-sensitive variables)
   dnl export k8s-configmap --out k8s-configmap.yaml
   
-  # Générer un Secret Kubernetes à partir d'un fichier .env
+  # Generate a Kubernetes Secret from a .env file
   dnl export k8s-secret --source .env --k8s-name my-secret --out k8s-secret.yaml
   
-  # Appliquer les fichiers générés
+  # Apply the generated files
   kubectl apply -f k8s-configmap.yaml
   kubectl apply -f k8s-secret.yaml
   
-  # attention : si aucun secret n'est présent dans la config dnl, pour k8s-secret, la sortie sera vide
+  # note: if no secret is present in the dnl config, for k8s-secret the output will be empty
   
   # --- TypeScript / JavaScript ---------------------------------------
   
-  # Exporter les variables sous forme d'objet TypeScript typé, ou js
+  # Export variables as a typed TypeScript object, or js
   dnl export ts --out env.generated.ts
   dnl export js --out env.generated.js
   `
@@ -225,30 +225,30 @@ program
 program
     .command("generate")
     .description(
-        "Génère un fichier .env à partir d’un schéma dnl.\n" +
-            "Utile pour initialiser un projet ou faciliter l’onboarding d’un nouveau développeur.\n" +
-            "Seules les valeurs définies par défaut dans le schéma sont écrites."
+        "Generates a .env file from a DNL schema.\n" +
+            "Useful to bootstrap a project or facilitate onboarding of a new developer.\n" +
+            "Only default values defined in the schema are written."
     )
-    .option("-o, --out <file>", "Fichier de sortie (défaut : .env)")
-    .option("-f, --force", "Écraser le fichier existant")
+    .option("-o, --out <file>", "Output file (default: .env)")
+    .option("-f, --force", "Overwrite existing file")
     .action(async (opts: GenerateCliOptions) => {
         const { content, out } = await generateCommand(opts);
         await toFile(content, out, opts.force ?? false);
     })
     .addHelpText(
         "after",
-        `\nExemples :
+        `\nExamples:
         
-  # Générer un fichier .env à partir du schéma par défaut (env.dnl.ts)
+  # Generate a .env file from the default schema (env.dnl.ts)
   dnl generate
   
-  # Générer un fichier .env à partir d'un schéma spécifié
+  # Generate a .env file from a specified schema
   dnl generate --schema my-dnl.ts
   
-  # Générer un fichier .env.local à partir du schéma
+  # Generate a .env.local file from the schema
   dnl generate --out .env.local
   
-  # Générer un fichier .env à partir d'un schéma et écraser le fichier existant
+  # Generate a .env file from a schema and overwrite the existing file
   dnl generate --out .env --force
       `
     );
@@ -258,14 +258,14 @@ program
 program
     .command("reverse-env")
     .description(
-        "Génère un schéma dotenv-never-lies à partir d’un fichier .env.\n" +
-            "Utile pour migrer un projet existant vers dotenv-never-lies.\n" +
-            "Le schéma généré est un point de départ et doit être affiné manuellement."
+        "Generates a dotenv-never-lies schema from a .env file.\n" +
+            "Useful to migrate an existing project to dotenv-never-lies.\n" +
+            "The generated schema is a starting point and must be refined manually."
     )
-    .option("-s, --source <source>", "Fichier .env source", ".env")
-    .option("-o, --out <file>", "Fichier dnl de sortie", "env.dnl.ts")
-    .option("-f, --force", "Écraser le fichier existant")
-    .option("--guess-secret", "Tenter de deviner les variables sensibles (heuristique)")
+    .option("-s, --source <source>", "Source .env file", ".env")
+    .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")
+    .option("-f, --force", "Overwrite existing file")
+    .option("--guess-secret", "Try to guess sensitive variables (heuristic)")
     .action(async (opts: ReverseEnvCliOptions) => {
         const { content, out, warnings } = await reverseEnvCommand(opts);
 
@@ -276,19 +276,19 @@ program
     })
     .addHelpText(
         "after",
-        `\nExemples :
+        `\nExamples:
         
-  # Générer un schéma env.dnl.ts à partir d'un fichier .env
-  dnl reverse-env
+  # Generate an env.dnl.ts schema from a .env file, try to guess sensitive variables
+  dnl reverse-env --guess-secret
   
-  # Générer un schéma env.dnl.ts à partir d'un fichier .env.local
+  # Generate an env.dnl.ts schema from a .env.local file
   dnl reverse-env --source .env.local
   
-  # Générer un schéma my-dnl.ts à partir d'un fichier .env
+  # Generate a my-dnl.ts schema from a .env file
   dnl reverse-env --out my-dnl.ts
   
-  # Générer un schéma env.dnl.ts à partir d'un fichier .env et écraser le fichier existant
-  dnl reverse-env --force
+  # Generate an env.dnl.ts schema from a .env file and overwrite the existing file
+  dnl reverse-env --force 
   `
     );
 // #endregion reverse-env
@@ -296,9 +296,9 @@ program
 // #region explain
 program
     .command("explain")
-    .description("Affiche la liste des variables d’environnement connues et leur description.")
-    .argument("[keys...]", "Clés à expliquer (0..N). Sans argument, toutes les clés.")
-    .option("-f, --format <format>", 'Format d\'affichage ("human" | "json")', "human")
+    .description("Displays the list of known environment variables and their description.")
+    .argument("[keys...]", "Keys to explain (0..N). Without argument, all keys.")
+    .option("-f, --format <format>", 'Output format ("human" | "json")', "human")
     .action(async (keys: string[] | undefined, opts: { schema?: string | undefined; format?: "human" | "json" | undefined }) => {
         const { format, result } = await explainCommand({ keys: keys ?? [], schema: opts.schema, format: opts.format });
         if (format === "human") {
@@ -309,21 +309,21 @@ program
     })
     .addHelpText(
         "after",
-        `\nExemples :
+        `\nExamples:
         
-  # expliquer toutes les variables connues et leur description
+  # explain all known variables and their description
   dnl explain
   
-  # expliquer une variable en détail
+  # explain a variable in detail
   dnl explain NODE_ENV
   
-  # sortie machine
+  # machine-readable output
   dnl explain --format json
   
-  # expliquer toutes les variables connues et leur description à partir d'un schéma
+  # explain all known variables and their description from a schema
   dnl explain --schema my-dnl.ts
   
-  # expliquer une partie des variables connues et leur description
+  # explain a subset of known variables and their description
   dnl explain NODE_ENV NODE_PORT 
         
       `
@@ -334,7 +334,7 @@ try {
     await program.parseAsync(process.argv);
     process.exit(ExitCodes.success);
 } catch (err: unknown) {
-    // Commander lève une erreur contrôlée lorsque l'aide ou la version sont affichées
+    // Commander throws a controlled error when help or version is displayed
     if (err instanceof CommanderError) {
         if (err.code === "commander.helpDisplayed" || err.code === "commander.version") {
             process.exit(ExitCodes.success);
@@ -356,7 +356,7 @@ try {
         process.exit(err.exitCode);
     }
 
-    console.error("Erreur inattendue");
+    console.error("Unexpected error");
     console.error(err);
     process.exit(ExitCodes.usageError);
 }

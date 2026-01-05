@@ -5,47 +5,47 @@ import { DnlError, ExitCodes } from "./errors.js";
 import fs from "fs";
 
 /**
- * Un objet contenant les variables d'environnement sous forme de string, issue d'un fichier .env ou de process.env.
+ * An object containing environment variables as strings, coming from a .env file or from process.env.
  */
 export type EnvSource = Record<string, string | undefined>;
 
 /**
- * Une variable d'environnement.
+ * An environment variable.
  */
 export interface EnvVarDefinition<T extends z.ZodType = z.ZodType> {
     /**
-     * Le schéma Zod de la variable d'environnement.
+     * The Zod schema of the environment variable.
      */
     schema: T;
     /**
-     * La description de la variable d'environnement.
+     * The description of the environment variable.
      */
     description: string;
     /**
-     * Indique si la variable d'environnement est secrète (pour les token, les mots de passe), RFU.
+     * Whether the environment variable is secret (for tokens, passwords), reserved for future use (RFU).
      */
     secret?: boolean;
     /**
-     * Indique des exemple pour cette variable
+     * Provides examples for this variable.
      */
     examples?: string[];
 }
 
-// any est nécessaire ici. Pour tirer le meilleur de l'inférence ts.
+// any is required here to leverage TypeScript inference.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 /**
- * Un objet contenant les variables d'environnement définies.
+ * An object containing the defined environment variables.
  */
 export type EnvDefinition = Record<string, EnvVarDefinition<any>>;
 
 /**
- * Le shape Zod du schéma d'environnement.
+ * The Zod shape of the environment schema.
  */
 export type ZodShapeFromEnv<T extends EnvDefinition> = {
     [K in keyof T & string]: T[K]["schema"];
 };
 /**
- * Le type inféré du schéma d'environnement.
+ * The inferred type of the environment schema.
  */
 export type InferEnv<T extends EnvDefinition> = {
     [K in keyof T & string]: z.infer<T[K]["schema"]>;
@@ -55,49 +55,49 @@ type CheckFn = (options?: { source?: EnvSource | undefined }) => boolean;
 type AssertFn<T extends EnvDefinition> = (options?: { source?: EnvSource | undefined }) => InferEnv<T>;
 
 /**
- * Un objet contenant les fonctions pour vérifier, charger et afficher les variables d'environnement.
- * @template T - Le schéma d'environnement à définir.
+ * An object containing functions to check and assert environment variables.
+ * @template T - The environment schema to define.
  */
 export type EnvDefinitionHelper<T extends EnvDefinition> = {
     /**
-     * Le schéma d'environnement défini.
+     * The defined environment schema.
      */
     def: T;
     /**
-     * Le shape Zod du schéma d'environnement.
+     * The Zod shape of the environment schema.
      */
     zodShape: ZodShapeFromEnv<T>;
     /**
-     * Le schéma Zod du schéma d'environnement.
+     * The Zod schema of the environment schema.
      */
     zodSchema: z.ZodObject<ZodShapeFromEnv<T>>;
     /**
-     * Vérifie si les variables d'environnement sont valides sans lever d'exception.
+     * Checks whether the environment variables are valid without throwing.
      *
-     * Si `options.source` est fourni, il est utilisé avec le mode strict (zod.strict())
-     * Si `options.source` est fourni, on utilise `process.env`, en mode non strict
+     * If `options.source` is provided, it is used with strict mode (zod.strict()).
+     * Otherwise, `process.env` is used in non-strict mode.
      *
-     * @param options - Les options pour vérifier les variables d'environnement.
-     * @returns true si les variables d'environnement sont valides, false sinon.
+     * @param options - Options to check the environment variables.
+     * @returns true if the environment variables are valid, false otherwise.
      */
     check: CheckFn;
     /**
-     * Vérifie les variables d'environnement et arrête le process si elle ne sont pas conformes au schéma.
+     * Validates the environment variables and throws if they do not conform to the schema.
      *
-     * Si `options.source` est fourni, il est utilisé avec le mode strict (zod.strict())
-     * Si `options.source` est fourni, on utilise `process.env`, en mode non strict
+     * If `options.source` is provided, it is used with strict mode (zod.strict()).
+     * Otherwise, `process.env` is used in non-strict mode.
      *
-     * @param options - Les options pour charger les variables d'environnement.
-     * @returns Les variables d'environnement chargées.
-     * @throws Si les variables d'environnement sont invalides.
+     * @param options - Options to load the environment variables.
+     * @returns The loaded environment variables.
+     * @throws If the environment variables are invalid.
      */
     assert: AssertFn<T>;
 };
 
 /**
- * Définit un schéma d'environnement.
- * @param def - Le schéma d'environnement à définir.
- * @returns Un objet contenant les fonctions pour vérifier, charger et afficher les variables d'environnement.
+ * Defines an environment schema.
+ * @param def - The environment schema to define.
+ * @returns An object exposing functions to check and assert environment variables.
  */
 export const define = <T extends EnvDefinition>(def: T): EnvDefinitionHelper<T> => {
     const zodShape = Object.fromEntries(Object.entries(def).map(([key, value]) => [key, value.schema])) as ZodShapeFromEnv<T>;
@@ -125,15 +125,15 @@ export const define = <T extends EnvDefinition>(def: T): EnvDefinitionHelper<T> 
 };
 
 /**
- * Lit un fichier .env et retourne les variables d'environnement sous forme d'objet.
- * Utilise dotenv et dotenv-expand.
+ * Reads a .env file and returns environment variables as an object.
+ * Uses dotenv and dotenv-expand.
  * @example
  * ```typescript
  * const ENV = envDefinition.load({ source: readEnvFile(".env") });
  * ```
- * @param path - Le chemin vers le fichier .env.
- * @returns Les variables d'environnement sous forme d'objet.
- * @throws Si le fichier .env n'existe pas, ou n'est pas conforme
+ * @param path - The path to the .env file.
+ * @returns The environment variables as an object.
+ * @throws If the .env file does not exist, or is not valid.
  */
 export const readEnvFile = (path: string): EnvSource => {
     if (!fs.existsSync(path)) {

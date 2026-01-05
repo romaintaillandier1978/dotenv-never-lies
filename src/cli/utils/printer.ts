@@ -122,7 +122,7 @@ export function getDefaultEnvValue(def: z.core.$ZodTypeDef): string | undefined 
             return stringifyEnvValue(raw);
         }
 
-        // wrappers transparents
+        // transparent wrappers
         case "optional":
         case "nullable":
             if ("innerType" in def) {
@@ -148,14 +148,14 @@ export function isRequired(def: z.core.$ZodTypeDef): boolean {
         case "default":
             return false;
 
-        // nullable n’enlève PAS le required
+        // nullable DOES NOT remove the required
         case "nullable":
             if ("innerType" in def) {
                 return isRequired(def.innerType as z.core.$ZodTypeDef);
             }
             return false;
 
-        // pipe / transform → transparent côté required
+        // pipe / transform → transparent regarding required
         case "pipe":
             if ("in" in def) {
                 return isRequired(def.in as z.core.$ZodTypeDef);

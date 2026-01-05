@@ -9,7 +9,7 @@ export const loadDef = async (schemaPath: string): Promise<EnvDefinitionHelper<a
     const outDir = path.join(process.cwd(), ".dnl");
     await fs.mkdir(outDir, { recursive: true });
 
-    // La on écrase toujours le fichier, mais ca pourrait être un problème.
+    // We always overwrite the file here; this could be an issue.
     const outFile = path.join(outDir, "env.dnl.mjs");
     try {
         await build({
@@ -24,11 +24,11 @@ export const loadDef = async (schemaPath: string): Promise<EnvDefinitionHelper<a
         const mod = await import(pathToFileURL(outFile).href);
 
         if (!mod.default) {
-            throw new SchemaNotFoundError(`Le fichier ${schemaPath} doit exporter un schéma par défaut (export default).`);
+            throw new SchemaNotFoundError(`The file ${schemaPath} must export a default schema (export default).`);
         }
 
         return mod.default;
     } catch (error) {
-        throw new SchemaNotFoundError(`Impossible de charger le schéma DNL (${schemaPath}): ${error}`);
+        throw new SchemaNotFoundError(`Unable to load DNL schema (${schemaPath}): ${error}`);
     }
 };
