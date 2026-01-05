@@ -135,7 +135,7 @@ program
     .option("--exclude-secret", "Exclure les variables sensibles (ne pas les montrer du tout)")
     .option("--include-comments", "Inclure les commentaires dans l'exportation (ne fonctionne pas avec le format json)")
     .option("-o, --out <file>", "Fichier de sortie")
-    .option("-f,--force", "Écraser le fichier existant, en conjonction avec l'option -o ou --out")
+    .option("-f, --force", "Écraser le fichier existant, en conjonction avec l'option -o ou --out")
     .option("--k8s-name <name>", "Nom du secret k8s default: env-secret pour le format k8s-secret, env-config pour le format k8s-configmap")
     .option("--github-org <org>", "Nom de l'organisation github")
     .action(async (opts: ExportCliOptions) => {

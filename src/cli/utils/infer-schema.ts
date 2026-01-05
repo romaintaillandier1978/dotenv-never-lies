@@ -23,8 +23,9 @@ export const inferSchema = (value: string | undefined) => {
     return "z.string()";
 };
 
-const secretSuffixes = ["_SECRET", "_KEY", "_TOKEN", "_PASSWORD", "_AUTH"];
+const secretMarkers = ["SECRET", "KEY", "TOKEN", "PASSWORD", "PASS", "AUTH"];
 
 export const guessSecret = (value: string) => {
-    return secretSuffixes.some((suffix) => value.endsWith(suffix));
+    const parts = value.toUpperCase().split(/[_\-]/);
+    return secretMarkers.some((marker) => parts.includes(marker));
 };

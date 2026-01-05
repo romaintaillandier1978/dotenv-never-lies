@@ -5,8 +5,6 @@
 **dotenv-never-lies** valide, type et documente tes variables d’environnement à partir d’un schéma TypeScript / Zod.  
 Il échoue **vite**, **fort**, et **avant la prod**.
 
----
-
 ## Pourquoi ?
 
 Parce que tout ça arrive **tout le temps** :
@@ -54,7 +52,7 @@ Ce package a un périmètre volontairement **limité**.
   Deno, Bun, Cloudflare Workers, edge runtimes : hors scope (pour l’instant).
 
 - ❌ **Ce n’est pas un framework de configuration global**  
-  Il ne gère ni les fichiers YAML/JSON, ni les profiles dynamiques,
+  Il ne gère ni les fichiers YAML/JSON, ni les profils dynamiques,
   ni les overrides magiques par environnement.
 
 - ❌ **Ce n’est pas permissif**  
@@ -67,13 +65,6 @@ qui préfèrent **échouer proprement au démarrage** plutôt que **bugger silen
 
 ---
 
-## Dépendances et compatibilité
-
-⚠️ Important
-dotenv-never-lies expose des schémas Zod dans son API publique.
-Zod v4 est requis.
-Utiliser Zod v3 entraînera des erreurs de typage ou d’inférence.
-
 ## Installation
 
 ```bash
@@ -82,15 +73,18 @@ npm install @romaintaillandier1978/dotenv-never-lies
 yarn add @romaintaillandier1978/dotenv-never-lies
 ```
 
-## Expansion des variables (`dotenv-expand`)
+## Dépendances et compatibilité
 
-**dotenv-never-lies** gère automatiquement l’expansion des variables d’environnement,
-via [`dotenv-expand`](https://www.npmjs.com/package/dotenv-expand).
+**[`zod`](https://www.npmjs.com/package/zod)**, dotenv-never-lies expose des schémas Zod dans son API publique.
 
-Cela permet de définir des variables composées à partir d’autres variables,
-sans duplication ni copier-coller fragile.
+⚠️ _Important : Zod **v4.2.1** minimum est requis._
+Utiliser Zod v3 entraînera des erreurs de typage ou d’inférence.
 
-### Exemple
+**[`dotenv`](https://www.npmjs.com/package/dotenv)** permet à dotenv-never-lies de gérer automatiquement le parsing des fichiers env
+
+**[`dotenv-expand`](https://www.npmjs.com/package/dotenv-expand)** permet à dotenv-never-lies de gérer automatiquement l’expansion des variables d’environnement. Cela permet de définir des variables composées à partir d’autres variables, sans duplication ni copier-coller fragile.
+
+**Exemple**
 
 ```env
 FRONT_A=https://a.site.com
@@ -100,9 +94,34 @@ FRONT_C=https://c.site.com
 NODE_CORS_ORIGIN="${FRONT_A};${FRONT_B};${FRONT_C}"
 ```
 
-## Définir un schéma
+## Schéma DNL
 
-env.dnl.ts
+Le schéma DNL est ta nouvelle source de vérité.
+
+(`dnl reverse-env` t'aidera à faire le premier squelette)
+
+### emplacement du schéma
+
+Recommandé : env.dnl.ts
+
+Supporté dans cet ordre pour toutes les commandes CLI :
+
+1. --schema path/to/my-dnl.ts
+2. déclaré dans le package.json :
+
+```json
+{
+    ...
+    "dotenv-never-lies": {
+        "schema": "path/to/my-dnl.ts"
+    }
+    ...
+}
+```
+
+3. un des "env.dnl.ts", "env.dnl.js", "dnl.config.ts", "dnl.config.js"
+
+### définir un schéma
 
 ```typescript
 import { z } from "zod";
@@ -116,33 +135,12 @@ export default define({
 
     NODE_PORT: {
         description: "Port de l’API",
-        schema: z.coerce.number(),
+        schema: z.coerce.number().default(3000),
     },
 
-    FRONT_A: {
-        description: "Mon site A",
+    FRONT_URL: {
+        description: "Mon site",
         schema: z.url(),
-    },
-
-    FRONT_B: {
-        description: "Mon site B",
-        schema: z.url(),
-    },
-
-    FRONT_C: {
-        description: "Mon site C",
-        schema: z.url(),
-    },
-
-    NODE_CORS_ORIGIN: {
-        description: "URLs frontend autorisées à appeler cette API",
-        schema: z.string().transform((v) =>
-            v
-                .split(";")
-                .map((s) => s.trim())
-                .filter(Boolean)
-                .map((url) => z.url().parse(url))
-        ),
     },
 
     JWT_SECRET: {
@@ -153,6 +151,50 @@ export default define({
 });
 ```
 
+## Gestion des secrets
+
+Rappel : dotenv-never-lies n’est pas un secret manager.
+
+### déclaration dans le schéma DNL
+
+Une variable est considérée comme secrète _si et seulement si elle est marquée explicitement_ dans le schéma avec `secret: true`. (`secret : undefined` est équivalent à `secret: false`)  
+Cette règle est volontairement stricte.
+
+```ts
+JWT_SECRET: {
+    description: "Clé de signature des JWT",
+    schema: z.string(),
+    secret: true,
+}
+```
+
+### Secrets et commandes CLI
+
+assert : valide les secrets comme n’importe quelle variable
+
+reverse-env : lors de la génération du schéma, la commande tente d’identifier automatiquement les variables sensibles (ex. SECRET, KEY, TOKEN, PASSWORD).
+**Cette détection est heuristique et doit toujours être vérifiée et corrigée manuellement.**
+
+export : adapte le comportement selon le format cible (env, docker, CI, Kubernetes…). Voir le tableau ci-dessous pour le détail par format.
+
+### Lors de l’export
+
+Les variables marquées `secret: true` dans le schéma sont traitées différemment selon le format d’export.
+
+| Format        | Secrets inclus par défaut | Masquables (`--hide-secret`) | Excluables (`--exclude-secret`) | Remarques                    |
+| ------------- | ------------------------- | ---------------------------- | ------------------------------- | ---------------------------- |
+| env           | oui                       | oui                          | oui                             | .env classique               |
+| docker-env    | oui                       | oui                          | oui                             | Pour --env-file              |
+| docker-args   | oui                       | oui                          | oui                             | Pour docker run -e           |
+| json          | oui                       | oui                          | oui                             | Debug / tooling              |
+| ts            | oui                       | oui                          | oui                             | Export typé                  |
+| js            | oui                       | oui                          | oui                             | Export runtime               |
+| github-env    | oui                       | oui                          | oui                             | visibles dans les logs       |
+| github-secret | secrets uniquement        | non                          | oui                             | Via gh secret set            |
+| gitlab-env    | oui                       | oui                          | oui                             | Variables CI GitLab          |
+| k8s-configmap | oui                       | oui                          | oui                             | warning si secret non masqué |
+| k8s-secret    | secrets uniquement        | oui                          | oui                             | Kubernetes Secret            |
+
 ## Utilisation runtime
 
 ```typescript
@@ -160,20 +202,26 @@ import envDef from "./env.dnl";
 
 export const ENV = envDef.load();
 
-if(ENV.NODE_ENV === "test"){...}
+// if (process.env.NODE_ENV && process.env.NODE_ENV === "test") {
+if (ENV.NODE_ENV === "test") {
+    doAdditionalTest();
+}
 
-
+const server = http.createServer(app);
+//server.listen(process.env.NODE_PORT||3000, () => {
+server.listen(ENV.NODE_PORT, () => {
+    console.log(`Server started on ${ENV.NODE_PORT}`);
+});
 ```
 
 Résultat :
 
 - ENV.NODE_ENV est un enum
 - ENV.NODE_PORT est un number
-- ENV.FRONT_A ENV.FRONT_B ENV.FRONT_C sont des URLs valides
-- ENV.NODE_CORS_ORIGIN est un string[] contenant des URLs valides
+- FRONT_URL est une URL valides
 - ENV.JWT_SECRET est une string
 
-Si une variable est absente ou invalide → le process s’arrête immédiatement. \
+Si une variable est absente ou invalide → le process s’arrête immédiatement.  
 C’est volontaire.
 
 ## Éviter `process.env` dans le code applicatif
@@ -187,7 +235,7 @@ Cela garantit :
 - des valeurs validées
 - un point d’entrée unique pour la configuration
 
-Pour identifier les usages résiduels de `process.env` dans votre codebase, un simple outil de recherche suffit :
+Pour identifier les usages résiduels de `process.env` dans ta base de code, un simple outil de recherche suffit :
 
 ```bash
 grep -R "process\.env" src
@@ -197,13 +245,25 @@ Le choix de corriger (ou non) ces usages dépend du contexte et reste volontaire
 
 ## CLI
 
-Le CLI permet de valider, charger, générer et documenter les variables d’environnement à partir d’un schéma `dotenv-never-lies`.
+Le CLI permet de valider, charger, générer, exporter et documenter les variables d’environnement à partir d’un schéma `dotenv-never-lies`.
 
 Il est conçu pour être utilisé :
 
 - en local (par des humains)
 - en CI (sans surprise)
 - avant que l’application ne démarre (et pas après)
+
+### Exit codes
+
+`dotenv-never-lies` utilise des codes de sortie explicites, pensés pour la CI :
+
+| Code | Signification                         |
+| ---: | ------------------------------------- |
+|    0 | Succès                                |
+|    1 | Erreur d'usage ou erreur interne      |
+|    2 | Schéma DNL introuvable                |
+|    3 | Validation de l'environnement échouée |
+|    4 | Erreur lors de l'export               |
 
 ### assert : Valider un fichier `.env` (CI-friendly)
 
@@ -213,7 +273,7 @@ Valide les variables sans les injecter dans `process.env`.
 dnl assert --source .env --schema env.dnl.ts
 ```
 
-Sans --source, dnl assert valide process.env
+Sans --source, `dnl assert` valide `process.env`.
 C'est le mode recommandé lorsque les variables sont injectées par le runtime ou la CI.
 
 → échoue si :
@@ -268,12 +328,68 @@ JWT_SECRET: JWT Secret
 
 ```
 
+### export : Exporter les variables vers d’autres formats
+
+La commande export permet de transformer les variables validées par le schéma
+en formats directement exploitables par d’autres outils (Docker, CI, Kubernetes, scripts…).
+
+Le schéma reste la source de vérité.
+Les valeurs sont validées avant export.
+
+```bash
+dnl export <format>
+```
+
+Par défaut, les valeurs sont lues depuis process.env.
+Un fichier .env peut être fourni via --source.
+
+Exemples :  
+Exporter les variables d'environnement au format JSON depuis un fichier .env
+
+```bash
+dnl export json --source .env
+```
+
+Nettoyer un fichier .env (retirer commentaires et lignes inutiles)
+
+```bash
+dnl export env --source .env --out .env.clean
+dnl export env --source .env --out .env --force
+```
+
+Exporter les variables au format docker-args
+
+```bash
+dnl export docker-args --source .env
+```
+
+Résultat :
+
+```bash
+-e "NODE_ENV=production" -e "NODE_PORT=3000"
+```
+
+Exporter pour GitHub Actions (variables)
+
+```bash
+dnl export github-env
+```
+
+Résultat :
+
+```bash
+echo "NODE_ENV=production" >> $GITHUB_ENV
+echo "NODE_PORT=3000" >> $GITHUB_ENV
+```
+
+Il existe encore quelques autres formats et options (voir la doc CLI `dnl export --help`)
+
 ## Usages dans la vraie vie
 
 ### GitIgnore
 
-dotenv-never-lies crée des fichiers temporaires dans votre répertoire projet.
-Ajoutez `.dnl/` à votre `.gitignore`.
+dotenv-never-lies crée des fichiers temporaires dans ton répertoire projet.
+Ajoute `.dnl/` à ton `.gitignore`.
 
 ### Git
 
@@ -361,3 +477,102 @@ Le fichier .env peut être généré à partir d’un secret GitHub ou monté dy
   env:
       ENV_FILE_CONTENT: ${{ secrets.ENV_FILE }}
 ```
+
+### Quelles commandes utiliser ?
+
+|                                 Situation | Commande à utiliser            |
+| ----------------------------------------: | ------------------------------ |
+|                            Nouveau projet | generate                       |
+|              Projet existant avec un .env | reverse-env                    |
+|            Valider la configuration en CI | assert                         |
+| Valider la config injectée par le runtime | assert                         |
+|                  Documenter les variables | explain                        |
+|                    Générer un .env propre | export env                     |
+|                  Préparer un build Docker | export docker-\*               |
+|              Injecter des variables en CI | export github-env / gitlab-env |
+|           Kubernetes (ConfigMap / Secret) | export k8s-\*                  |
+
+Règle simple :
+
+> Le schéma est toujours la source de vérité.  
+> Les commandes ne font que valider, documenter ou transformer.
+
+## FAQ / Choix de design
+
+### Pourquoi être aussi strict ?
+
+Parce que les erreurs de configuration sont des bugs, pas des warnings.
+
+Si une variable est manquante ou invalide :
+
+- l’application ne doit pas démarrer
+- l’erreur doit être immédiate et explicite
+
+Tolérer une config invalide revient à déplacer le bug en production.
+
+### Pourquoi Node.js uniquement ?
+
+Parce que le runtime cible est clair :
+
+- APIs
+- workers
+- jobs
+- CI
+
+Les runtimes edge (Deno, Bun, Cloudflare Workers…) ont :
+
+- des modèles d’environnement différents
+- des contraintes différentes
+- des attentes différentes
+
+Ils sont volontairement hors scope.
+
+### Pourquoi Zod ?
+
+Parce que Zod fournit :
+
+- un typage TypeScript fiable
+- une validation runtime cohérente
+- des transformations expressives
+
+Le schéma est à la fois :
+
+- documentation
+- contrat
+- validation
+- source de typage
+
+Aucun autre outil ne couvre ces quatre points aussi proprement aujourd’hui.
+
+### Pourquoi ne pas utiliser dotenv-safe / env-schema / autre ?
+
+Ces outils :
+
+- valident partiellement
+- typent peu ou mal
+- ne documentent pas vraiment
+- n’offrent pas de CLI cohérent
+
+dotenv-never-lies assume un périmètre plus strict,
+mais fournit une chaîne complète :
+schéma → validation → typage → CI → export.
+
+### Pourquoi ne pas gérer les secrets ?
+
+Parce que ce n’est pas le bon niveau.
+
+dotenv-never-lies :
+
+- identifie les secrets
+- peut les exclure, masquer ou exporter
+
+Mais :
+
+- ne chiffre rien
+- ne stocke rien
+
+Il s’intègre avec les outils existants, il ne les concurrence pas.
+
+# Conclusion :
+
+> dotenv-never-lies ne cherche pas à être flexible. Il cherche à être fiable, explicite et prévisible.
