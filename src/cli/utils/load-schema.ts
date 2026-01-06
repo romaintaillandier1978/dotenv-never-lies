@@ -18,7 +18,8 @@ export const loadDef = async (schemaPath: string): Promise<EnvDefinitionHelper<a
             format: "esm",
             platform: "node",
             target: "node18",
-            bundle: false,
+            bundle: true,
+            packages: "external",
         });
 
         const mod = await import(pathToFileURL(outFile).href);

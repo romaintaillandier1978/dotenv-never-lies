@@ -60,12 +60,13 @@ export function printZodType(def: z.core.$ZodTypeDef): string {
             }
             return "unknown  | null";
         case "default":
+            //TODO :  ignore les valeurs par défaut falsy (0, false, "") dans printZodType, donc dnl explain omet des defaults valides.
             if ("innerType" in def) {
                 const result = printZodType(def.innerType as z.core.$ZodTypeDef);
                 const defaultValue = typeof (def as any).defaultValue === "function" ? (def as any).defaultValue() : ((def as any).defaultValue ?? undefined);
 
                 // const defaultValue = (def as any).defaultValue;
-                if (defaultValue) {
+                if (defaultValue !== undefined) {
                     return result + " (default: " + defaultValue.toString() + ")";
                 }
                 return result;

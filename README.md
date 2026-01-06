@@ -196,6 +196,25 @@ Variables marked `secret: true` in the schema are treated differently depending 
 | k8s-configmap | yes                         | yes                        | yes                             | warning if secret unmasked |
 | k8s-secret    | secrets only                | yes                        | yes                             | Kubernetes Secret          |
 
+## Variable lifecycle
+
+dotenv-never-lies works with three distinct representations of environment variables:
+
+1. **Raw value**  
+   The original value coming from the source (`.env` file or `process.env`).  
+   Always a string (or undefined).
+
+2. **Runtime value (validated)**  
+   The value after validation — and possible transformation — by the Zod schema.  
+   This value may be strongly typed (number, boolean, array, object, etc.).
+
+3. **Exported value**  
+   The value written by `dnl export`.
+    - For env-like formats (`env`, `docker-*`, `github-*`, `k8s-*`), this is the **raw value**, after validation.
+    - For `js`, `ts` and `json`, the runtime value can be exported using `--serialize-typed`.
+
+This separation ensures that validation, runtime usage and configuration export remain explicit and predictable.
+
 ## Runtime usage
 
 ```typescript
@@ -377,8 +396,8 @@ dnl export github-env
 Result:
 
 ```bash
-echo "NODE_ENV=production" >> $GITHUB_ENV
-echo "NODE_PORT=3000" >> $GITHUB_ENV
+printf '%s\n' "NODE_ENV=production" >> $GITHUB_ENV
+printf '%s\n' "NODE_PORT=3000" >> $GITHUB_ENV
 ```
 
 There are a few more formats and options (see CLI docs `dnl export --help`).

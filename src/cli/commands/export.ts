@@ -1,10 +1,8 @@
-import dnl from "../../index.js";
+import dnl, { EnvSource, InferEnv } from "../../index.js";
 import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
-import { Explanation, toExplanation } from "../utils/printer.js";
 import path from "path";
-import fs from "node:fs";
-import { ExportError, UsageError } from "../../errors.js";
+import { UsageError } from "../../errors.js";
 
 export const exportFormatsNames = [
     "docker-env",
@@ -32,10 +30,18 @@ export type ExportCliOptions = {
     hideSecret?: boolean;
     excludeSecret?: boolean;
     includeComments?: boolean;
+    serializeTyped?: boolean;
     out?: string | undefined;
     force?: boolean;
     k8sName?: string | undefined;
     githubOrg?: string | undefined;
+};
+
+const shellEscape = (value: string): string => {
+    if (value.length === 0) {
+        return "''";
+    }
+    return `'${value.replace(/'/g, "'\\''")}'`;
 };
 
 export const exportCommand = async (options: ExportCliOptions): Promise<ExportResult> => {
@@ -45,6 +51,10 @@ export const exportCommand = async (options: ExportCliOptions): Promise<ExportRe
 
     if (options.k8sName && !options.format.startsWith("k8s-")) {
         throw new UsageError("--k8s-name can only be used with a k8s-* format");
+    }
+
+    if (options.serializeTyped && !["js", "ts", "json"].includes(options.format)) {
+        throw new UsageError("--serialize-typed is only valid for js, ts and json exports");
     }
 
     const schemaPath = resolveSchemaPath(options?.schema);
@@ -89,25 +99,14 @@ export const contentByFormat = (format: ExportFormat, envDef: dnl.EnvDefinitionH
     }
 };
 
-export const exportJson = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
-    if (options?.includeComments) {
-        warnings.push("The --include-comments option is ignored for the json format");
-    }
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
-    const values = envDef.assert({ source });
+// #region serialisation env-like
 
-    const args: Partial<typeof values> = {};
-    for (const [key, value] of Object.entries(values)) {
-        if (options?.excludeSecret && envDef.def[key].secret) {
-            continue;
-        }
-        if (options?.hideSecret && envDef.def[key].secret) {
-            args[key] = "********";
-        } else {
-            args[key] = value;
-        }
+const getRawValue = (key: string, source: EnvSource, envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions): string => {
+    if (options?.hideSecret && envDef.def[key].secret) {
+        return "********";
     }
-    return JSON.stringify(args, null, 2);
+    const raw = source[key]; // raw value from source (i.e. .env or process.env)
+    return raw == null ? "" : String(raw);
 };
 
 // this clones the .env
@@ -115,18 +114,15 @@ export const exportEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportC
     const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
     const values = envDef.assert({ source });
     const args = [];
-    for (const [key, value] of Object.entries(values)) {
+    for (const key of Object.keys(values)) {
         if (options?.excludeSecret && envDef.def[key].secret) {
             continue;
         }
         if (options?.includeComments && envDef.def[key].description) {
             args.push(`# ${envDef.def[key].description}`);
         }
-        if (options?.hideSecret && envDef.def[key].secret) {
-            args.push(`${key}=********`);
-        } else {
-            args.push(`${key}=${value}`);
-        }
+        const rawValue = getRawValue(key, source, envDef, options);
+        args.push(`${key}=${rawValue}`);
     }
     return args.join("\n");
 };
@@ -138,15 +134,12 @@ export const exportDockerArgs = (envDef: dnl.EnvDefinitionHelper<any>, options: 
     const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
     const values = envDef.assert({ source });
     const args: string[] = [];
-    for (const [key, value] of Object.entries(values)) {
+    for (const key of Object.keys(values)) {
         if (options?.excludeSecret && envDef.def[key].secret) {
             continue;
         }
-        if (options?.hideSecret && envDef.def[key].secret) {
-            args.push(`-e "${key}=********"`);
-        } else {
-            args.push(`-e "${key}=${value}"`);
-        }
+        const rawValue = getRawValue(key, source, envDef, options);
+        args.push(`-e ${shellEscape(`${key}=${rawValue}`)}`);
     }
     return args.join(" ");
 };
@@ -155,18 +148,16 @@ export const exportDockerEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: E
     const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
     const values = envDef.assert({ source });
     const args = [];
-    for (const [key, value] of Object.entries(values)) {
+    for (const key of Object.keys(values)) {
         if (options?.excludeSecret && envDef.def[key].secret) {
             continue;
         }
         if (options?.includeComments && envDef.def[key].description) {
             args.push(`# ${envDef.def[key].description}`);
         }
-        if (options?.hideSecret && envDef.def[key].secret) {
-            args.push(`${key}=********`);
-        } else {
-            args.push(`${key}=${value}`);
-        }
+
+        const rawValue = getRawValue(key, source, envDef, options);
+        args.push(`${key}=${rawValue}`);
     }
     return args.join("\n");
 };
@@ -183,7 +174,7 @@ export const exportK8sConfigmap = (envDef: dnl.EnvDefinitionHelper<any>, options
     args.push(`  name: ${name}`);
     args.push(`data:`);
 
-    for (const [key, value] of Object.entries(values)) {
+    for (const key of Object.keys(values)) {
         if (envDef.def[key].secret) {
             if (options?.excludeSecret) continue;
             if (!options?.hideSecret) {
@@ -191,8 +182,8 @@ export const exportK8sConfigmap = (envDef: dnl.EnvDefinitionHelper<any>, options
             }
         }
 
-        const v = options?.hideSecret && envDef.def[key].secret ? "********" : value;
-        args.push(`  ${key}: ${JSON.stringify(v)}`);
+        const rawValue = getRawValue(key, source, envDef, options);
+        args.push(`  ${key}: ${JSON.stringify(rawValue)}`);
     }
 
     return args.join("\n");
@@ -211,59 +202,15 @@ export const exportK8sSecret = (envDef: dnl.EnvDefinitionHelper<any>, options: E
     args.push(`  name: ${name}`);
     args.push(`stringData:`);
 
-    for (const [key, value] of Object.entries(values)) {
+    for (const key of Object.keys(values)) {
         if (options?.excludeSecret && envDef.def[key].secret) continue;
         if (!envDef.def[key].secret) continue; // Secret = only variables marked as secret
 
-        const v = options?.hideSecret ? "********" : value;
-        args.push(`  ${key}: ${JSON.stringify(v)}`);
+        const rawValue = getRawValue(key, source, envDef, options);
+        args.push(`  ${key}: ${JSON.stringify(rawValue)}`);
     }
 
     return args.join("\n");
-};
-
-export const exportTs = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
-    const values = envDef.assert({ source });
-
-    const middle: string[] = [];
-    for (const [key, value] of Object.entries(values)) {
-        if (options?.excludeSecret && envDef.def[key].secret) {
-            continue;
-        }
-        if (options?.includeComments && envDef.def[key].description) {
-            middle.push(`    // ${envDef.def[key].description}`);
-        }
-        if (options?.hideSecret && envDef.def[key].secret) {
-            middle.push(`    ${key}: "********",`);
-        } else {
-            middle.push(`    ${key}: ${JSON.stringify(value, null, 2)},`);
-        }
-    }
-
-    return `export const env = {\n${middle.join("\n")}\n} as const;`;
-};
-
-export const exportJs = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
-    const values = envDef.assert({ source });
-
-    const middle: string[] = [];
-    for (const [key, value] of Object.entries(values)) {
-        if (options?.excludeSecret && envDef.def[key].secret) {
-            continue;
-        }
-        if (options?.includeComments && envDef.def[key].description) {
-            middle.push(`    // ${envDef.def[key].description}`);
-        }
-        if (options?.hideSecret && envDef.def[key].secret) {
-            middle.push(`    ${key}: "********",`);
-        } else {
-            middle.push(`    ${key}: ${JSON.stringify(value, null, 2)},`);
-        }
-    }
-
-    return `export const env = {\n${middle.join("\n")}\n};`;
 };
 
 export const exportGithubEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
@@ -271,12 +218,11 @@ export const exportGithubEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: E
     const values = envDef.assert({ source });
 
     const args: string[] = [];
-    for (const [key, value] of Object.entries(values)) {
+    for (const key of Object.keys(values)) {
         if (options?.excludeSecret && envDef.def[key].secret) continue;
 
-        const v = options?.hideSecret && envDef.def[key].secret ? "********" : value;
-
-        args.push(`echo "${key}=${v}" >> $GITHUB_ENV`);
+        const rawValue = getRawValue(key, source, envDef, options);
+        args.push(`printf '%s\\n' ${shellEscape(`${key}=${rawValue}`)} >> "$GITHUB_ENV"`);
     }
 
     return args.join("\n");
@@ -292,14 +238,14 @@ export const exportGithubSecret = (envDef: dnl.EnvDefinitionHelper<any>, options
     const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
     const values = envDef.assert({ source });
 
-    const scopeFlag = options?.githubOrg ? `--org ${options?.githubOrg}` : "";
+    const scopeFlag = options?.githubOrg ? `--org ${shellEscape(options.githubOrg)}` : "";
 
     const args: string[] = [];
-    for (const [key, value] of Object.entries(values)) {
+    for (const key of Object.keys(values)) {
         if (!envDef.def[key].secret) continue;
         if (options?.excludeSecret) continue;
-
-        args.push(`echo ${JSON.stringify(value)} | gh secret set ${key} ${scopeFlag}`.trim());
+        const rawValue = getRawValue(key, source, envDef, options);
+        args.push(`printf '%s' ${shellEscape(rawValue)} | gh secret set ${key} ${scopeFlag} --body-file -`.trim());
     }
 
     return args.join("\n");
@@ -308,3 +254,84 @@ export const exportGithubSecret = (envDef: dnl.EnvDefinitionHelper<any>, options
 export const exportGitlabEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
     return exportEnv(envDef, options, warnings);
 };
+
+// #endregion serialisation env-like
+
+// #region serialisation json/ts/js
+
+// WARNING : For design reasons and separation of concerns, do not attempt to merge getRawValue and getTypedOrRawValue into a single function.
+const getTypedOrRawValue = (
+    key: string,
+    source: EnvSource,
+    values: InferEnv<any>,
+    envDef: dnl.EnvDefinitionHelper<any>,
+    options: ExportCliOptions
+): unknown => {
+    if (options?.hideSecret && envDef.def[key].secret) {
+        return "********";
+    }
+
+    if (options?.serializeTyped) {
+        return values[key]; // runtime validated value
+    }
+
+    const raw = source[key]; // raw value from source (i.e. .env or process.env)
+    return raw == null ? "" : String(raw);
+};
+
+export const exportJson = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
+    if (options?.includeComments) {
+        warnings.push("The --include-comments option is ignored for the json format");
+    }
+    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const values = envDef.assert({ source });
+
+    const args: Record<string, unknown> = {};
+    for (const key of Object.keys(values)) {
+        if (options?.excludeSecret && envDef.def[key].secret) {
+            continue;
+        }
+        args[key] = getTypedOrRawValue(key, source, values, envDef, options);
+    }
+    return JSON.stringify(args, null, 2);
+};
+
+export const exportTs = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
+    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const values = envDef.assert({ source });
+
+    const middle: string[] = [];
+    for (const key of Object.keys(values)) {
+        if (options?.excludeSecret && envDef.def[key].secret) {
+            continue;
+        }
+        if (options?.includeComments && envDef.def[key].description) {
+            middle.push(`    // ${envDef.def[key].description}`);
+        }
+
+        middle.push(`    ${key}: ${JSON.stringify(getTypedOrRawValue(key, source, values, envDef, options), null, 2)},`);
+    }
+
+    return `export const env = {\n${middle.join("\n")}\n} as const;`;
+};
+
+export const exportJs = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
+    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const values = envDef.assert({ source });
+
+    const middle: string[] = [];
+    for (const key of Object.keys(values)) {
+        if (options?.excludeSecret && envDef.def[key].secret) {
+            continue;
+        }
+        if (options?.includeComments && envDef.def[key].description) {
+            middle.push(`    // ${envDef.def[key].description}`);
+        }
+
+        middle.push(`    ${key}: ${JSON.stringify(getTypedOrRawValue(key, source, values, envDef, options), null, 2)},`);
+    }
+
+    return `export const env = {\n${middle.join("\n")}\n};`;
+};
+
+// #endregion serialisation json/ts/js

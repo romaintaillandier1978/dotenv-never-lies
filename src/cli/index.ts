@@ -128,12 +128,13 @@ const exportHelp: { [key in ExportFormat]: string } = {
 
 program
     .command("export")
-    .description("Exports environment variables to a specified format")
+    .description("Exports environment variables to a specified format. Variables are exported after being validated against the schema.")
     .argument("<format>", "Export format. See list and examples at the end")
     .option("-s, --source <source>", "Variables source (default: process.env if none provided)")
     .option("--hide-secret", 'Mask sensitive variables (replace with "********")')
     .option("--exclude-secret", "Exclude sensitive variables (do not show them at all)")
     .option("--include-comments", "Include comments in the export (does not work with the json format)")
+    .option("--serialize-typed", "Serialize validated runtime values (js/ts/json only). See below for more details.")
     .option("-o, --out <file>", "Output file")
     .option("-f, --force", "Overwrite the existing file, in conjunction with -o or --out")
     .option("--k8s-name <name>", "Name for the k8s resource. Default: env-secret for k8s-secret, env-config for k8s-configmap")
@@ -155,6 +156,44 @@ program
         `\nExport formats:\n${Object.entries(exportHelp)
             .map(([key, value]) => `  - ${key}: ${value}`)
             .join("\n")}
+        `
+    )
+    .addHelpText(
+        "after",
+        `\nSerialize validated runtime values (js/ts/json only):
+  When the --serialize-typed option is used, runtime values (after Zod transformations and validation) 
+  are serialized instead of the raw (but still validated) values from the source (.env or process.env).
+
+  Example:
+
+  .env file:
+  NODE_CORS_ORIGIN=https://a.site.com;https://b.site.com;https://c.site.com
+
+  env.dnl.ts file:
+  NODE_CORS_ORIGIN: {
+      description: "Allowed frontend URLs separated by semicolons",
+      schema: z.string().transform((v) =>
+          v
+              .split(";")
+              .map((s) => s.trim())
+              .filter(Boolean)
+      ),
+  },
+
+  dnl export json --source .env 
+  {
+      "NODE_CORS_ORIGIN": "https://a.site.com;https://b.site.com;https://c.site.com"
+  }
+  
+  dnl export json --source .env --serialize-typed
+  {
+      "NODE_CORS_ORIGIN": [
+          "https://a.site.com",
+          "https://b.site.com",
+          "https://c.site.com"
+      ]
+  }
+
         `
     )
     .addHelpText(
@@ -200,7 +239,7 @@ program
   
   # --- Kubernetes -----------------------------------------------------
   
-  # Generate a Kubernetes ConfigMap (NON-sensitive variables)
+  # Generate a Kubernetes ConfigMap (NON-sensitive variables), from process.env
   dnl export k8s-configmap --out k8s-configmap.yaml
   
   # Generate a Kubernetes Secret from a .env file
@@ -215,8 +254,8 @@ program
   # --- TypeScript / JavaScript ---------------------------------------
   
   # Export variables as a typed TypeScript object, or js
-  dnl export ts --out env.generated.ts
-  dnl export js --out env.generated.js
+  dnl export ts --out env.generated.ts --serialize-typed
+  dnl export js --out env.generated.js --serialize-typed
   `
     );
 // #endregion export
@@ -260,7 +299,8 @@ program
     .description(
         "Generates a dotenv-never-lies schema from a .env file.\n" +
             "Useful to migrate an existing project to dotenv-never-lies.\n" +
-            "The generated schema is a starting point and must be refined manually."
+            "The generated schema is a starting point and must be refined manually.\n" +
+            "Keys in the .env file that are not valid identifiers are escaped to JSON strings. (e.g. MY-KEY -> 'MY-KEY')"
     )
     .option("-s, --source <source>", "Source .env file", ".env")
     .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")

@@ -1,5 +1,5 @@
 export const inferSchema = (value: string | undefined) => {
-    if (!value) {
+    if (value === undefined) {
         return "z.string().optional()";
     }
 
