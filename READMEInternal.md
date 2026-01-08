@@ -36,3 +36,6 @@ npm publish
 ```
 
 ## TODO :
+
+- ajouter une node sur le yarn dnl assert dans le yarn start.
+- vérifier les expand lors de l'export.

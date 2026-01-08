@@ -1,5 +1,8 @@
 # dotenv-never-lies
 
+> [!CAUTION]
+> Experimental — not yet ready to use.
+
 > Because environment variables lie all the time.
 
 **dotenv-never-lies** validates, types, and documents your environment variables from a TypeScript / Zod schema.  
