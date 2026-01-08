@@ -3,9 +3,9 @@ import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { Explanation, toExplanation } from "../utils/printer.js";
 import { UsageError } from "../../errors.js";
+import { ProgramCliOptions } from "./program.js";
 
-type ExplainCliOptions = {
-    schema?: string | undefined;
+export type ExplainCliOptions = ProgramCliOptions & {
     keys?: string[] | undefined;
     format?: "human" | "json" | undefined;
 };

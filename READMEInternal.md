@@ -22,7 +22,7 @@ checklist :
 - fichiers sont corrects
 - bin pointe bien vers un fichier existant dans dist.
 - type de module cohérent
-- node >= 18
+- node >= 20
 - pas de fichier poubelle
 
 regarder ce qui va partir sur la publication : `npm pack --dry-run`
@@ -37,5 +37,7 @@ npm publish
 
 ## TODO :
 
-- ajouter une node sur le yarn dnl assert dans le yarn start.
 - vérifier les expand lors de l'export.
+
+- doc de export types + @dnl-transform warnings.
+- supprimer sample

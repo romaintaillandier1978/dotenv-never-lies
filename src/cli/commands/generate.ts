@@ -5,9 +5,9 @@ import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { getDefaultEnvValue } from "../utils/printer.js";
 import { ExportError } from "../../errors.js";
+import { ProgramCliOptions } from "./program.js";
 
-export type GenerateCliOptions = {
-    schema?: string;
+export type GenerateCliOptions = ProgramCliOptions & {
     out?: string;
     includeSecret?: boolean;
     force?: boolean;

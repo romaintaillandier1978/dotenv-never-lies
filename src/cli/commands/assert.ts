@@ -4,10 +4,10 @@ import { loadDef as loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { z } from "zod";
 import { ValidationError } from "../../errors.js";
+import { ProgramCliOptions } from "./program.js";
 
-type AssertCliOptions = {
-    schema: string;
-    source: string;
+export type AssertCliOptions = ProgramCliOptions & {
+    source?: string;
 };
 
 export const assertCommand = async (opts?: AssertCliOptions | undefined): Promise<void> => {

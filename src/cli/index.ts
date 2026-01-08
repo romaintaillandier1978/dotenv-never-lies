@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
 import { program, CommanderError } from "commander";
-import { assertCommand } from "./commands/assert.js";
+import { AssertCliOptions, assertCommand } from "./commands/assert.js";
 import { GenerateCliOptions, generateCommand } from "./commands/generate.js";
 import { ReverseEnvCliOptions, reverseEnvCommand } from "./commands/reverseEnv.js";
-import { explainCommand, printHuman } from "./commands/explain.js";
+import { ExplainCliOptions, explainCommand, printHuman } from "./commands/explain.js";
 import { ExportCliOptions, exportCommand, ExportFormat } from "./commands/export.js";
 import { toFile } from "./utils/toFile.js";
 import { DnlError, ExitCodes, ValidationError } from "../errors.js";
 
 import { createRequire } from "node:module";
+import { ProgramCliOptions } from "./commands/program.js";
 
 const require = createRequire(import.meta.url);
 const packageJson = require("../../package.json") as { version: string };
@@ -89,7 +90,10 @@ program
     .command("assert")
     .description("Verifies the runtime environment and exits the process if the schema is not satisfied.")
     .option("-s, --source <source>", "Variables source (default: process.env)")
-    .action(assertCommand)
+    .action(async (opts: AssertCliOptions) => {
+        const globalOpts = program.opts<ProgramCliOptions>();
+        await assertCommand({ ...opts, schema: globalOpts.schema });
+    })
     .addHelpText(
         "after",
         `\nExamples:
@@ -124,6 +128,7 @@ const exportHelp: { [key in ExportFormat]: string } = {
     json: "Key/value JSON object",
     ts: "Typed TypeScript object",
     js: "JavaScript object",
+    types: "TypeScript declaration file",
 } as const;
 
 program
@@ -140,7 +145,8 @@ program
     .option("--k8s-name <name>", "Name for the k8s resource. Default: env-secret for k8s-secret, env-config for k8s-configmap")
     .option("--github-org <org>", "GitHub organization name")
     .action(async (format: ExportFormat, opts: Omit<ExportCliOptions, "format">) => {
-        const { content, warnings, out } = await exportCommand({ ...opts, format });
+        const globalOpts = program.opts<ProgramCliOptions>();
+        const { content, warnings, out } = await exportCommand({ ...opts, format, schema: globalOpts.schema });
 
         if (out) {
             await toFile(content, out, opts.force ?? false);
@@ -271,7 +277,8 @@ program
     .option("-o, --out <file>", "Output file (default: .env)")
     .option("-f, --force", "Overwrite existing file")
     .action(async (opts: GenerateCliOptions) => {
-        const { content, out } = await generateCommand(opts);
+        const globalOpts = program.opts<ProgramCliOptions>();
+        const { content, out } = await generateCommand({ ...opts, schema: globalOpts.schema });
         await toFile(content, out, opts.force ?? false);
     })
     .addHelpText(
@@ -339,8 +346,9 @@ program
     .description("Displays the list of known environment variables and their description.")
     .argument("[keys...]", "Keys to explain (0..N). Without argument, all keys.")
     .option("-f, --format <format>", 'Output format ("human" | "json")', "human")
-    .action(async (keys: string[] | undefined, opts: { schema?: string | undefined; format?: "human" | "json" | undefined }) => {
-        const { format, result } = await explainCommand({ keys: keys ?? [], schema: opts.schema, format: opts.format });
+    .action(async (keys: string[] | undefined, opts: ExplainCliOptions) => {
+        const globalOpts = program.opts<ProgramCliOptions>();
+        const { format, result } = await explainCommand({ keys: keys ?? [], schema: globalOpts.schema, format: opts.format });
         if (format === "human") {
             printHuman(result);
         } else {

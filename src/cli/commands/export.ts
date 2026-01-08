@@ -3,6 +3,8 @@ import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import path from "path";
 import { UsageError } from "../../errors.js";
+import { isRequired, isTransform, printZodTypeDts } from "../utils/printer.js";
+import { ProgramCliOptions } from "./program.js";
 
 export const exportFormatsNames = [
     "docker-env",
@@ -16,6 +18,7 @@ export const exportFormatsNames = [
     "json",
     "ts",
     "js",
+    "types",
 ] as const;
 export type ExportFormat = (typeof exportFormatsNames)[number];
 export type ExportResult = {
@@ -23,9 +26,8 @@ export type ExportResult = {
     warnings: string[];
     out?: string;
 };
-export type ExportCliOptions = {
+export type ExportCliOptions = ProgramCliOptions & {
     format: ExportFormat;
-    schema?: string | undefined;
     source?: string | undefined;
     hideSecret?: boolean;
     excludeSecret?: boolean;
@@ -55,6 +57,10 @@ export const exportCommand = async (options: ExportCliOptions): Promise<ExportRe
 
     if (options.serializeTyped && !["js", "ts", "json"].includes(options.format)) {
         throw new UsageError("--serialize-typed is only valid for js, ts and json exports");
+    }
+
+    if (options.format === "types" && options.source) {
+        throw new UsageError("--source is not applicable to the 'types' export format");
     }
 
     const schemaPath = resolveSchemaPath(options?.schema);
@@ -94,6 +100,8 @@ export const contentByFormat = (format: ExportFormat, envDef: dnl.EnvDefinitionH
             return exportDockerArgs(envDef, options, warnings);
         case "docker-env":
             return exportDockerEnv(envDef, options, warnings);
+        case "types":
+            return exportDts(envDef, options, warnings);
         default:
             throw new UsageError(`Unsupported format: ${format}`);
     }
@@ -332,6 +340,44 @@ export const exportJs = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCl
     }
 
     return `export const env = {\n${middle.join("\n")}\n};`;
+};
+
+export const exportDts = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
+    const middle: string[] = [];
+    let transformedCount = 0;
+    for (const key of Object.keys(envDef.def)) {
+        const type = printZodTypeDts(envDef.def[key].schema.def);
+        const optional = isRequired(envDef.def[key].schema.def) ? "" : "?";
+        const transform = isTransform(envDef.def[key].schema.def);
+
+        if (envDef.def[key].description || transform) {
+            let comment = `    /**\n`;
+            if (envDef.def[key].description) {
+                comment += `     * ${envDef.def[key].description}\n`;
+            }
+            if (transform) {
+                comment += `     *
+     * ⚠️ TRANSFORMED ENV VARIABLE
+     *
+     * Runtime type differs from declared type.
+     * Do NOT trust this type without checking the schema.
+     *
+     * @dnl-transform\n`;
+            }
+            comment += `     */`;
+            middle.push(comment);
+        }
+        middle.push(`    ${key}${optional}: ${type};`);
+
+        if (transform) {
+            transformedCount++;
+            warnings.push(`  - ${key} (@dnl-transform): runtime type differs from exported type.`);
+        }
+    }
+    if (transformedCount > 0) {
+        warnings.push(`⚠️  ${transformedCount} transformed variable detected. See @dnl-transform annotations.`);
+    }
+    return `export interface Env {\n${middle.join("\n")}\n}`;
 };
 
 // #endregion serialisation json/ts/js

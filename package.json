@@ -39,13 +39,13 @@
     "types": "./dist/index.d.ts",
     "exports": {
         ".": {
-            "require": "./dist/index.js",
+            "types": "./dist/index.d.ts",
             "import": "./dist/index.js",
-            "types": "./dist/index.d.ts"
+            "require": "./dist/index.js"
         },
         "./cli": {
-            "require": "./dist/cli/index.js",
-            "import": "./dist/cli/index.js"
+            "import": "./dist/cli/index.js",
+            "require": "./dist/cli/index.js"
         }
     },
     "bin": {

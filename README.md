@@ -518,6 +518,61 @@ Simple rule:
 > The schema is always the source of truth.  
 > Commands only validate, document, or transform.
 
+### Tips
+
+**Alternative: minimal-intrusion integration**
+
+For a minimally invasive integration, you can add an optional Yarn script
+to validate your `.env` file before starting the application:
+
+```json
+{
+    "scripts": {
+        "env:check": "dnl assert --source .env",
+        "start:withdnl": "yarn env:check && yarn start"
+    }
+}
+```
+
+This validates the environment before startup, without changing runtime behavior or application code.
+
+> This is optional. It does not replace runtime validation.
+
+## Common issues / Troubleshooting
+
+### TypeScript projects with `rootDir: "src"`
+
+If your project uses a strict TypeScript setup with `rootDir: "src"`,
+and your `env.dnl.ts` file is located at the project root,
+TypeScript may report an error like:
+
+> File 'env.dnl.ts' is not under 'rootDir' (TS6059)
+
+**Option A** (preferred) :
+
+Keeps the schema outside application code, allowing reuse by the CLI, CI, and tooling.
+
+To fix this, include `env.dnl.ts` explicitly in your `tsconfig.json` and widen `rootDir`:
+
+```json
+{
+    "compilerOptions": {
+        "rootDir": "."
+    },
+    "include": ["src/**/*.ts", "env.dnl.ts"]
+}
+```
+
+This ensures `env.dnl.ts` is included in the TypeScript compilation graph.
+
+**Option B** :
+
+Move the schema into `./src` (for example `./src/env/env.dnl.ts`).
+
+This avoids TypeScript configuration changes, but makes the schema part of the application codebase
+
+You will need to specify schema location, see related section
+
 ## FAQ / Design choices
 
 ### Why so strict?
