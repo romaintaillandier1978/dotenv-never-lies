@@ -128,7 +128,7 @@ const exportHelp: { [key in ExportFormat]: string } = {
     json: "Key/value JSON object",
     ts: "Typed TypeScript object",
     js: "JavaScript object",
-    types: "TypeScript declaration file",
+    types: "TypeScript declaration file (.d.ts) for your environment variables",
 } as const;
 
 program
@@ -263,7 +263,27 @@ program
   dnl export ts --out env.generated.ts --serialize-typed
   dnl export js --out env.generated.js --serialize-typed
   `
+    )
+    .addHelpText(
+        "after",
+        `\nSpecific case of export types:
+      
+  This command generates a TypeScript declaration file (.d.ts)  describing the static contract of your environment variables.
+      
+  The generated types are intentionally conservative. Zod transforms are NOT reflected in the exported types.
+      
+  If a variable uses a Zod transform:
+    * a CLI warning is emitted
+    * the generated type is annotated with @dnl-transform
+    * the runtime value returned by assert() may differ from the declared type
+      
+  The --source option is NOT applicable to this format. Only the schema is used.
+      
+  # Example:
+  dnl export types --out src/types/env.dnl.d.ts
+  `
     );
+
 // #endregion export
 
 // #region generate

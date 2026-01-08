@@ -39,5 +39,5 @@ npm publish
 
 - vérifier les expand lors de l'export.
 
-- doc de export types + @dnl-transform warnings.
 - supprimer sample
+- ajouter une remarque personnelle sur vrai vécu, gros projet avec 150 variables d'environnement

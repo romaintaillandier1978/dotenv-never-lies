@@ -405,6 +405,24 @@ printf '%s\n' "NODE_PORT=3000" >> $GITHUB_ENV
 
 There are a few more formats and options (see CLI docs `dnl export --help`).
 
+## export types : Exporting TypeScript types
+
+`dnl export types` generates a `.d.ts` file describing the **static contract** of your environment variables.
+
+This file is intentionally **conservative**.
+
+### Transformed variables
+
+If a variable uses a Zod `transform`, the exported type always reflects the **input type**, not the runtime output.
+
+In that case:
+
+- a warning is emitted in the CLI
+- the generated type is annotated with `@dnl-transform`
+- the runtime value returned by `assert()` may differ
+
+This is a deliberate design choice to avoid lying to TypeScript.
+
 ## Real-life usage
 
 ### GitIgnore
@@ -537,6 +555,14 @@ to validate your `.env` file before starting the application:
 This validates the environment before startup, without changing runtime behavior or application code.
 
 > This is optional. It does not replace runtime validation.
+
+**Intellisens and JSdoc for env vars**
+
+After using `dnl export types` and importing the generated file, you get strong typing, auto-completion, IntelliSense and JSDoc for each environment variable.
+
+![IntelliSense and JSDoc for environment variables](docs/images/env-intellisense.png)
+
+> IntelliSense and JSDoc generated from the DNL schema after `dnl export types`.
 
 ## Common issues / Troubleshooting
 
