@@ -349,24 +349,25 @@ export const exportDts = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportC
         const type = printZodTypeDts(envDef.def[key].schema.def);
         const optional = isRequired(envDef.def[key].schema.def) ? "" : "?";
         const transform = isTransform(envDef.def[key].schema.def);
+        const secret = envDef.def[key].secret;
+        const required = isRequired(envDef.def[key].schema.def);
+        const description = envDef.def[key].description;
 
-        if (envDef.def[key].description || transform) {
-            let comment = `    /**\n`;
-            if (envDef.def[key].description) {
-                comment += `     * ${envDef.def[key].description}\n`;
-            }
-            if (transform) {
-                comment += `     *
+        let comment = `    /**\n     * @env ${key}\n`;
+        if (secret) comment += `     * @secret\n`;
+        if (required) comment += `     * @required\n`;
+        if (description) comment += `     * ${description}\n`;
+        if (transform) {
+            comment += `     *
      * ⚠️ TRANSFORMED ENV VARIABLE
      *
      * Runtime type differs from declared type.
      * Do NOT trust this type without checking the schema.
      *
      * @dnl-transform\n`;
-            }
-            comment += `     */`;
-            middle.push(comment);
         }
+        comment += `     */`;
+        middle.push(comment);
         middle.push(`    ${key}${optional}: ${type};`);
 
         if (transform) {
