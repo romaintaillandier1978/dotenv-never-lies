@@ -101,7 +101,7 @@ NODE_CORS_ORIGIN="${FRONT_A};${FRONT_B};${FRONT_C}"
 
 The DNL schema is your new source of truth.
 
-(`dnl reverse-env` will help you scaffold the first skeleton)
+(`dnl infer` will help you scaffold the first skeleton)
 
 ### schema location
 
@@ -176,7 +176,7 @@ JWT_SECRET: {
 
 assert: validates secrets like any other variable
 
-reverse-env: when generating the schema, with `--guess-secret` option, the command tries to automatically identify sensitive variables (e.g. SECRET, KEY, TOKEN, PASSWORD).  
+infer: when generating the schema, with `--guess-secret` option, the command tries to automatically identify sensitive variables (e.g. SECRET, KEY, TOKEN, PASSWORD).  
 **This detection is heuristic and must always be reviewed and corrected manually.**
 
 export: adapts behavior depending on the target format (env, docker, CI, Kubernetes…). See the table below for details by format.
@@ -319,12 +319,12 @@ Useful for:
 - sharing a template
 - avoiding obsolete `.env.example` files
 
-### reverse-env: Generate a schema from an existing .env
+### infer: Generate a schema from an existing .env
 
 Creates an `env.dnl.ts` file from a `.env`.
 
 ```bash
-dnl reverse-env --source .env
+dnl infer --source .env
 ```
 
 Useful for:
@@ -522,7 +522,7 @@ The `.env` file can be generated from a GitHub secret or mounted dynamically.
 |                               Situation | Command to use                 |
 | --------------------------------------: | ------------------------------ |
 |                             New project | generate                       |
-|            Existing project with a .env | reverse-env                    |
+|            Existing project with a .env | infer                          |
 |            Validate configuration in CI | assert                         |
 | Validate config injected by the runtime | assert                         |
 |                      Document variables | explain                        |

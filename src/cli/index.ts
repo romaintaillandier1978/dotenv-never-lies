@@ -3,7 +3,7 @@
 import { program, CommanderError } from "commander";
 import { AssertCliOptions, assertCommand } from "./commands/assert.js";
 import { GenerateCliOptions, generateCommand } from "./commands/generate.js";
-import { ReverseEnvCliOptions, reverseEnvCommand } from "./commands/reverseEnv.js";
+import { InferCliOptions, inferCommand } from "./commands/infer.js";
 import { ExplainCliOptions, explainCommand, printHuman } from "./commands/explain.js";
 import { ExportCliOptions, exportCommand, ExportFormat } from "./commands/export.js";
 import { toFile } from "./utils/toFile.js";
@@ -73,7 +73,7 @@ program
   dnl generate --schema my-dnl.ts --out .env
   
   # Create an env.dnl.ts schema from an existing .env
-  dnl reverse-env --source .env
+  dnl infer --source .env
   
   # Display known variables and their description
   dnl explain
@@ -320,9 +320,9 @@ program
     );
 // #endregion generate
 
-// #region reverse-env
+// #region infer
 program
-    .command("reverse-env")
+    .command("infer")
     .description(
         "Generates a dotenv-never-lies schema from a .env file.\n" +
             "Useful to migrate an existing project to dotenv-never-lies.\n" +
@@ -333,8 +333,8 @@ program
     .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")
     .option("-f, --force", "Overwrite existing file")
     .option("--guess-secret", "Try to guess sensitive variables (heuristic)")
-    .action(async (opts: ReverseEnvCliOptions) => {
-        const { content, out, warnings } = await reverseEnvCommand(opts);
+    .action(async (opts: InferCliOptions) => {
+        const { content, out, warnings } = await inferCommand(opts);
 
         await toFile(content, out, opts.force ?? false);
         for (const warning of warnings) {
@@ -346,19 +346,19 @@ program
         `\nExamples:
         
   # Generate an env.dnl.ts schema from a .env file, try to guess sensitive variables
-  dnl reverse-env --guess-secret
+  dnl infer --guess-secret
   
   # Generate an env.dnl.ts schema from a .env.local file
-  dnl reverse-env --source .env.local
+  dnl infer --source .env.local
   
   # Generate a my-dnl.ts schema from a .env file
-  dnl reverse-env --out my-dnl.ts
+  dnl infer --out my-dnl.ts
   
   # Generate an env.dnl.ts schema from a .env file and overwrite the existing file
-  dnl reverse-env --force 
+  dnl infer --force 
   `
     );
-// #endregion reverse-env
+// #endregion infer
 
 // #region explain
 program

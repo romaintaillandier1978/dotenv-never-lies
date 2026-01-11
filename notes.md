@@ -51,20 +51,12 @@ npm publish
 
 ## Schéma zod spécialisés intégrés
 
-- réfléchir a ajouter des types zod spécifique et faciles : - listSchema(name, ";", z.url(), { allowEmpty: true })
-  dnl.boolSchema() // "true" | "false" | "1" | "0"
-  dnl.jsonSchema<T>()
-  dnl.intSchema()
-  dnl.portSchema()
-  dnl.urlListSchema(";") // sugar sur listSchema + z.url()
-
-    dnl.base64schema
-    dnl.regexSchema
-    key value avec 2 niveaux de séparateur genre a=b&c=d ou a:b;c:d // fait a vérifier
+a faire dnl infer
 
 ## Extensibilité
 
 - exporters, avec un model, une interface
+- générators, avec un model, une interface
 - génériser EnvVarDefinition avec une propriété générique que DNL n'utilisera jamais.
 -
 
@@ -74,7 +66,6 @@ npm publish
 
 - supprimer sample
 - ajouter une remarque personnelle sur vrai vécu, gros projet avec 150 variables d'environnement
-- renomer la commande cli reverse-env en infer ?
 
 ## à réfléchir
 
@@ -95,3 +86,13 @@ npm publish
         serializeBack : ((value:string[]) => value.join(";")) // <= bonne idée ? NON : extensibilité !
     },
 ```
+
+- j'ai deux mécanismes :
+
+dnl export
+=> export des truc avec les valeurs
+sauf dnl export types (-> \*.d.ts)
+dnl generate
+=> créé un template de .env sans les valeurs (-> .env vide)
+
+c'est pas symétrique.

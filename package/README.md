@@ -248,7 +248,7 @@ Utile pour :
 Crée un fichier env.dnl.ts à partir d’un .env.
 
 ```bash
-dnl reverse-env --source .env
+dnl infer --source .env
 ```
 
 Utile pour :

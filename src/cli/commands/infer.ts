@@ -4,19 +4,19 @@ import { guessSecret, inferSchema } from "../utils/infer-schema.js";
 import fs from "node:fs";
 import { ExportError } from "../../errors.js";
 
-export type ReverseEnvCliOptions = {
+export type InferCliOptions = {
     source?: string;
     out?: string;
     force?: boolean;
     guessSecret?: boolean;
 };
 
-export type ReverseEnvResult = {
+export type InferResult = {
     content: string;
     out: string;
     warnings: string[];
 };
-export const reverseEnvCommand = async (opts?: ReverseEnvCliOptions | undefined): Promise<ReverseEnvResult> => {
+export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<InferResult> => {
     const source = path.resolve(process.cwd(), opts?.source ?? ".env");
     if (!fs.existsSync(source)) {
         throw new ExportError(`Source env file not found: ${source}`);
