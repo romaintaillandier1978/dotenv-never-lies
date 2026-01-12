@@ -35,6 +35,14 @@ yarn release:patch
 npm publish
 ```
 
+## Concept de Infer, et ce qu'il ne faudra jamais faire :
+
+Lors de l'inférence dns on cherche les intentions, pas la vérité.
+
+Il ne faut pas essayer de mieux typer lors de l'export types.  
+Il faut résister à la tentation de parser le fichier source env.dnl.ts, car on aurait des types ts OK, qui pourrait ne pas refléter la réalité runtime.
+=> Catastrophe.
+
 ## nouvelles fonctionnalités LLM pour DNL :
 
 ### LLM
@@ -216,15 +224,27 @@ registerExporter(githubExporter);
 
 - supprimer sample
 - ajouter une remarque personnelle sur vrai vécu, gros projet avec 150 variables d'environnement
-- reprendre les regex et les chéma du schema/path.ts
-- vérifier si on a toutes les reasons
-- vérifer les priorité d'inférences.
-- doc inférence philosophie
+
+- INFERENCE
+    - vérifer les priorité d'inférences.
+    - doc inférence philosophie
 
 - tests de non regression sur l'inférence.
 
-- faut il exposer les rules aux utilisateurs ?
-- faut il donner la possibilité d'extensibilité sur les rules d'inférence ? (non je crois)
+### readme des rules de l'inférence :
+
+1. Inference rules
+
+Inference rules are internal to DNL and not configurable.
+
+This is a deliberate design choice to guarantee:
+• determinism
+• reproducibility
+• documentation consistency
+
+If you need domain-specific behavior, use presets or edit the generated schema.
+
+2. Path schemas are intentionally permissive + documenter plus proprement.
 
 ## à réfléchir
 

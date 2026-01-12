@@ -1,5 +1,5 @@
 import { InferenceInput, InferencePass, InferenceResult, matchesEnvKey } from "./index.js";
-const JSON_KEYS_HIGH = ["_JSON", "JOSN_"];
+const JSON_KEYS_HIGH = ["JSON"];
 const JSON_KEYS_LOW = ["_PAYLOAD", "_CONFIG", "_DATA", "_META"];
 
 export const jsonRule: InferencePass = {
@@ -9,6 +9,7 @@ export const jsonRule: InferencePass = {
     tryInfer({ name, rawValue }) {
         let parsed: unknown;
 
+        const reasons: string[] = [];
         try {
             parsed = JSON.parse(rawValue);
         } catch {
@@ -22,25 +23,32 @@ export const jsonRule: InferencePass = {
         // 🔥 structure JSON forte
         if (rawValue.startsWith("{") || rawValue.startsWith("[")) {
             confidence += 6;
+            reasons.push("JSON structure (+6)");
         } else {
             // JSON primitif : valide mais suspect
             confidence += 2;
+            reasons.push("JSON primitive (+2)");
         }
 
         // 🔤 heuristiques sur le nom
-        if (matchesEnvKey(name, JSON_KEYS_HIGH)) {
+        const { matched: matchedHigh, reason: reasonHigh } = matchesEnvKey(name, JSON_KEYS_HIGH);
+        if (matchedHigh) {
             confidence += 2;
-        } else if (matchesEnvKey(name, JSON_KEYS_LOW)) {
+            reasons.push(`${reasonHigh} (+2)`);
+        }
+        const { matched: matchedLow, reason: reasonLow } = matchesEnvKey(name, JSON_KEYS_LOW);
+        if (matchedLow) {
             confidence += 1;
+            reasons.push(`${reasonLow} (+1)`);
         }
 
         if (confidence < this.threshold) return null;
 
         return {
             schema: `jsonSchema("${name}")`,
-            importedSchema: "jsonSchema",
+            importedSchemas: ["jsonSchema"],
             confidence,
-            reason: "valid JSON value",
+            reasons,
         };
     },
 };

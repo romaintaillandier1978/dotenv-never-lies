@@ -11,16 +11,19 @@ export const durationRule: InferencePass = {
         if (!looksLikeValidDuration(rawValue)) return null;
 
         let confidence = 6;
+        const reasons: string[] = ["Value matches strict duration format"];
 
-        if (matchesEnvKey(name, DURATION_KEYS)) {
+        const { matched, reason } = matchesEnvKey(name, DURATION_KEYS);
+        if (matched) {
             confidence += 1;
+            reasons.push(`${reason} (+1)`);
         }
 
         return {
             schema: `durationSchema(${JSON.stringify(name)})`,
-            importedSchema: "durationSchema",
+            importedSchemas: ["durationSchema"],
             confidence,
-            reason: "value matches strict duration format",
+            reasons,
         };
     },
 };

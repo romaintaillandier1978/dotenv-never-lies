@@ -332,11 +332,21 @@ program
     .option("-s, --source <source>", "Source .env file", ".env")
     .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")
     .option("-f, --force", "Overwrite existing file")
+    .option("--verbose", "Verbose mode")
     .option("--guess-secret", "Try to guess sensitive variables (heuristic)")
     .action(async (opts: InferCliOptions) => {
-        const { content, out, warnings } = await inferCommand(opts);
+        const { content, out, warnings, verbose } = await inferCommand(opts);
+        if (opts.verbose) {
+            for (const v of verbose ?? []) {
+                console.log(v);
+            }
+        }
 
-        await toFile(content, out, opts.force ?? false);
+        if (out) {
+            await toFile(content, out, opts.force ?? false);
+        } else {
+            console.log(content);
+        }
         for (const warning of warnings) {
             console.error(`${warning}`);
         }

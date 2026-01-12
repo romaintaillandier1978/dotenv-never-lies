@@ -1,5 +1,7 @@
 import { looksLikePath, looksLikeFilename, looksLikeFilePath } from "../schemas/path.js";
+import { looksLikeUrl } from "../schemas/urls.js";
 import { InferencePass, matchesEnvKey } from "./index.js";
+
 const FILE_KEYS = ["_FILE", "_CERT", "_KEY", "_PATH"];
 
 export const filePathRule: InferencePass = {
@@ -9,18 +11,21 @@ export const filePathRule: InferencePass = {
 
     tryInfer({ name, rawValue }) {
         if (!looksLikeFilePath(rawValue)) return null;
-
+        if (looksLikeUrl(rawValue)) return null;
         let confidence = 4;
+        const reasons: string[] = ["Value looks like a file path (+4)"];
 
-        if (matchesEnvKey(name, FILE_KEYS)) {
+        const { matched, reason } = matchesEnvKey(name, FILE_KEYS);
+        if (matched) {
             confidence += 1;
+            reasons.push(`${reason} (+1)`);
         }
 
         return {
             schema: `filePathSchema(${JSON.stringify(name)})`,
-            importedSchema: "filePathSchema",
+            importedSchemas: ["filePathSchema"],
             confidence,
-            reason: "value looks like a file path",
+            reasons,
         };
     },
 };
@@ -34,18 +39,21 @@ export const pathRule: InferencePass = {
     tryInfer({ name, rawValue }) {
         if (!looksLikePath(rawValue)) return null;
         if (looksLikeFilePath(rawValue)) return null; // important
-
+        if (looksLikeUrl(rawValue)) return null;
         let confidence = 4;
+        const reasons: string[] = ["Value looks like a directory path (+4)"];
 
-        if (matchesEnvKey(name, PATH_KEYS)) {
+        const { matched, reason } = matchesEnvKey(name, PATH_KEYS);
+        if (matched) {
             confidence += 1;
+            reasons.push(`${reason} (+1)`);
         }
 
         return {
             schema: `pathSchema(${JSON.stringify(name)})`,
-            importedSchema: "pathSchema",
+            importedSchemas: ["pathSchema"],
             confidence,
-            reason: "value looks like a directory path",
+            reasons,
         };
     },
 };
@@ -61,16 +69,18 @@ export const filenameRule: InferencePass = {
         if (!looksLikeFilename(rawValue)) return null;
 
         let confidence = 4;
-
-        if (matchesEnvKey(name, FILENAME_KEYS)) {
+        const reasons: string[] = ["Value looks like a filename (+4)"];
+        const { matched, reason } = matchesEnvKey(name, FILENAME_KEYS);
+        if (matched) {
             confidence += 1;
+            reasons.push(`${reason} (+1)`);
         }
 
         return {
             schema: `filenameSchema(${JSON.stringify(name)})`,
-            importedSchema: "filenameSchema",
+            importedSchemas: ["filenameSchema"],
             confidence,
-            reason: "value looks like a filename",
+            reasons,
         };
     },
 };

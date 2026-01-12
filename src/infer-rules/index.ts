@@ -4,19 +4,19 @@ import { jsonRule } from "./json.js";
 import { keyValueListRule, keyValueRule, listRule } from "./list.js";
 import { portRule } from "./port.js";
 import { filenameRule, filePathRule, pathRule } from "./path.js";
-import { emailRule, numberRule, urlRule, stringRule } from "./simple.js";
+import { emailRule, numberRule, urlRule, stringRule } from "./basic.js";
 
 export type InferenceResult = {
     /**
      * Code TS sérialisé, ex:
      * "z.string()"
-     * "jsonSchema(\"MY_VAR\")"
+     * "jsonSchema(\"${name}\")"
      */
     schema: string;
     /**
-    nom exact de l'élément à importer au top du fichier env.dnl.tsgénéré
+    nom exact de l'élément à importer au top du fichier env.dnl.tsgénéré, ex: "jsonSchema" 
      */
-    importedSchema?: string;
+    importedSchemas: Array<string>;
     /**
      * Niveau de confiance (0–10 typiquement)
      */
@@ -24,7 +24,7 @@ export type InferenceResult = {
     /**
      * Optionnel, pour debug / warnings futurs
      */
-    reason?: string;
+    reasons?: string[];
 };
 
 export type InferenceInput = {
@@ -69,15 +69,28 @@ export const inferencePasses: InferencePass[] = [
     portRule,
     durationRule,
     booleanRule,
+    urlRule,
     filePathRule,
     pathRule,
     filenameRule,
     numberRule,
-    urlRule,
     emailRule,
     stringRule,
 ].sort((a, b) => b.priority - a.priority);
 
-export const matchesEnvKey = (name: string, keys: string[]): boolean => {
-    return keys.some((suffix) => suffix && name.includes(suffix));
+export const listInferencePasses: InferencePass[] = [portRule, numberRule, emailRule, urlRule, stringRule];
+
+export const matchesEnvKey = (name: string, keys: string[]): { matched: boolean; reason: string } => {
+    for (const key of keys) {
+        if (name.toUpperCase().includes(key.toUpperCase())) {
+            return {
+                matched: true,
+                reason: `Env name contains key: ${key}`,
+            };
+        }
+    }
+    return {
+        matched: false,
+        reason: "No hint in the Env name",
+    };
 };

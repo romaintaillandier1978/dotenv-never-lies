@@ -13,16 +13,18 @@ export const portRule: InferencePass = {
         }
 
         let confidence = 5; // valeur seule = déjà crédible
-
-        if (matchesEnvKey(name, PORT_KEYS)) {
+        const reasons: string[] = ["Valid TCP/UDP port number"];
+        const { matched, reason } = matchesEnvKey(name, PORT_KEYS);
+        if (matched) {
             confidence += 2;
+            reasons.push(`${reason} (+2)`);
         }
 
         return {
-            schema: `portSchema(${JSON.stringify(name)})`,
-            importedSchema: "portSchema",
+            schema: `portSchema("${name}")`,
+            importedSchemas: ["portSchema"],
             confidence,
-            reason: "valid TCP/UDP port number",
+            reasons,
         };
     },
 };
