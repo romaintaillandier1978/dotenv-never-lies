@@ -13,6 +13,7 @@ export type EnvSource = Record<string, string | undefined>;
  * An environment variable.
  */
 export interface EnvVarDefinition<T extends z.ZodType = z.ZodType> {
+    // export interface EnvVarDefinition<T extends z.ZodType = z.ZodType, M = unknown> {
     /**
      * The Zod schema of the environment variable.
      */
@@ -29,6 +30,10 @@ export interface EnvVarDefinition<T extends z.ZodType = z.ZodType> {
      * Provides examples for this variable.
      */
     examples?: string[];
+    // /**
+    //  * User metadata for this variable. DNL NEVER USE THIS FIELD.
+    //  */
+    // metadata?: M;
 }
 
 // any is required here to leverage TypeScript inference.

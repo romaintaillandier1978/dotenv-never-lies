@@ -1,25 +1,18 @@
-export const inferSchema = (value: string | undefined) => {
-    if (value === undefined) {
-        return "z.string().optional()";
+import { inferencePasses } from "../../infer-rules/index.js";
+
+export const inferSchema = (name: string, rawValue: string, importedSchemas: Set<string>): string => {
+    for (const pass of inferencePasses) {
+        const result = pass.tryInfer({ name, rawValue });
+
+        if (!result) continue;
+
+        if (result.confidence >= pass.threshold) {
+            if (result.importedSchema) {
+                importedSchemas.add(result.importedSchema);
+            }
+            return result.schema;
+        }
     }
-
-    if (/^(true|false)$/i.test(value)) {
-        return "z.coerce.boolean()";
-    }
-
-    if (!isNaN(Number(value))) {
-        return "z.coerce.number()";
-    }
-
-    try {
-        new URL(value);
-        return "z.string().url()";
-    } catch {}
-
-    if (/^[^@]+@[^@]+\.[^@]+$/.test(value)) {
-        return "z.string().email()";
-    }
-
     return "z.string()";
 };
 
