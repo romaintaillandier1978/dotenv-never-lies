@@ -7,6 +7,10 @@ export const portRule: InferencePass = {
     priority: 7,
     threshold: 5,
     tryInfer({ name, rawValue }) {
+        // reject floats, versions (2.0), weird numbers
+        if (!/^\d+$/.test(rawValue)) {
+            return null;
+        }
         const port = Number(rawValue);
         if (!Number.isInteger(port) || port < 1 || port > 65535) {
             return null;

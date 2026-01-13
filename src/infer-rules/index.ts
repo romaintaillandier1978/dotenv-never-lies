@@ -5,6 +5,7 @@ import { keyValueListRule, keyValueRule, listRule } from "./list.js";
 import { portRule } from "./port.js";
 import { emailRule, numberRule, stringRule } from "./basic.js";
 import { urlRule } from "./url.js";
+import { ipRule, versionRule } from "./dotted.js";
 
 export type InferenceResult = {
     /**
@@ -61,20 +62,20 @@ export type InferencePass = {
 // boolean avant enum,
 
 export const inferencePasses: InferencePass[] = [
-    jsonRule,
-    keyValueListRule,
-    keyValueRule,
-    listRule,
-    portRule,
-    durationRule,
-    booleanRule,
-    // versionRule,
-    // ipRule,
-    urlRule,
-    emailRule,
-    numberRule,
+    jsonRule, // 10
+    keyValueListRule, // 9
+    keyValueRule, // 8
+    listRule, // 7
+    portRule, //7
+    durationRule, // 6
+    booleanRule, // 6
+    ipRule, // 5.5
+    versionRule, // 5
+    urlRule, // 5
+    emailRule, // 4
+    numberRule, // 3
 
-    stringRule, //fallback
+    stringRule, // 0 = fallback
 ].sort((a, b) => b.priority - a.priority);
 
 export const listInferencePasses: InferencePass[] = [portRule, numberRule, emailRule, urlRule, stringRule];
