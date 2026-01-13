@@ -228,8 +228,10 @@ registerExporter(githubExporter);
 - INFERENCE
     - vérifer les priorité d'inférences.
     - doc inférence philosophie
+    - ajouter un warning en cas de doublons dans infer
+    - schema version ok, mais ajouter l'inférence.
 
-- tests de non regression sur l'inférence.
+- tests de non regression sur l'inférence.s
 
 ### readme des rules de l'inférence :
 

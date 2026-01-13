@@ -3,8 +3,8 @@ import { durationRule } from "./duration.js";
 import { jsonRule } from "./json.js";
 import { keyValueListRule, keyValueRule, listRule } from "./list.js";
 import { portRule } from "./port.js";
-import { filenameRule, filePathRule, pathRule } from "./path.js";
-import { emailRule, numberRule, urlRule, stringRule } from "./basic.js";
+import { emailRule, numberRule, stringRule } from "./basic.js";
+import { urlRule } from "./url.js";
 
 export type InferenceResult = {
     /**
@@ -59,7 +59,6 @@ export type InferencePass = {
 // JSON avant list,
 // duration avant number,
 // boolean avant enum,
-// path après list
 
 export const inferencePasses: InferencePass[] = [
     jsonRule,
@@ -69,13 +68,13 @@ export const inferencePasses: InferencePass[] = [
     portRule,
     durationRule,
     booleanRule,
+    // versionRule,
+    // ipRule,
     urlRule,
-    filePathRule,
-    pathRule,
-    filenameRule,
-    numberRule,
     emailRule,
-    stringRule,
+    numberRule,
+
+    stringRule, //fallback
 ].sort((a, b) => b.priority - a.priority);
 
 export const listInferencePasses: InferencePass[] = [portRule, numberRule, emailRule, urlRule, stringRule];

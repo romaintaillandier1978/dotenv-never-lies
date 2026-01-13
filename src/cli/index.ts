@@ -327,13 +327,17 @@ program
         "Generates a dotenv-never-lies schema from a .env file.\n" +
             "Useful to migrate an existing project to dotenv-never-lies.\n" +
             "The generated schema is a starting point and must be refined manually.\n" +
-            "Keys in the .env file that are not valid identifiers are escaped to JSON strings. (e.g. MY-KEY -> 'MY-KEY')"
+            "Keys in the .env file that are not valid identifiers are escaped to JSON strings. (e.g. MY-KEY -> 'MY-KEY')\n" +
+            "By default, the command will try to guess sensitive variables (e.g. SECRET, KEY, TOKEN, PASSWORD) as secrets.\n" +
+            "This detection is intentionally aggressive and may flag variables that are not secrets.\n" +
+            "This is a deliberate design choice to avoid missing sensitive values.\n" +
+            "Use the --dont-guess-secret option to disable this behavior."
     )
     .option("-s, --source <source>", "Source .env file", ".env")
     .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")
     .option("-f, --force", "Overwrite existing file")
     .option("--verbose", "Verbose mode")
-    .option("--guess-secret", "Try to guess sensitive variables (heuristic)")
+    .option("--dont-guess-secret", "Do not try to guess sensitive variables (heuristic)")
     .action(async (opts: InferCliOptions) => {
         const { content, out, warnings, verbose } = await inferCommand(opts);
         if (opts.verbose) {

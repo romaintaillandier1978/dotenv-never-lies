@@ -1,5 +1,4 @@
-import { looksLikeUrl } from "../schemas/urls.js";
-import { InferencePass, matchesEnvKey } from "./index.js";
+import { InferencePass } from "./index.js";
 
 export const numberRule: InferencePass = {
     type: "number",
@@ -24,42 +23,16 @@ export const numberRule: InferencePass = {
     },
 };
 
-export const URL_KEYS: string[] = ["URL", "URI", "LINK", "ENDPOINT", "API_URL", "API_ENDPOINT", "API_LINK", "API_URI"];
-export const urlRule: InferencePass = {
-    type: "url",
-    priority: 5,
-    threshold: 5,
-
-    tryInfer({ name, rawValue }) {
-        if (!looksLikeUrl(rawValue)) return null;
-
-        let confidence = 5;
-        const reasons: string[] = ["Valid http(s) URL"];
-
-        const { matched, reason } = matchesEnvKey(name, URL_KEYS);
-        if (matched) {
-            confidence += 2;
-            reasons.push(`${reason} (+2)`);
-        }
-
-        return {
-            schema: "z.url()",
-            importedSchemas: [],
-            confidence,
-            reasons,
-        };
-    },
-};
 export const emailRule: InferencePass = {
     type: "email",
-    priority: 2,
+    priority: 4,
     threshold: 5,
 
     tryInfer({ rawValue }) {
         if (!/^[^@]+@[^@]+\.[^@]+$/.test(rawValue)) return null;
 
         return {
-            schema: "z.string().email()",
+            schema: "z.email()",
             importedSchemas: [],
             confidence: 6,
             reasons: ["Email-like value"],

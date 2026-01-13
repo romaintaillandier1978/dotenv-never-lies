@@ -8,7 +8,7 @@ export type InferCliOptions = {
     source?: string;
     out?: string;
     force?: boolean;
-    guessSecret?: boolean;
+    dontGuessSecret?: boolean; // if true, the command will not try to guess secret variables
     verbose?: boolean;
 };
 
@@ -18,6 +18,7 @@ export type InferResult = {
     warnings: string[];
     verbose?: Array<string>;
 };
+
 export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<InferResult> => {
     const source = path.resolve(process.cwd(), opts?.source ?? ".env");
     if (!fs.existsSync(source)) {
@@ -57,8 +58,10 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
         } else {
             lines.push(`        schema: ${inferSchema(key, value, importedSchemas, verbose)},`);
         }
-        if (opts?.guessSecret && guessSecret(key)) {
-            lines.push(`        secret: true,`);
+        if (!opts?.dontGuessSecret && guessSecret(key)) {
+            lines.push(`        secret: true, //  ⚠️  inferred as secret`);
+            verbose.push(`    -> inferred as secret`);
+            warnings.push(`${key} inferred as secret`);
         }
         lines.push(`    },`);
     }
