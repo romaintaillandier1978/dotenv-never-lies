@@ -1,8 +1,9 @@
-import { InferencePass, matchesEnvKey } from "./index.js";
+import { InferRule } from "../types.js";
+import { matchesEnvKey } from "../helpers.js";
 
-const PORT_KEYS = ["PORT", "PORT_", "_PORT"];
+const PORT_KEYS = ["PORT", "PORT", "PORT"];
 
-export const portRule: InferencePass = {
+export const portRule: InferRule = {
     type: "port",
     priority: 7,
     threshold: 5,
@@ -25,7 +26,7 @@ export const portRule: InferencePass = {
         }
 
         return {
-            schema: `portSchema("${name}")`,
+            schema: `portSchema("${JSON.stringify(name)}")`,
             importedSchemas: ["portSchema"],
             confidence,
             reasons,

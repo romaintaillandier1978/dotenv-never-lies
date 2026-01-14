@@ -1,5 +1,14 @@
-import { looksLikeUrl, looksLikeHttpUrl, looksLikeDbUrl, looksLikeQueueUrl, looksLikeWsUrl, looksLikeStorageUrl, looksLikeOtherUrl } from "../schemas/urls.js";
-import { InferenceInput, InferencePass, InferenceResult, matchesEnvKey } from "./index.js";
+import {
+    looksLikeUrl,
+    looksLikeHttpUrl,
+    looksLikeDbUrl,
+    looksLikeQueueUrl,
+    looksLikeWsUrl,
+    looksLikeStorageUrl,
+    looksLikeOtherUrl,
+} from "../../schemas/urls.js";
+import { InferResult, InferRule } from "../types.js";
+import { matchesEnvKey } from "../helpers.js";
 
 export const URL_KEYS: string[] = ["URL", "URI", "LINK", "ENDPOINT", "API_URL", "API_ENDPOINT", "API_LINK", "API_URI"];
 const DB_KEYS = ["DB", "DATABASE", "DB_URL", "DATABASE_URL", "DB_URI", "DATABASE_URI"];
@@ -21,7 +30,7 @@ type SubUrlRuleInput = SubUrlConst & {
     reasons: string[];
 };
 
-const subUrlRule = (input: SubUrlRuleInput): InferenceResult | null => {
+const subUrlRule = (input: SubUrlRuleInput): InferResult | null => {
     input.confidence += 2;
     const reasons: string[] = [`Valid ${input.message} URL (+2)`];
     const { matched, reason } = matchesEnvKey(input.name, input.keys);
@@ -87,7 +96,7 @@ const subUrlRules: Record<string, (name: string) => SubUrlConst> = {
         };
     },
 };
-export const urlRule: InferencePass = {
+export const urlRule: InferRule = {
     type: "url",
     priority: 5,
     threshold: 5,

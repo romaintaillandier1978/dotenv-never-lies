@@ -1,6 +1,7 @@
 import path from "node:path";
 import dnl from "../../index.js";
-import { guessSecret, inferSchema } from "../utils/infer-schema.js";
+import { guessSecret } from "../../infer/helpers.js";
+import { infer } from "../utils/infer-schema.js";
 import fs from "node:fs";
 import { ExportError } from "../../errors.js";
 
@@ -56,7 +57,7 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
         if (value === undefined) {
             lines.push(`        schema: z.string().optional(),`);
         } else {
-            lines.push(`        schema: ${inferSchema(key, value, importedSchemas, verbose)},`);
+            lines.push(`        schema: ${infer(key, value, importedSchemas, verbose)},`);
         }
         if (!opts?.dontGuessSecret && guessSecret(key)) {
             lines.push(`        secret: true, //  ⚠️  inferred as secret`);

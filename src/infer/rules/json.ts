@@ -1,8 +1,9 @@
-import { InferenceInput, InferencePass, InferenceResult, matchesEnvKey } from "./index.js";
+import { InferRule } from "../types.js";
+import { matchesEnvKey } from "../helpers.js";
 const JSON_KEYS_HIGH = ["JSON"];
-const JSON_KEYS_LOW = ["_PAYLOAD", "_CONFIG", "_DATA", "_META"];
+const JSON_KEYS_LOW = ["PAYLOAD", "CONFIG", "DATA", "META"];
 
-export const jsonRule: InferencePass = {
+export const jsonRule: InferRule = {
     type: "json",
     priority: 10,
     threshold: 5,
@@ -45,7 +46,7 @@ export const jsonRule: InferencePass = {
         if (confidence < this.threshold) return null;
 
         return {
-            schema: `jsonSchema("${name}")`,
+            schema: `jsonSchema("${JSON.stringify(name)}")`,
             importedSchemas: ["jsonSchema"],
             confidence,
             reasons,

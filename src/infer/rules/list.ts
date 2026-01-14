@@ -1,14 +1,15 @@
-import { inferSimpleSchemaForListItem } from "../cli/utils/infer-schema.js";
-import { InferencePass, matchesEnvKey } from "./index.js";
+import { inferSimpleSchemaForListItem } from "../helpers.js";
+import { InferRule } from "../types.js";
+import { matchesEnvKey } from "../helpers.js";
 
 const DOUBLE_SEPARATORS = [
     [";", "="],
     [",", "="],
     ["&", "="],
 ];
-const KEY_PAIR_NAMES_LIST = ["_MAPS", "_LABELS", "_HEADERS", "_PARAMS"];
+const KEY_PAIR_NAMES_LIST = ["MAPS", "LABELS", "HEADERS", "PARAMS"];
 
-export const keyValueListRule: InferencePass = {
+export const keyValueListRule: InferRule = {
     type: "keyValueList",
     priority: 9,
     threshold: 6,
@@ -35,7 +36,7 @@ export const keyValueListRule: InferencePass = {
         }
 
         return {
-            schema: `keyValueListSchema("${name}")`,
+            schema: `keyValueListSchema("${JSON.stringify(name)}")`,
             importedSchemas: ["keyValueListSchema"],
             confidence,
             reasons,
@@ -43,9 +44,9 @@ export const keyValueListRule: InferencePass = {
     },
 };
 
-const KEY_PAIR_NAMES = ["_ENV", "_VARS", "_CONFIG", "_OPTIONS"];
+const KEY_PAIR_NAMES = ["ENV", "VARS", "CONFIG", "OPTIONS"];
 
-export const keyValueRule: InferencePass = {
+export const keyValueRule: InferRule = {
     type: "keyValue",
     priority: 8,
     threshold: 5,
@@ -63,7 +64,7 @@ export const keyValueRule: InferencePass = {
         }
 
         return {
-            schema: `keyValueSchema("${name}")`,
+            schema: `keyValueSchema("${JSON.stringify(name)}")`,
             importedSchemas: ["keyValueSchema"],
             confidence,
             reasons,
@@ -71,14 +72,14 @@ export const keyValueRule: InferencePass = {
     },
 };
 
-const LIST_KEYS = ["_LIST", "_ITEMS", "_ARRAY", "_VALUES"];
+const LIST_KEYS = ["LIST", "ITEMS", "ARRAY", "VALUES"];
 
 const allElementsAreEquals = (elements: string[]) => {
     const e0 = elements[0];
     return elements.every((e) => e === e0);
 };
 
-export const listRule: InferencePass = {
+export const listRule: InferRule = {
     type: "list",
     priority: 7,
     threshold: 5,
@@ -121,7 +122,7 @@ export const listRule: InferencePass = {
                     confidence += 2;
 
                     return {
-                        schema: `listSchema("${name}", { of: ${itemTypes[0]} })`,
+                        schema: `listSchema("${JSON.stringify(name)}", { of: ${itemTypes[0]} })`,
                         importedSchemas: ["listSchema", "portSchema"],
                         confidence,
                         reasons,
@@ -130,7 +131,7 @@ export const listRule: InferencePass = {
                     reasons.push("All elements are URLs (+2)");
                     confidence += 2;
                     return {
-                        schema: `urlListSchema("${name}")`,
+                        schema: `urlListSchema("${JSON.stringify(name)}")`,
                         importedSchemas: ["urlListSchema"],
                         confidence,
                         reasons,
@@ -139,7 +140,7 @@ export const listRule: InferencePass = {
                     reasons.push("All elements are emails (+2)");
                     confidence += 2;
                     return {
-                        schema: `emailListSchema("${name}")`,
+                        schema: `emailListSchema("${JSON.stringify(name)}")`,
                         importedSchemas: ["emailListSchema"],
                         confidence,
                         reasons,
@@ -148,7 +149,7 @@ export const listRule: InferencePass = {
                     reasons.push("All elements are numbers (+2)");
                     confidence += 2;
                     return {
-                        schema: `listSchema("${name}", { of: z.number() })`,
+                        schema: `listSchema("${JSON.stringify(name)}", { of: z.number() })`,
                         importedSchemas: ["listSchema"],
                         confidence,
                         reasons,
@@ -158,7 +159,7 @@ export const listRule: InferencePass = {
                     reasons.push("All elements are strings (+2)");
                     confidence += 2;
                     return {
-                        schema: `listSchema("${name}")`,
+                        schema: `listSchema("${JSON.stringify(name)}")`,
                         importedSchemas: ["listSchema"],
                         confidence,
                         reasons,
@@ -175,47 +176,3 @@ export const listRule: InferencePass = {
         };
     },
 };
-
-const URL_LIST_KEYS = ["_URLS", "_LINKS", "_ENDPOINTS", "_APIS", "CORS"];
-// export const urlListRule: InferencePass = {
-//     type: "urlList",
-//     priority: 6, // juste sous url, au-dessus de filePath
-//     threshold: 5,
-
-//     tryInfer({ name, rawValue }) {
-//         const parts = rawValue
-//             .split(/[;,]/)
-//             .map((v) => v.trim())
-//             .filter(Boolean);
-//         if (parts.length < 2) return null;
-//         let confidence = 1;
-//         const reasons: string[] = ["Multiple values separated by delimiter (+1)"];
-
-//         for (const part of parts) {
-//             try {
-//                 const url = new URL(part);
-//                 if (url.protocol !== "http:" && url.protocol !== "https:") {
-//                     return null;
-//                 }
-//             } catch {
-//                 return null;
-//             }
-//         }
-//         confidence += 5;
-//         reasons.push("All values are valid http(s) URLs (+5)");
-
-//         const { matched, reason } = matchesEnvKey(name, URL_LIST_KEYS);
-//         console.log("urlListRule", name, matched, reason);
-//         if (matched) {
-//             confidence += 2;
-//             reasons.push(`${reason} (+2)`);
-//         }
-
-//         return {
-//             schema: `urlListSchema("${name}")`,
-//             importedSchema: "urlListSchema",
-//             confidence,
-//             reasons,
-//         };
-//     },
-// };

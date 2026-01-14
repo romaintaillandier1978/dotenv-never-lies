@@ -1,7 +1,7 @@
-import { inferencePasses, listInferencePasses } from "../../infer-rules/index.js";
+import { RULES } from "../../infer/index.js";
 
-export const inferSchema = (name: string, rawValue: string, importedSchemas: Set<string>, verbose: Array<string>): string => {
-    for (const pass of inferencePasses) {
+export const infer = (name: string, rawValue: string, importedSchemas: Set<string>, verbose: Array<string>): string => {
+    for (const pass of RULES) {
         const result = pass.tryInfer({ name, rawValue });
 
         if (!result) continue;
@@ -20,25 +20,4 @@ export const inferSchema = (name: string, rawValue: string, importedSchemas: Set
         }
     }
     return "z.string()";
-};
-
-export const inferSimpleSchemaForListItem = (name: string, rawValue: string) => {
-    for (const pass of listInferencePasses) {
-        const result = pass.tryInfer({ name, rawValue });
-
-        if (!result) continue;
-
-        if (result.confidence >= pass.threshold) {
-            return result.schema;
-        }
-    }
-
-    return "z.string()";
-};
-
-const secretMarkers = ["SECRET", "KEY", "TOKEN", "PASSWORD", "PASS", "AUTH"];
-
-export const guessSecret = (value: string) => {
-    const parts = value.toUpperCase().split(/[_\-]/);
-    return secretMarkers.some((marker) => parts.includes(marker));
 };

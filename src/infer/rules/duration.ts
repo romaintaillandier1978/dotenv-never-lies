@@ -1,9 +1,10 @@
-import { looksLikeValidDuration } from "../schemas/duration.js";
-import { InferencePass, matchesEnvKey } from "./index.js";
+import { looksLikeValidDuration } from "../../schemas/duration.js";
+import { InferRule } from "../types.js";
+import { matchesEnvKey } from "../helpers.js";
 
-const DURATION_KEYS = ["_TIMEOUT", "_TTL", "_DELAY", "_DURATION", "_INTERVAL"];
+const DURATION_KEYS = ["TIMEOUT", "TTL", "DELAY", "DURATION", "INTERVAL"];
 
-export const durationRule: InferencePass = {
+export const durationRule: InferRule = {
     type: "duration",
     priority: 6,
     threshold: 5,

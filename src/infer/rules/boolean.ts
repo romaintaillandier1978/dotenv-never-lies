@@ -1,9 +1,10 @@
-import { looksLikeValidBoolean } from "../schemas/boolean.js";
-import { InferencePass, matchesEnvKey } from "./index.js";
+import { looksLikeValidBoolean } from "../../schemas/boolean.js";
+import { InferRule } from "../types.js";
+import { matchesEnvKey } from "../helpers.js";
 
-const BOOLEAN_KEYS = ["IS_", "HAS_", "ENABLE_", "DISABLE_", "_ENABLED", "_DISABLED", "ALLOW_", "DENY_"];
+const BOOLEAN_KEYS = ["IS", "HAS", "ENABLE", "DISABLE", "ENABLED", "DISABLED", "ALLOW", "DENY"];
 
-export const booleanRule: InferencePass = {
+export const booleanRule: InferRule = {
     type: "boolean",
     priority: 6,
     threshold: 5,

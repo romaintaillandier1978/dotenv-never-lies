@@ -1,6 +1,6 @@
-import { InferencePass } from "./index.js";
+import { InferRule } from "../types.js";
 
-export const numberRule: InferencePass = {
+export const numberRule: InferRule = {
     type: "number",
     priority: 4,
     threshold: 5,
@@ -23,7 +23,7 @@ export const numberRule: InferencePass = {
     },
 };
 
-export const emailRule: InferencePass = {
+export const emailRule: InferRule = {
     type: "email",
     priority: 4,
     threshold: 5,
@@ -39,7 +39,7 @@ export const emailRule: InferencePass = {
         };
     },
 };
-export const stringRule: InferencePass = {
+export const stringRule: InferRule = {
     type: "string",
     priority: 0,
     threshold: 0,

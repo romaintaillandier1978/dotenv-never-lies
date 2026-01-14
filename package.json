@@ -15,7 +15,10 @@
         "pack:check": "npm pack --dry-run",
         "release:patch": "npm version patch",
         "release:minor": "npm version minor",
-        "release:major": "npm version major"
+        "release:major": "npm version major",
+        "test": "vitest",
+        "test:run": "vitest run",
+        "test:watch": "vitest"
     },
     "keywords": [
         "env",
@@ -68,6 +71,7 @@
         "eslint": "^9.39.2",
         "prettier": "^3.7.4",
         "typescript": "^5.9.3",
+        "vitest": "^4.0.17",
         "zod": "^4.2.1"
     }
 }
