@@ -21,8 +21,15 @@ export const ipRule: InferRule = {
         }
 
         return {
-            schema: `ipSchema(${JSON.stringify(name)})`,
-            importedSchemas: ["ipSchema"],
+            generated: {
+                code: `ipSchema(${JSON.stringify(name)})`,
+                imports: [
+                    {
+                        name: "ipSchema",
+                        from: "@romaintaillandier1978/dotenv-never-lies",
+                    },
+                ],
+            },
             confidence,
             reasons,
         };

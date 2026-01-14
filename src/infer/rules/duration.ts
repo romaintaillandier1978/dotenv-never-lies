@@ -21,8 +21,15 @@ export const durationRule: InferRule = {
         }
 
         return {
-            schema: `durationSchema(${JSON.stringify(name)})`,
-            importedSchemas: ["durationSchema"],
+            generated: {
+                code: `durationSchema(${JSON.stringify(name)})`,
+                imports: [
+                    {
+                        name: "durationSchema",
+                        from: "@romaintaillandier1978/dotenv-never-lies",
+                    },
+                ],
+            },
             confidence,
             reasons,
         };

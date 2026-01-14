@@ -22,8 +22,15 @@ export const versionRule: InferRule = {
         }
 
         return {
-            schema: `versionSchema(${JSON.stringify(name)})`,
-            importedSchemas: ["versionSchema"],
+            generated: {
+                code: `versionSchema(${JSON.stringify(name)})`,
+                imports: [
+                    {
+                        name: "versionSchema",
+                        from: "@romaintaillandier1978/dotenv-never-lies",
+                    },
+                ],
+            },
             confidence,
             reasons,
         };

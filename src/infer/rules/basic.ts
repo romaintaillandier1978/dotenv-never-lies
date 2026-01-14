@@ -12,8 +12,10 @@ export const numberRule: InferRule = {
         // float ou entier hors port
         if (rawValue.includes(".") || n < 1 || n > 65535) {
             return {
-                schema: "z.coerce.number()",
-                importedSchemas: [],
+                generated: {
+                    code: "z.coerce.number()",
+                    imports: [],
+                },
                 confidence: 6,
                 reasons: ["numeric value"],
             };
@@ -32,8 +34,10 @@ export const emailRule: InferRule = {
         if (!/^[^@]+@[^@]+\.[^@]+$/.test(rawValue)) return null;
 
         return {
-            schema: "z.email()",
-            importedSchemas: [],
+            generated: {
+                code: "z.email()",
+                imports: [],
+            },
             confidence: 6,
             reasons: ["Email-like value"],
         };
@@ -46,8 +50,10 @@ export const stringRule: InferRule = {
 
     tryInfer() {
         return {
-            schema: "z.string()",
-            importedSchemas: [],
+            generated: {
+                code: "z.string()",
+                imports: [],
+            },
             confidence: 0,
             reasons: ["Fallback to string"],
         };

@@ -19,8 +19,15 @@ export const booleanRule: InferRule = {
         }
 
         return {
-            schema: `boolSchema("${name}")`,
-            importedSchemas: ["boolSchema"],
+            generated: {
+                code: `boolSchema("${name}")`,
+                imports: [
+                    {
+                        name: "boolSchema",
+                        from: "@romaintaillandier1978/dotenv-never-lies",
+                    },
+                ],
+            },
             confidence: 10,
             reasons,
         };

@@ -36,8 +36,15 @@ export const keyValueListRule: InferRule = {
         }
 
         return {
-            schema: `keyValueListSchema("${JSON.stringify(name)}")`,
-            importedSchemas: ["keyValueListSchema"],
+            generated: {
+                code: `keyValueListSchema("${JSON.stringify(name)}")`,
+                imports: [
+                    {
+                        name: "keyValueListSchema",
+                        from: "@romaintaillandier1978/dotenv-never-lies",
+                    },
+                ],
+            },
             confidence,
             reasons,
         };
@@ -64,8 +71,15 @@ export const keyValueRule: InferRule = {
         }
 
         return {
-            schema: `keyValueSchema("${JSON.stringify(name)}")`,
-            importedSchemas: ["keyValueSchema"],
+            generated: {
+                code: `keyValueSchema("${JSON.stringify(name)}")`,
+                imports: [
+                    {
+                        name: "keyValueSchema",
+                        from: "@romaintaillandier1978/dotenv-never-lies",
+                    },
+                ],
+            },
             confidence,
             reasons,
         };
@@ -122,8 +136,13 @@ export const listRule: InferRule = {
                     confidence += 2;
 
                     return {
-                        schema: `listSchema("${JSON.stringify(name)}", { of: ${itemTypes[0]} })`,
-                        importedSchemas: ["listSchema", "portSchema"],
+                        generated: {
+                            code: `listSchema(${JSON.stringify(name)}, { of: ${itemTypes[0]} })`,
+                            imports: [
+                                { name: "listSchema", from: "@romaintaillandier1978/dotenv-never-lies" },
+                                { name: "portSchema", from: "@romaintaillandier1978/dotenv-never-lies" },
+                            ],
+                        },
                         confidence,
                         reasons,
                     };
@@ -131,8 +150,10 @@ export const listRule: InferRule = {
                     reasons.push("All elements are URLs (+2)");
                     confidence += 2;
                     return {
-                        schema: `urlListSchema("${JSON.stringify(name)}")`,
-                        importedSchemas: ["urlListSchema"],
+                        generated: {
+                            code: `urlListSchema("${JSON.stringify(name)}")`,
+                            imports: [{ name: "urlListSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+                        },
                         confidence,
                         reasons,
                     };
@@ -140,8 +161,10 @@ export const listRule: InferRule = {
                     reasons.push("All elements are emails (+2)");
                     confidence += 2;
                     return {
-                        schema: `emailListSchema("${JSON.stringify(name)}")`,
-                        importedSchemas: ["emailListSchema"],
+                        generated: {
+                            code: `emailListSchema("${JSON.stringify(name)}")`,
+                            imports: [{ name: "emailListSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+                        },
                         confidence,
                         reasons,
                     };
@@ -149,8 +172,10 @@ export const listRule: InferRule = {
                     reasons.push("All elements are numbers (+2)");
                     confidence += 2;
                     return {
-                        schema: `listSchema("${JSON.stringify(name)}", { of: z.number() })`,
-                        importedSchemas: ["listSchema"],
+                        generated: {
+                            code: `listSchema(${JSON.stringify(name)}, { of: z.number() })`,
+                            imports: [{ name: "listSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+                        },
                         confidence,
                         reasons,
                     };
@@ -159,8 +184,10 @@ export const listRule: InferRule = {
                     reasons.push("All elements are strings (+2)");
                     confidence += 2;
                     return {
-                        schema: `listSchema("${JSON.stringify(name)}")`,
-                        importedSchemas: ["listSchema"],
+                        generated: {
+                            code: `listSchema(${JSON.stringify(name)})`,
+                            imports: [{ name: "listSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+                        },
                         confidence,
                         reasons,
                     };
@@ -169,8 +196,10 @@ export const listRule: InferRule = {
 
         // liste de type mixte
         return {
-            schema: `listSchema("${name}")`,
-            importedSchemas: ["listSchema"],
+            generated: {
+                code: `listSchema(${JSON.stringify(name)})`,
+                imports: [{ name: "listSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+            },
             confidence,
             reasons,
         };

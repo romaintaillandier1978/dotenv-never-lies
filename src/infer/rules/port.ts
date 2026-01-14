@@ -26,8 +26,15 @@ export const portRule: InferRule = {
         }
 
         return {
-            schema: `portSchema("${JSON.stringify(name)}")`,
-            importedSchemas: ["portSchema"],
+            generated: {
+                code: `portSchema(${JSON.stringify(name)})`,
+                imports: [
+                    {
+                        name: "portSchema",
+                        from: "@romaintaillandier1978/dotenv-never-lies",
+                    },
+                ],
+            },
             confidence,
             reasons,
         };

@@ -1,20 +1,48 @@
+/**
+ * represent an import in a generated env.dnl.ts file
+ */
+export type Import = {
+    /**
+     * exact name of the element to import at the top of the generated env.dnl.ts file, ex: "jsonSchema"
+     */
+    name: string;
+    /**
+     * exact name of the package to import, ex: "@romaintaillandier1978/dotenv-never-lies"
+     */
+    from: string;
+};
+/**
+ * represent a generated schema in a generated env.dnl.ts file, with associated import(s)
+ * ex: {
+ *     code: `jsonSchema("${name}")`,
+ *     imports: [{ name: "jsonSchema", from: "@romaintaillandier1978/dotenv-never-lies" }]
+ * }
+ */
+export type GeneratedSchema = {
+    /**
+     * The code that will be written in the dnl schema output, ex: "z.string()" or `jsonSchema("${name}")`
+     */
+    code: string;
+    /**
+     * What to import in dnl schema to support this schema. (set to [] to ignore zod imports.)
+     */
+    imports: Import[];
+};
+
+/**
+ * Result of an inference
+ */
 export type InferResult = {
     /**
-     * Code TS sérialisé, ex:
-     * "z.string()"
-     * "jsonSchema(\"${name}\")"
+     * Generated code and imports
      */
-    schema: string;
+    generated: GeneratedSchema;
     /**
-    nom exact de l'élément à importer au top du fichier env.dnl.tsgénéré, ex: "jsonSchema" 
-     */
-    importedSchemas: Array<string>;
-    /**
-     * Niveau de confiance (0–10 typiquement)
+     * Confidence level (0–10 typically)
      */
     confidence: number;
     /**
-     * Optionnel, pour debug / warnings futurs
+     * Optional, for debug / warnings / verbose
      */
     reasons?: string[];
 };
@@ -26,23 +54,23 @@ export type InferInput = {
 
 export type InferRule = {
     /**
-     * Identifiant logique (json, boolean, duration, etc.)
+     * Logical identifier (json, boolean, duration, etc.)
      */
     type: string;
 
     /**
-     * Ordre global (plus haut = plus prioritaire)
+     * Global order (higher = higher priority)
      */
     priority: number;
 
     /**
-     * Seuil minimum pour accepter cette inférence
+     * Minimum threshold to accept this inference
      */
     threshold: number;
 
     /**
-     * Tente une inférence.
-     * Retourne null si la règle ne s'applique pas du tout.
+     * Tries an inference.
+     * Returns null if the rule does not apply at all.
      */
     tryInfer(input: InferInput): InferResult | null;
 };

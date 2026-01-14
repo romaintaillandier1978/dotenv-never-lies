@@ -7,7 +7,7 @@ import {
     looksLikeStorageUrl,
     looksLikeOtherUrl,
 } from "../../schemas/urls.js";
-import { InferResult, InferRule } from "../types.js";
+import { GeneratedSchema, InferResult, InferRule } from "../types.js";
 import { matchesEnvKey } from "../helpers.js";
 
 export const URL_KEYS: string[] = ["URL", "URI", "LINK", "ENDPOINT", "API_URL", "API_ENDPOINT", "API_LINK", "API_URI"];
@@ -20,8 +20,7 @@ const OTHER_KEYS = ["OTHER", "MISC", "MISC_URL", "MISC_URI", "MISC_LINK", "MISC_
 type SubUrlConst = {
     message: string;
     keys: string[];
-    schema: string;
-    importedSchemas: string[];
+    schema: GeneratedSchema;
 };
 type SubUrlRuleInput = SubUrlConst & {
     name: string;
@@ -39,8 +38,7 @@ const subUrlRule = (input: SubUrlRuleInput): InferResult | null => {
         reasons.push(`${reason} (+2)`);
     }
     return {
-        schema: input.schema,
-        importedSchemas: input.importedSchemas,
+        generated: input.schema,
         confidence: input.confidence,
         reasons,
     };
@@ -51,48 +49,60 @@ const subUrlRules: Record<string, (name: string) => SubUrlConst> = {
         return {
             message: "HTTP",
             keys: URL_KEYS,
-            schema: `httpUrlSchema(${JSON.stringify(name)})`,
-            importedSchemas: ["httpUrlSchema"],
+            schema: {
+                code: `httpUrlSchema(${JSON.stringify(name)})`,
+                imports: [{ name: "httpUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+            },
         };
     },
     DATABASE: (name: string) => {
         return {
             message: "database",
             keys: DB_KEYS,
-            schema: `databaseUrlSchema(${JSON.stringify(name)})`,
-            importedSchemas: ["databaseUrlSchema"],
+            schema: {
+                code: `databaseUrlSchema(${JSON.stringify(name)})`,
+                imports: [{ name: "databaseUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+            },
         };
     },
     QUEUE: (name: string) => {
         return {
             message: "queue",
             keys: QUEUE_KEYS,
-            schema: `queueUrlSchema(${JSON.stringify(name)})`,
-            importedSchemas: ["queueUrlSchema"],
+            schema: {
+                code: `queueUrlSchema(${JSON.stringify(name)})`,
+                imports: [{ name: "queueUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+            },
         };
     },
     WS: (name: string) => {
         return {
             message: "ws",
             keys: WS_KEYS,
-            schema: `wsUrlSchema(${JSON.stringify(name)})`,
-            importedSchemas: ["wsUrlSchema"],
+            schema: {
+                code: `wsUrlSchema(${JSON.stringify(name)})`,
+                imports: [{ name: "wsUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+            },
         };
     },
     STORAGE: (name: string) => {
         return {
             message: "storage",
             keys: STORAGE_KEYS,
-            schema: `storageUrlSchema(${JSON.stringify(name)})`,
-            importedSchemas: ["storageUrlSchema"],
+            schema: {
+                code: `storageUrlSchema(${JSON.stringify(name)})`,
+                imports: [{ name: "storageUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+            },
         };
     },
     OTHER: (name: string) => {
         return {
             message: "other",
             keys: OTHER_KEYS,
-            schema: `otherUrlSchema(${JSON.stringify(name)})`,
-            importedSchemas: ["otherUrlSchema"],
+            schema: {
+                code: `otherUrlSchema(${JSON.stringify(name)})`,
+                imports: [{ name: "otherUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+            },
         };
     },
 };
@@ -169,8 +179,10 @@ export const urlRule: InferRule = {
         }
 
         return {
-            schema: "z.url()",
-            importedSchemas: [],
+            generated: {
+                code: "z.url()",
+                imports: [],
+            },
             confidence,
             reasons,
         };

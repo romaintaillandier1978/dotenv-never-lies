@@ -1,13 +1,13 @@
 import { RULES } from "./index.js";
 
-export const inferSimpleSchemaForListItem = (name: string, rawValue: string) => {
+export const inferSimpleSchemaForListItem = (name: string, rawValue: string): string => {
     for (const pass of RULES) {
         const result = pass.tryInfer({ name, rawValue });
 
         if (!result) continue;
 
         if (result.confidence >= pass.threshold) {
-            return result.schema;
+            return result.generated.code;
         }
     }
 

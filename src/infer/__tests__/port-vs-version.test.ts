@@ -1,26 +1,37 @@
-// import { describe, it, expect } from "vitest";
-// import { infer } from "../../cli/utils/infer-schema.js";
-// import { portRule } from "../port.js";
+import { describe, it, expect } from "vitest";
+import { portRule } from "../rules/port.js";
+import { versionRule } from "../rules/version.js";
 
-// describe("Inference – port vs version", () => {
-//     const importedSchemas = new Set<string>();
-//     const verbose: Array<string> = [];
-//     it("does not infer port from API_VERSION=2.0", () => {
-//         const result = infer("API_VERSION", "2.0", importedSchemas, verbose);
+describe("Inference rules – port vs version", () => {
+    it("portRule should NOT match API_VERSION=2.0", () => {
+        const result = portRule.tryInfer({
+            name: "API_VERSION",
+            rawValue: "2.0",
+        });
 
-//         expect(result).not.toBe("portSchema");
-//     });
+        // la règle ne s'applique pas → null
+        expect(result).toBeNull();
+    });
 
-//     it("does not infer version from API_VERSION=2.0 (major.minor only)", () => {
-//         const result = infer("API_VERSION", "2.0", importedSchemas, verbose);
+    it("versionRule should not match API_VERSION=2.0", () => {
+        const result = versionRule.tryInfer({
+            name: "API_VERSION",
+            rawValue: "2.0",
+        });
 
-//         expect(result.type).not.toBe("version");
-//     });
+        // la règle reconnaît un pattern version
+        expect(result).toBeNull();
+    });
 
-//     it("falls back to string for API_VERSION=2.0", () => {
-//         const result = infer("API_VERSION", "2.0", importedSchemas, verbose);
+    it("versionRule should not match API_VERSION=2.0.0", () => {
+        const result = versionRule.tryInfer({
+            name: "API_VERSION",
+            rawValue: "2.0.0",
+        });
 
-//         expect(result.schema).toBe("z.string()");
-//         expect(result.confidence).toBe(0);
-//     });
-// });
+        // la règle reconnaît un pattern version
+        expect(result).not.toBeNull();
+        expect(result?.generated.code).toContain("versionSchema");
+        expect(result!.confidence).toBeGreaterThanOrEqual(versionRule.threshold);
+    });
+});

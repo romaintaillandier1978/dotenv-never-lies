@@ -46,8 +46,15 @@ export const jsonRule: InferRule = {
         if (confidence < this.threshold) return null;
 
         return {
-            schema: `jsonSchema("${JSON.stringify(name)}")`,
-            importedSchemas: ["jsonSchema"],
+            generated: {
+                code: `jsonSchema("${JSON.stringify(name)}")`,
+                imports: [
+                    {
+                        name: "jsonSchema",
+                        from: "@romaintaillandier1978/dotenv-never-lies",
+                    },
+                ],
+            },
             confidence,
             reasons,
         };
