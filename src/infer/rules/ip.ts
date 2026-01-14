@@ -1,4 +1,5 @@
 import { looksLikeIp } from "../../schemas/dotted.js";
+import { ipGenSchema } from "../generated/ip.js";
 import { matchesEnvKey } from "../helpers.js";
 import { InferRule } from "../types.js";
 
@@ -21,15 +22,7 @@ export const ipRule: InferRule = {
         }
 
         return {
-            generated: {
-                code: `ipSchema(${JSON.stringify(name)})`,
-                imports: [
-                    {
-                        name: "ipSchema",
-                        from: "@romaintaillandier1978/dotenv-never-lies",
-                    },
-                ],
-            },
+            generated: ipGenSchema(name),
             confidence,
             reasons,
         };

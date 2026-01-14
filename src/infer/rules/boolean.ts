@@ -1,6 +1,7 @@
 import { looksLikeValidBoolean } from "../../schemas/boolean.js";
 import { InferRule } from "../types.js";
 import { matchesEnvKey } from "../helpers.js";
+import { boolGenSchema } from "../generated/boolean.js";
 
 const BOOLEAN_KEYS = ["IS", "HAS", "ENABLE", "DISABLE", "ENABLED", "DISABLED", "ALLOW", "DENY"];
 
@@ -19,16 +20,8 @@ export const booleanRule: InferRule = {
         }
 
         return {
-            generated: {
-                code: `boolSchema("${name}")`,
-                imports: [
-                    {
-                        name: "boolSchema",
-                        from: "@romaintaillandier1978/dotenv-never-lies",
-                    },
-                ],
-            },
-            confidence: 10,
+            generated: boolGenSchema(name),
+            confidence,
             reasons,
         };
     },

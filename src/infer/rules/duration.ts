@@ -1,6 +1,7 @@
 import { looksLikeValidDuration } from "../../schemas/duration.js";
 import { InferRule } from "../types.js";
 import { matchesEnvKey } from "../helpers.js";
+import { durationGenSchema } from "../generated/duration.js";
 
 const DURATION_KEYS = ["TIMEOUT", "TTL", "DELAY", "DURATION", "INTERVAL"];
 
@@ -21,15 +22,7 @@ export const durationRule: InferRule = {
         }
 
         return {
-            generated: {
-                code: `durationSchema(${JSON.stringify(name)})`,
-                imports: [
-                    {
-                        name: "durationSchema",
-                        from: "@romaintaillandier1978/dotenv-never-lies",
-                    },
-                ],
-            },
+            generated: durationGenSchema(name),
             confidence,
             reasons,
         };

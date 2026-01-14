@@ -1,4 +1,5 @@
 import { InferRule } from "../types.js";
+import { zEmailGenSchema, zNumberGenSchema, zStringGenSchema } from "../generated/basic.js";
 
 export const numberRule: InferRule = {
     type: "number",
@@ -12,10 +13,7 @@ export const numberRule: InferRule = {
         // float ou entier hors port
         if (rawValue.includes(".") || n < 1 || n > 65535) {
             return {
-                generated: {
-                    code: "z.coerce.number()",
-                    imports: [],
-                },
+                generated: zNumberGenSchema,
                 confidence: 6,
                 reasons: ["numeric value"],
             };
@@ -34,10 +32,7 @@ export const emailRule: InferRule = {
         if (!/^[^@]+@[^@]+\.[^@]+$/.test(rawValue)) return null;
 
         return {
-            generated: {
-                code: "z.email()",
-                imports: [],
-            },
+            generated: zEmailGenSchema,
             confidence: 6,
             reasons: ["Email-like value"],
         };
@@ -50,10 +45,7 @@ export const stringRule: InferRule = {
 
     tryInfer() {
         return {
-            generated: {
-                code: "z.string()",
-                imports: [],
-            },
+            generated: zStringGenSchema,
             confidence: 0,
             reasons: ["Fallback to string"],
         };

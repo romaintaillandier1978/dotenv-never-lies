@@ -31,4 +31,10 @@ export const RULES: InferRule[] = [
     stringRule, // 0 = fallback
 ].sort((a, b) => b.priority - a.priority);
 
-export const LIST_RULES: InferRule[] = [portRule, numberRule, emailRule, urlRule, stringRule];
+export const LIST_RULES: InferRule[] = [
+    portRule, //7
+    urlRule, //5
+    emailRule, //4
+    numberRule, //3
+    stringRule, //0
+].sort((a, b) => b.priority - a.priority);

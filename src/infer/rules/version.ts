@@ -1,6 +1,7 @@
 import { looksLikeVersion } from "../../schemas/dotted.js";
 import { InferRule } from "../types.js";
 import { matchesEnvKey } from "../helpers.js";
+import { versionGenSchema } from "../generated/version.js";
 
 const VERSION_KEYS = ["VERSION", "SEMVER", "TAG", "RELEASE"];
 // Note : NEVER add 2 parts version (2.0), it will conflict with numberRules (numberSchema)
@@ -22,15 +23,7 @@ export const versionRule: InferRule = {
         }
 
         return {
-            generated: {
-                code: `versionSchema(${JSON.stringify(name)})`,
-                imports: [
-                    {
-                        name: "versionSchema",
-                        from: "@romaintaillandier1978/dotenv-never-lies",
-                    },
-                ],
-            },
+            generated: versionGenSchema(name),
             confidence,
             reasons,
         };

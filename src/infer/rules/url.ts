@@ -9,6 +9,7 @@ import {
 } from "../../schemas/urls.js";
 import { GeneratedSchema, InferResult, InferRule } from "../types.js";
 import { matchesEnvKey } from "../helpers.js";
+import { databaseUrlGenSchema, httpUrlGenSchema, otherUrlGenSchema, queueUrlGenSchema, storageUrlGenSchema, wsUrlSchemaGen } from "../generated/url.js";
 
 export const URL_KEYS: string[] = ["URL", "URI", "LINK", "ENDPOINT", "API_URL", "API_ENDPOINT", "API_LINK", "API_URI"];
 const DB_KEYS = ["DB", "DATABASE", "DB_URL", "DATABASE_URL", "DB_URI", "DATABASE_URI"];
@@ -49,60 +50,42 @@ const subUrlRules: Record<string, (name: string) => SubUrlConst> = {
         return {
             message: "HTTP",
             keys: URL_KEYS,
-            schema: {
-                code: `httpUrlSchema(${JSON.stringify(name)})`,
-                imports: [{ name: "httpUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-            },
+            schema: httpUrlGenSchema(name),
         };
     },
     DATABASE: (name: string) => {
         return {
             message: "database",
             keys: DB_KEYS,
-            schema: {
-                code: `databaseUrlSchema(${JSON.stringify(name)})`,
-                imports: [{ name: "databaseUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-            },
+            schema: databaseUrlGenSchema(name),
         };
     },
     QUEUE: (name: string) => {
         return {
             message: "queue",
             keys: QUEUE_KEYS,
-            schema: {
-                code: `queueUrlSchema(${JSON.stringify(name)})`,
-                imports: [{ name: "queueUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-            },
+            schema: queueUrlGenSchema(name),
         };
     },
     WS: (name: string) => {
         return {
             message: "ws",
             keys: WS_KEYS,
-            schema: {
-                code: `wsUrlSchema(${JSON.stringify(name)})`,
-                imports: [{ name: "wsUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-            },
+            schema: wsUrlSchemaGen(name),
         };
     },
     STORAGE: (name: string) => {
         return {
             message: "storage",
             keys: STORAGE_KEYS,
-            schema: {
-                code: `storageUrlSchema(${JSON.stringify(name)})`,
-                imports: [{ name: "storageUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-            },
+            schema: storageUrlGenSchema(name),
         };
     },
     OTHER: (name: string) => {
         return {
             message: "other",
             keys: OTHER_KEYS,
-            schema: {
-                code: `otherUrlSchema(${JSON.stringify(name)})`,
-                imports: [{ name: "otherUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-            },
+            schema: otherUrlGenSchema(name),
         };
     },
 };

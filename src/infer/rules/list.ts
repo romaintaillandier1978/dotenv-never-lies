@@ -1,12 +1,10 @@
-import { inferSimpleSchemaForListItem } from "../helpers.js";
+import { areAllSameGenSchemas, areSameGenSchemas, inferSimpleSchemaForListItem } from "../helpers.js";
 import { InferRule } from "../types.js";
 import { matchesEnvKey } from "../helpers.js";
+import { keyValueListSchemaGen, listSchemaGen, urlListSchemaGen, emailListSchemaGen, keyValueSchemaGen, listOfSchemaGen } from "../generated/list.js";
+import { portGenSchemaNoName } from "../generated/port.js";
+import { zEmailGenSchema, zNumberGenSchema, zUrlGenSchema } from "../generated/basic.js";
 
-const DOUBLE_SEPARATORS = [
-    [";", "="],
-    [",", "="],
-    ["&", "="],
-];
 const KEY_PAIR_NAMES_LIST = ["MAPS", "LABELS", "HEADERS", "PARAMS"];
 
 export const keyValueListRule: InferRule = {
@@ -36,15 +34,7 @@ export const keyValueListRule: InferRule = {
         }
 
         return {
-            generated: {
-                code: `keyValueListSchema("${JSON.stringify(name)}")`,
-                imports: [
-                    {
-                        name: "keyValueListSchema",
-                        from: "@romaintaillandier1978/dotenv-never-lies",
-                    },
-                ],
-            },
+            generated: keyValueListSchemaGen(name),
             confidence,
             reasons,
         };
@@ -71,15 +61,7 @@ export const keyValueRule: InferRule = {
         }
 
         return {
-            generated: {
-                code: `keyValueSchema("${JSON.stringify(name)}")`,
-                imports: [
-                    {
-                        name: "keyValueSchema",
-                        from: "@romaintaillandier1978/dotenv-never-lies",
-                    },
-                ],
-            },
+            generated: keyValueSchemaGen(name),
             confidence,
             reasons,
         };
@@ -87,11 +69,6 @@ export const keyValueRule: InferRule = {
 };
 
 const LIST_KEYS = ["LIST", "ITEMS", "ARRAY", "VALUES"];
-
-const allElementsAreEquals = (elements: string[]) => {
-    const e0 = elements[0];
-    return elements.every((e) => e === e0);
-};
 
 export const listRule: InferRule = {
     type: "list",
@@ -126,80 +103,69 @@ export const listRule: InferRule = {
             reasons.push(`${reason} (+1)`);
         }
 
-        const itemTypes = parts.map((value) => inferSimpleSchemaForListItem("", value));
-        if (allElementsAreEquals(itemTypes)) {
-            reasons.push("All elements are of the same type (+2)");
-            confidence += 2;
-            switch (itemTypes[0]) {
-                case 'portSchema("")':
-                    reasons.push("All elements are PORTS (+2)");
-                    confidence += 2;
+        const itemTypes = parts.map((value) => inferSimpleSchemaForListItem(value));
 
-                    return {
-                        generated: {
-                            code: `listSchema(${JSON.stringify(name)}, { of: ${itemTypes[0]} })`,
-                            imports: [
-                                { name: "listSchema", from: "@romaintaillandier1978/dotenv-never-lies" },
-                                { name: "portSchema", from: "@romaintaillandier1978/dotenv-never-lies" },
-                            ],
-                        },
-                        confidence,
-                        reasons,
-                    };
-                case "z.url()":
-                    reasons.push("All elements are URLs (+2)");
-                    confidence += 2;
-                    return {
-                        generated: {
-                            code: `urlListSchema("${JSON.stringify(name)}")`,
-                            imports: [{ name: "urlListSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-                        },
-                        confidence,
-                        reasons,
-                    };
-                case "z.email()":
-                    reasons.push("All elements are emails (+2)");
-                    confidence += 2;
-                    return {
-                        generated: {
-                            code: `emailListSchema("${JSON.stringify(name)}")`,
-                            imports: [{ name: "emailListSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-                        },
-                        confidence,
-                        reasons,
-                    };
-                case "z.number()":
-                    reasons.push("All elements are numbers (+2)");
-                    confidence += 2;
-                    return {
-                        generated: {
-                            code: `listSchema(${JSON.stringify(name)}, { of: z.number() })`,
-                            imports: [{ name: "listSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-                        },
-                        confidence,
-                        reasons,
-                    };
-                default:
-                    //vraie liste de string
-                    reasons.push("All elements are strings (+2)");
-                    confidence += 2;
-                    return {
-                        generated: {
-                            code: `listSchema(${JSON.stringify(name)})`,
-                            imports: [{ name: "listSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-                        },
-                        confidence,
-                        reasons,
-                    };
-            }
+        // if some elements are of different types => list of strings.
+        if (!areAllSameGenSchemas(itemTypes)) {
+            return {
+                generated: listSchemaGen(name),
+                confidence,
+                reasons,
+            };
+        }
+        // from here, all elements are of the same type => we can generate a typed list
+        reasons.push("All elements are of the same type (+2)");
+        confidence += 2;
+
+        // List of ports
+        if (areSameGenSchemas(itemTypes[0], portGenSchemaNoName)) {
+            reasons.push("All elements are PORTS (+2)");
+            confidence += 2;
+            return {
+                generated: listOfSchemaGen(name, itemTypes[0]),
+                confidence,
+                reasons,
+            };
         }
 
-        // liste de type mixte
+        // List of emails
+        if (areSameGenSchemas(itemTypes[0], zEmailGenSchema)) {
+            reasons.push("All elements are emails (+2)");
+            confidence += 2;
+            return {
+                generated: emailListSchemaGen(name),
+                confidence,
+                reasons,
+            };
+        }
+
+        // here we assume we have a list of simple URLs.
+        // possible evolution with all types of URLs.
+        // List of URLs
+        if (areSameGenSchemas(itemTypes[0], zUrlGenSchema)) {
+            reasons.push("All elements are URLs (+2)");
+            confidence += 2;
+            return {
+                generated: urlListSchemaGen(name),
+                confidence,
+                reasons,
+            };
+        }
+        // List of numbers
+        if (areSameGenSchemas(itemTypes[0], zNumberGenSchema)) {
+            reasons.push("All elements are numbers (+2)");
+            confidence += 2;
+            return {
+                generated: listOfSchemaGen(name, itemTypes[0]),
+                confidence,
+                reasons,
+            };
+        }
+        // List of strings
+        reasons.push("All elements are strings (+2)");
+        confidence += 2;
         return {
-            generated: {
-                code: `listSchema(${JSON.stringify(name)})`,
-                imports: [{ name: "listSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-            },
+            generated: listSchemaGen(name),
             confidence,
             reasons,
         };

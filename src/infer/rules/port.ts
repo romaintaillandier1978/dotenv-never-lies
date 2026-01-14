@@ -1,5 +1,6 @@
 import { InferRule } from "../types.js";
 import { matchesEnvKey } from "../helpers.js";
+import { portGenSchema } from "../generated/port.js";
 
 const PORT_KEYS = ["PORT", "PORT", "PORT"];
 
@@ -26,15 +27,7 @@ export const portRule: InferRule = {
         }
 
         return {
-            generated: {
-                code: `portSchema(${JSON.stringify(name)})`,
-                imports: [
-                    {
-                        name: "portSchema",
-                        from: "@romaintaillandier1978/dotenv-never-lies",
-                    },
-                ],
-            },
+            generated: portGenSchema(name),
             confidence,
             reasons,
         };

@@ -1,17 +1,19 @@
-import { RULES } from "./index.js";
+import { zStringGenSchema } from "./generated/basic.js";
+import { LIST_RULES } from "./index.js";
+import { GeneratedSchema } from "./types.js";
 
-export const inferSimpleSchemaForListItem = (name: string, rawValue: string): string => {
-    for (const pass of RULES) {
-        const result = pass.tryInfer({ name, rawValue });
+export const inferSimpleSchemaForListItem = (rawValue: string): GeneratedSchema => {
+    for (const rule of LIST_RULES) {
+        const result = rule.tryInfer({ name: "", rawValue });
 
         if (!result) continue;
 
-        if (result.confidence >= pass.threshold) {
-            return result.generated.code;
+        if (result.confidence >= rule.threshold) {
+            return result.generated;
         }
     }
 
-    return "z.string()";
+    return zStringGenSchema;
 };
 
 const tokenizeEnvName = (name: string): string[] => name.toUpperCase().split(/[_\-]/);
@@ -33,4 +35,16 @@ const SECRET_KEYS = ["SECRET", "KEY", "TOKEN", "PASSWORD", "PASS", "AUTH"];
 
 export const guessSecret = (name: string): boolean => {
     return matchesEnvKey(name, SECRET_KEYS).matched;
+};
+
+export const areAllSameGenSchemas = (elements: GeneratedSchema[]) => {
+    const e0 = elements[0];
+    return elements.every((e) => areSameGenSchemas(e, e0));
+};
+
+export const areSameGenSchemas = (a: GeneratedSchema, b: GeneratedSchema) => {
+    if (a === b) return true;
+    if (a.code !== b.code) return false;
+    if (a.imports.length !== b.imports.length) return false;
+    return a.imports.every((i) => b.imports.some((j) => i.name === j.name && i.from === j.from));
 };

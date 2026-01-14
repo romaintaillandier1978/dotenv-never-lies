@@ -1,5 +1,6 @@
 import { InferRule } from "../types.js";
 import { matchesEnvKey } from "../helpers.js";
+import { jsonGenSchema } from "../generated/json.js";
 const JSON_KEYS_HIGH = ["JSON"];
 const JSON_KEYS_LOW = ["PAYLOAD", "CONFIG", "DATA", "META"];
 
@@ -46,15 +47,7 @@ export const jsonRule: InferRule = {
         if (confidence < this.threshold) return null;
 
         return {
-            generated: {
-                code: `jsonSchema("${JSON.stringify(name)}")`,
-                imports: [
-                    {
-                        name: "jsonSchema",
-                        from: "@romaintaillandier1978/dotenv-never-lies",
-                    },
-                ],
-            },
+            generated: jsonGenSchema(name),
             confidence,
             reasons,
         };
