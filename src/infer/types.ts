@@ -42,9 +42,13 @@ export type InferResult = {
      */
     confidence: number;
     /**
-     * Optional, for debug / warnings / verbose
+     * for verbose mode
      */
-    reasons?: string[];
+    reasons: string[];
+    /**
+     * for warnings, to inject in dnl schema. (not too much)
+     */
+    warnings?: string[];
 };
 
 export type InferInput = {

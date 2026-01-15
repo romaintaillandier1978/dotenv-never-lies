@@ -9,3 +9,4 @@ export const versionGenSchema = (name: string): GeneratedSchema => ({
         },
     ],
 });
+export const versionGenSchemaNoName = versionGenSchema("");

@@ -9,3 +9,5 @@ export const jsonGenSchema = (name: string): GeneratedSchema => ({
         },
     ],
 });
+
+export const jsonGenSchemaNoName = jsonGenSchema("");

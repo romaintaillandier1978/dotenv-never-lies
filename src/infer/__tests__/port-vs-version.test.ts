@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { portRule } from "../rules/port.js";
 import { versionRule } from "../rules/version.js";
+import { versionGenSchema, versionGenSchemaNoName } from "../generated/version.js";
 
 describe("Inference rules – port vs version", () => {
     it("portRule should NOT match API_VERSION=2.0", () => {
@@ -9,7 +10,7 @@ describe("Inference rules – port vs version", () => {
             rawValue: "2.0",
         });
 
-        // la règle ne s'applique pas → null
+        // rule does not apply → null
         expect(result).toBeNull();
     });
 
@@ -19,7 +20,7 @@ describe("Inference rules – port vs version", () => {
             rawValue: "2.0",
         });
 
-        // la règle reconnaît un pattern version
+        // rule does not recognizes a version pattern
         expect(result).toBeNull();
     });
 
@@ -29,9 +30,9 @@ describe("Inference rules – port vs version", () => {
             rawValue: "2.0.0",
         });
 
-        // la règle reconnaît un pattern version
+        // rule recognizes a version pattern
         expect(result).not.toBeNull();
-        expect(result?.generated.code).toContain("versionSchema");
+        expect(result?.generated.code).toContain(versionGenSchemaNoName.imports[0].name);
         expect(result!.confidence).toBeGreaterThanOrEqual(versionRule.threshold);
     });
 });

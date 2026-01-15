@@ -18,7 +18,8 @@
         "release:major": "npm version major",
         "test": "vitest",
         "test:run": "vitest run",
-        "test:watch": "vitest"
+        "test:watch": "vitest",
+        "start:infer": "yarn build && dnl infer --source .env --out src/sample/env.dnl.ts -f "
     },
     "keywords": [
         "env",

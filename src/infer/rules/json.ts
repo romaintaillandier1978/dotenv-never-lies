@@ -20,19 +20,18 @@ export const jsonRule: InferRule = {
 
         let confidence = 0;
 
-        // si pas de {} ni de [], on se retrouve avec une valeur seule, genre "\"romain\"" ou "\"2\"". (avec des guillemets)
-        // Ce serait effectivement un json valie, mais peu de chance que ce soit _intentionnel_
-        // 🔥 structure JSON forte
+        // if no {} or [], we end up with a single value, like "\"romain\"" or "\"2\"". (with quotes)
+        // This would be a valid JSON, but very unlikely to be intentional.
         if (rawValue.startsWith("{") || rawValue.startsWith("[")) {
+            // strong JSON structure (+6)
             confidence += 6;
             reasons.push("JSON structure (+6)");
         } else {
-            // JSON primitif : valide mais suspect
+            // JSON primitive : valid but suspicious (+2)
             confidence += 2;
             reasons.push("JSON primitive (+2)");
         }
 
-        // 🔤 heuristiques sur le nom
         const { matched: matchedHigh, reason: reasonHigh } = matchesEnvKey(name, JSON_KEYS_HIGH);
         if (matchedHigh) {
             confidence += 2;
@@ -43,8 +42,6 @@ export const jsonRule: InferRule = {
             confidence += 1;
             reasons.push(`${reasonLow} (+1)`);
         }
-
-        if (confidence < this.threshold) return null;
 
         return {
             generated: jsonGenSchema(name),

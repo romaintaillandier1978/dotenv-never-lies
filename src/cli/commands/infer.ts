@@ -58,7 +58,12 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
         if (value === undefined) {
             lines.push(`        schema: z.string().optional(),`);
         } else {
-            lines.push(`        schema: ${infer(key, value, importedSchemas, verbose)},`);
+            const localWarnings: string[] = [];
+            const schema = infer(key, value, importedSchemas, verbose, localWarnings);
+            for (const warning of localWarnings) {
+                lines.push("        // " + warning);
+            }
+            lines.push(`        schema: ${schema},`);
         }
         if (!opts?.dontGuessSecret && guessSecret(key)) {
             lines.push(`        secret: true, //  ⚠️  inferred as secret`);

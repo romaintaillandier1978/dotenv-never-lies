@@ -19,8 +19,9 @@ const MAX_DURATION = 10 * durationSuffixesMap.y; // 10y
 export const looksLikeValidDuration = (value: string) => DURATION_REGEX_STRICT.test(value);
 
 /**
- * Creates a Zod schema for a duration (e.g. 500ms, 5s, 2m).
- * unit is mandatory and must be one of the following: ms, s, m, h, d, w, M, y.
+ * Creates a Zod schema for a duration (e.g. 500ms, 5s, 2m). \
+ * Negative values are not supported. \
+ * Unit is mandatory and must be one of the following: ms, s, m, h, d, w, M, y.
  * @param name - The name of the duration.
  * @returns A Zod schema for a duration.
  */

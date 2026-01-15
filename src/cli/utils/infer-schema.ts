@@ -1,7 +1,7 @@
 import { RULES } from "../../infer/index.js";
 import { Import } from "../../infer/types.js";
 
-export const infer = (name: string, rawValue: string, imports: Array<Import>, verbose: Array<string>): string => {
+export const infer = (name: string, rawValue: string, imports: Array<Import>, verbose: Array<string>, warnings: Array<string>): string => {
     for (const pass of RULES) {
         const result = pass.tryInfer({ name, rawValue });
 
@@ -16,6 +16,9 @@ export const infer = (name: string, rawValue: string, imports: Array<Import>, ve
                 verbose.push(...result.reasons.map((reason) => `    ${reason}`));
             }
             verbose.push(`    -> selected schema: ${result.generated.code}`);
+            if (result.warnings) {
+                warnings.push(...result.warnings);
+            }
             return result.generated.code;
         }
     }

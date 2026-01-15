@@ -10,6 +10,7 @@ import {
 import { GeneratedSchema, InferResult, InferRule } from "../types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { databaseUrlGenSchema, httpUrlGenSchema, otherUrlGenSchema, queueUrlGenSchema, storageUrlGenSchema, wsUrlSchemaGen } from "../generated/url.js";
+import { zUrlGenSchema } from "../generated/basic.js";
 
 export const URL_KEYS: string[] = ["URL", "URI", "LINK", "ENDPOINT", "API_URL", "API_ENDPOINT", "API_LINK", "API_URI"];
 const DB_KEYS = ["DB", "DATABASE", "DB_URL", "DATABASE_URL", "DB_URI", "DATABASE_URI"];
@@ -162,10 +163,7 @@ export const urlRule: InferRule = {
         }
 
         return {
-            generated: {
-                code: "z.url()",
-                imports: [],
-            },
+            generated: zUrlGenSchema,
             confidence,
             reasons,
         };
