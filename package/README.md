@@ -229,12 +229,12 @@ dnl load --schema env.dnl.ts
 
 Usage typique : scripts de démarrage, tooling local.
 
-### Générer un fichier .env à partir du schéma
+### init Générer un fichier .env à partir du schéma
 
 Génère un .env documenté à partir du schéma.
 
 ```bash
-dnl generate --schema env.dnl.ts --out .env
+dnl init --schema env.dnl.ts --out .env
 ```
 
 Utile pour :

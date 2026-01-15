@@ -31,10 +31,11 @@ And because `.env` files are:
 ## What the library does
 
 - ✅ validates environment variables at startup
+  powered by zod, enables complex transformations (arrays, parsing, coercion…)
+- ✅ provides infer .Env to get a first real life dnl schema
 - ✅ provides reliable TypeScript typings
 - ✅ documents each variable
-- ✅ exposes a CLI for CI and humans
-- ✅ enables complex transformations (arrays, parsing, coercion…)
+- ✅ exposes a CLI for CI and humans (dnl export)
 
 ---
 
@@ -138,7 +139,7 @@ export default define({
 
     NODE_PORT: {
         description: "API port",
-        schema: z.coerce.number().default(3000),
+        schema: portSchema("NODE_PORT").default(3000),
     },
 
     FRONT_URL: {
@@ -305,9 +306,10 @@ This is the recommended mode when variables are injected by the runtime or CI.
 - a value is invalid
 - the schema is not respected
 
-### generate: Generate a .env file from the schema
+### init: Generate a .env file from the schema
 
-Generates a documented `.env` from the schema.
+Initialize a documented `.env` from the schema.
+Do not read any environment variables
 
 ```bash
 dnl generate --schema env.dnl.ts --out .env
@@ -319,7 +321,7 @@ Useful for:
 - sharing a template
 - avoiding obsolete `.env.example` files
 
-### infer: Generate a schema from an existing .env
+### infer: discover a .envfile, and generate a schema from an existing .env
 
 Creates an `env.dnl.ts` file from a `.env`.
 

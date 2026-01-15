@@ -7,17 +7,17 @@ import { getDefaultEnvValue } from "../utils/printer.js";
 import { ExportError } from "../../errors.js";
 import { ProgramCliOptions } from "./program.js";
 
-export type GenerateCliOptions = ProgramCliOptions & {
+export type initCliOptions = ProgramCliOptions & {
     out?: string;
     includeSecret?: boolean;
     force?: boolean;
 };
-export type GenerateResult = {
+export type InitResult = {
     content: string;
     out: string;
 };
 
-export const generateCommand = async (opts?: GenerateCliOptions | undefined): Promise<{ content: string; out: string }> => {
+export const initCommand = async (opts?: initCliOptions | undefined): Promise<{ content: string; out: string }> => {
     const outFile = opts?.out ?? ".env";
     const target = path.resolve(process.cwd(), outFile);
 

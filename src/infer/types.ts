@@ -11,6 +11,7 @@ export type Import = {
      */
     from: string;
 };
+
 /**
  * represent a generated schema in a generated env.dnl.ts file, with associated import(s)
  * ex: {
@@ -51,11 +52,23 @@ export type InferResult = {
     warnings?: string[];
 };
 
+/**
+ * Input for an inference or one .env entry
+ */
 export type InferInput = {
+    /**
+     * Name of the .env entry
+     */
     name: string;
+    /**
+     * Raw value of the .env entry
+     */
     rawValue: string;
 };
 
+/**
+ * A reliable rule for an inference.
+ */
 export type InferRule = {
     /**
      * Logical identifier (json, boolean, duration, etc.)
@@ -73,7 +86,7 @@ export type InferRule = {
     threshold: number;
 
     /**
-     * Tries an inference.
+     * Tries to infer a schema for the input.
      * Returns null if the rule does not apply at all.
      */
     tryInfer(input: InferInput): InferResult | null;

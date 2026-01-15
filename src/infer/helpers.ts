@@ -16,9 +16,11 @@ export const inferSimpleSchemaForListItem = (rawValue: string): GeneratedSchema 
     return zStringGenSchema;
 };
 
+export type MatchesEnvKeyResult = { matched: boolean; reason: string };
+
 const tokenizeEnvName = (name: string): string[] => name.toUpperCase().split(/[_\-]/);
 
-export const matchesEnvKey = (name: string, keys: string[]) => {
+export const matchesEnvKey = (name: string, keys: string[]): MatchesEnvKeyResult => {
     const tokens = tokenizeEnvName(name);
 
     // si au moins un des marker est contenu dans le nom (tokenisé et uppercasé.)
@@ -37,12 +39,12 @@ export const guessSecret = (name: string): boolean => {
     return matchesEnvKey(name, SECRET_KEYS).matched;
 };
 
-export const areAllSameGenSchemas = (elements: GeneratedSchema[]) => {
+export const areAllSameGenSchemas = (elements: GeneratedSchema[]): boolean => {
     const e0 = elements[0];
     return elements.every((e) => areSameGenSchemas(e, e0));
 };
 
-export const areSameGenSchemas = (a: GeneratedSchema, b: GeneratedSchema) => {
+export const areSameGenSchemas = (a: GeneratedSchema, b: GeneratedSchema): boolean => {
     if (a === b) return true;
     if (a.code !== b.code) return false;
     if (a.imports.length !== b.imports.length) return false;

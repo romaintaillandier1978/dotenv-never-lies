@@ -2,7 +2,7 @@
 
 import { program, CommanderError } from "commander";
 import { AssertCliOptions, assertCommand } from "./commands/assert.js";
-import { GenerateCliOptions, generateCommand } from "./commands/generate.js";
+import { initCliOptions, initCommand } from "./commands/init.js";
 import { InferCliOptions, inferCommand } from "./commands/infer.js";
 import { ExplainCliOptions, explainCommand, printHuman } from "./commands/explain.js";
 import { ExportCliOptions, exportCommand, ExportFormat } from "./commands/export.js";
@@ -286,39 +286,40 @@ program
 
 // #endregion export
 
-// #region generate
+// #region init
 program
-    .command("generate")
+    .command("init")
     .description(
-        "Generates a .env file from a DNL schema.\n" +
+        "Initialize an environment file from a DNL schema.\n" +
+            "This command does NOT read any existing environment variables.\n" +
             "Useful to bootstrap a project or facilitate onboarding of a new developer.\n" +
             "Only default values defined in the schema are written."
     )
     .option("-o, --out <file>", "Output file (default: .env)")
     .option("-f, --force", "Overwrite existing file")
-    .action(async (opts: GenerateCliOptions) => {
+    .action(async (opts: initCliOptions) => {
         const globalOpts = program.opts<ProgramCliOptions>();
-        const { content, out } = await generateCommand({ ...opts, schema: globalOpts.schema });
+        const { content, out } = await initCommand({ ...opts, schema: globalOpts.schema });
         await toFile(content, out, opts.force ?? false);
     })
     .addHelpText(
         "after",
         `\nExamples:
         
-  # Generate a .env file from the default schema (env.dnl.ts)
-  dnl generate
+  # Initialize a .env file from the default DNL schema (env.dnl.ts)
+  dnl init
   
-  # Generate a .env file from a specified schema
-  dnl generate --schema my-dnl.ts
+  # Initialize a .env file from a specified DNL schema
+  dnl init --schema my-dnl.ts
   
-  # Generate a .env.local file from the schema
-  dnl generate --out .env.local
+  # Initialize a .env.local file from the DNL schema
+  dnl init --out .env.local
   
-  # Generate a .env file from a schema and overwrite the existing file
-  dnl generate --out .env --force
+  # Initialize a .env file from a DNL schema and overwrite the existing file
+  dnl init --out .env --force
       `
     );
-// #endregion generate
+// #endregion init
 
 // #region infer
 program

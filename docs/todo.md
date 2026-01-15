@@ -55,8 +55,10 @@ If you need domain-specific behavior, use presets or edit the generated schema.
 
 dnl export
 => export des truc avec les valeurs
+dont dnl export .env
 sauf dnl export types (-> \*.d.ts)
-dnl generate
+
+dnl init
 => créé un template de .env sans les valeurs (-> .env vide)
 
 c'est pas symétrique.
