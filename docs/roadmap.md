@@ -1,51 +1,6 @@
-# Readme interne
+# Road Map :
 
-## utiliser en local,
-
-pour créer le dotenv-never-lies-v1.0.0.tgz
-
-```bash
-npm pack
-```
-
-puis installer dans un autre projet :
-
-```bash
-yarn add /path/to/dotenv-never-lies-v1.0.0.tgz
-```
-
-## publier sur npmjs.org
-
-checklist :
-
-- incrémetner la version sinon : crash
-- fichiers sont corrects
-- bin pointe bien vers un fichier existant dans dist.
-- type de module cohérent
-- node >= 20
-- pas de fichier poubelle
-
-regarder ce qui va partir sur la publication : `npm pack --dry-run`
-
-puis
-
-```bash
-npm login
-yarn release:patch
-npm publish
-```
-
-## Concept de Infer, et ce qu'il ne faudra jamais faire :
-
-Lors de l'inférence dns on cherche les intentions, pas la vérité.
-
-Il ne faut pas essayer de mieux typer lors de l'export types.  
-Il faut résister à la tentation de parser le fichier source env.dnl.ts, car on aurait des types ts OK, qui pourrait ne pas refléter la réalité runtime.
-=> Catastrophe.
-
-## nouvelles fonctionnalités LLM pour DNL :
-
-### LLM
+## LLM
 
 - générer un document utilisable par l'ia dans le contexte de l'utilisateur
     - dnl export llm => Générer un artefact “LLM-friendly” pour l'outillage utilisateur qui ressemble à env.dnl.ts, pour le llm
@@ -59,7 +14,7 @@ Il faut résister à la tentation de parser le fichier source env.dnl.ts, car on
 
 - ne surtout pas faire : créer des prompts intégrés, dépendance a un llm
 
-### Schéma zod spécialisés intégrés : les preset
+## Schéma zod spécialisés intégrés : les preset
 
 preset exemples :
 
@@ -110,7 +65,7 @@ warnings.push("Preset inference conflict on NODE_ENV: incompatible schemas, fall
 return z.string();
 ```
 
-### Extensibilité exporters / preset
+## Extensibilité exporters / preset
 
 - exporters, avec un model, une interface
 - preset : dnl infer --preset prisma (inference de truc connu comme DATABASE_URL)
@@ -166,7 +121,7 @@ cas foireux : monorepos, pnpm, yarn PnP
 dnl plugin list
 ```
 
-#### preparation des plugin :
+### preparation des plugin :
 
 s'auto plugin, maintenant.
 
@@ -213,67 +168,7 @@ registerExporter(githubExporter);
 + loadPlugin("json")
 ```
 
-### extensibilité :
+## extensibilité :
 
 - générators, avec un model, une interface
 - génériser EnvVarDefinition avec une propriété générique que DNL n'utilisera jamais. => pas si simple aprce qu'on ne type pas la def metadata dans la déclaration env.dnl.ts
-
-## TODO :
-
-- vérifier les expands lors de l'export.
-
-- supprimer sample
-- ajouter une remarque personnelle sur vrai vécu, gros projet avec 150 variables d'environnement
-
-- INFERENCE
-    - vérifer les priorité d'inférences.
-    - doc inférence philosophie
-    - ajouter un warning en cas de doublons dans infer
-    - schema version ok, mais ajouter l'inférence.
-
-- tests de non regression sur l'inférence.s
-
-### readme des rules de l'inférence :
-
-1. Inference rules
-
-Inference rules are internal to DNL and not configurable.
-
-This is a deliberate design choice to guarantee:
-• determinism
-• reproducibility
-• documentation consistency
-
-If you need domain-specific behavior, use presets or edit the generated schema.
-
-2. Path schemas are intentionally permissive + documenter plus proprement.
-
-## à réfléchir
-
-- injecter un 'vrai' type sérialisable en .d.ts
-  exemple :
-
-```ts
-  NODE_CORS_ORIGIN: {
-        description: "URLs frontend autorisées à appeler cette API",
-        schema: z.string().transform((v) =>
-            v
-                .split(";")
-                .map((s) => s.trim())
-                .filter(Boolean)
-                .map((url) => z.url().parse(url))
-        ),
-        outputDts : "string[]" // <= bonne idée ?
-        serializeBack : ((value:string[]) => value.join(";")) // <= bonne idée ? NON : extensibilité !
-    },
-```
-
-- j'ai deux mécanismes :
-
-dnl export
-=> export des truc avec les valeurs
-sauf dnl export types (-> \*.d.ts)
-dnl generate
-=> créé un template de .env sans les valeurs (-> .env vide)
-
-c'est pas symétrique.
