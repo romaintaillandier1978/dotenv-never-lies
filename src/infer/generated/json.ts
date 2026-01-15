@@ -1,7 +1,7 @@
 import { GeneratedSchema } from "../types.js";
 
-export const jsonGenSchema = (name: string): GeneratedSchema => ({
-    code: `jsonSchema(${JSON.stringify(name)})`,
+export const jsonGenSchema = (name: string, of?: GeneratedSchema): GeneratedSchema => ({
+    code: `jsonSchema(${JSON.stringify(name)}${of ? `, ${of.code}` : ""})`,
     imports: [
         {
             name: "jsonSchema",

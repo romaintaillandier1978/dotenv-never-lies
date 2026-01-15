@@ -1,5 +1,14 @@
 import { GeneratedSchema } from "../types.js";
 
+export const zUnknownGenSchema: GeneratedSchema = {
+    code: "z.unknown()",
+    imports: [],
+};
+export const zArrayOfUnknownGenSchema: GeneratedSchema = {
+    code: "z.array(z.unknown())",
+    imports: [],
+};
+
 export const zUrlGenSchema: GeneratedSchema = {
     code: "z.url()",
     imports: [],
