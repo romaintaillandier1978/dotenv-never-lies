@@ -1,113 +1,115 @@
 # dnl infer
 
-La commande `dnl infer` permet de **générer automatiquement un schéma DNL** à partir d’un fichier `.env` existant.
+The `dnl infer` command **automatically generates a DNL schema** from an existing `.env` file.
 
-Elle est conçue comme un **outil de bootstrap** : elle aide à démarrer rapidement sur un projet existant, mais **ne remplace jamais une revue humaine**.
+It is designed as a **bootstrap tool**: it helps you get started quickly on an existing project, but **never replaces a human review**.
 
-## Objectif
+## Goal
 
-Les projets hérités possèdent déjà un ou plusieurs fichiers `.env`, dont les variables ne sont ni typées, ni documentées. Ecrire un schéma DNL complet à la main serait coûteux au départ.
+Legacy projects already have one or more `.env` files, whose variables are neither typed nor documented. Writing a full DNL schema by hand would be costly at the start.
 
-## Positionnement
+## Positioning
 
-### Ce que `infer` fait
+### What `infer` does
 
-Infer analyse les **valeurs brutes** et les **noms de variables**, applique une série de **règles heuristiques**.
-Ensuite il propose un **schéma typé** (Zod / DNL) accompagné des **raisons** expliquant chaque inférence
+Infer analyzes **raw values** and **variable names**, and applies a series of **heuristic rules**.
+It then proposes a **typed schema** (Zod / DNL) with **reasons** explaining each inference.
 
-Exemples de types inférés (par ordre de priorité) : json,list,port,version,url,email,string (fallback)
-
----
-
-### Ce que `infer` ne fait PAS
-
-C’est volontairement assumé.
-
-`infer` :
-
-- ❌ ne comprend pas le métier
-- ❌ ne lit pas ton code applicatif
-- ❌ ne déduit pas l’intention fonctionnelle
-- ❌ ne fait pas d’inférence contextuelle entre variables
-- ❌ ne modifie jamais silencieusement une valeur
-
-Si une inférence est incorrecte, **c’est à l’utilisateur de la corriger**.
+Examples of inferred types (by priority order): json, list, port, version, url, email, string (fallback)
 
 ---
 
-### Quand utiliser `infer`
+### What `infer` does NOT do
 
-Recommandé :
+This is deliberate.
 
-- sur un projet existant, lors de la migration vers DNL
-- pour explorer un `.env` inconnu
+`infer`:
 
----
+- ❌ does not understand business domain
+- ❌ does not read your application code
+- ❌ does not deduce functional intent
+- ❌ does not perform contextual inference across variables
+- ❌ never silently modifies a value
 
-### Quand NE PAS utiliser `infer`
-
-Déconseillé :
-
-- ne pas utiliser le schéma sans revue
-- pour définir des règles métier
-- pour documenter une API publique
-- Une fois le schéma stabilisé, `infer` devient généralement inutile.
+If an inference is incorrect, **it is up to the user to correct it**.
 
 ---
 
-## Exemples d’utilisation du CLI
+### When to use `infer`
 
-RTFM !
+Recommended:
+
+- on an existing project, when migrating to DNL
+- to explore an unknown `.env`
+
+---
+
+### When NOT to use `infer`
+
+Not recommended:
+
+- do not use the schema without review
+- to define business rules
+- to document a public API
+- once the schema is stable, `infer` usually becomes unnecessary
+
+---
+
+## CLI usage examples
+
+RTFM!
 
 ```bash
 dnl --help
 ```
 
-### Inférer un schéma à partir d’un fichier `.env`
+### Infer a schema from a `.env` file
 
 ```bash
 dnl infer
 ```
 
-Par défaut, `infer` analyse le fichier `.env` du répertoire courant et affiche le schéma généré dans la sortie standard.
+By default, `infer` analyzes the `.env` file in the current directory and prints the generated schema to standard output.
 
 ---
 
-### Spécifier un fichier `.env` explicitement
+### Explicitly specify a `.env` file
+
+infer/
 
 ```bash
 dnl infer --source .env.production
 ```
 
-Utile lorsqu’un projet contient plusieurs fichiers d’environnement.
+Useful when a project contains multiple environment files.
 
 ---
 
-### Générer le schéma dans un fichier
+### Generate the schema into a file
 
 ```bash
 dnl infer --source .env --output env.dnl.ts
 ```
 
-Le schéma DNL est écrit dans le fichier cible au lieu d’être affiché dans le terminal.
+The DNL schema is written to the target file instead of being printed in the terminal.
 
 ---
 
-### Mode verbeux
+### Verbose mode
 
 ```bash
 dnl infer --verbose
 ```
 
-Affiche, pour chaque variable :
+Displays, for each variable:
 
-- les règles testées
-- le score de confiance
-- les justifications ayant conduit au schéma retenu
+- the tested rules
+- the confidence score
+- the justifications that led to the selected schema
 
-Ce mode est particulièrement utile pour comprendre ou contester une inférence.
+This mode is particularly useful to understand or challenge an inference.
 
-extrait de sortie pour
+output excerpt for
 `CONFS_JSON=  [{"firstname":"Romain", "lastname":"Taillandier"}]`
 
 ```bash
@@ -120,95 +122,95 @@ Infer CONFS_JSON :
 
 ---
 
-### Générer et éraser le fichier existant
+### Generate and overwrite the existing file
 
 ```bash
 dnl infer --output my-env.dnl.ts --force
 ```
 
-Permet d'écraser le fichier de sortie, à utiliser avec --output
+Allows overwriting the output file, to be used with --output.
 
 ---
 
-## Principe général d’inférence
+## General inference principle
 
-L’inférence repose sur un **pipeline de règles indépendantes**.
+Inference relies on a **pipeline of independent rules**.
 
-L’inférence est :
+Inference is:
 
-- déterministe
-- reproductible
-- sans état
-- sans aléatoire
+- deterministic
+- reproducible
+- stateless
+- without randomness
 
-Chaque règle :
+Each rule:
 
-- décide si elle peut s’appliquer
-- propose un schéma
-- attribue un score de confiance, justifié
+- decides whether it can apply
+- proposes a schema
+- assigns a justified confidence score
 
-Le schéma final est sélectionné selon l’ordre de priorité des règles, à condition que le score de confiance dépasse un seuil minimal.
-
----
-
-### Score de confiance et seuils
-
-La notion de _score de confiance_ n’est **pas une probabilité mathématique**, c'est bien un score, calculé à partir d'heuristiques. Si le score dépasse un certain **seuil**, la règle est jugée fiable et appliquée et le schéma correspondant est utilisé.
-le résultat de l'application de la règle contient, le score de confiance et ses justifications
-
-Le score de confiance sert uniquement à :
-
-- comparer plusieurs inférences possibles
-- décider si une règle est suffisamment fiable
-- afficher des justifications compréhensibles
-
-Un score élevé ne signifie pas que l’inférence est “vraie”, mais qu’elle est **plausible selon les heuristiques connues**.
-
-> score de confiance ≠ probabilité
+The final schema is selected according to the priority order of the rules, provided the confidence score exceeds a minimum threshold.
 
 ---
 
-### Heuristiques utilisées
+### Confidence score and thresholds
 
-Les heuristiques reposent principalement sur :
+The notion of a _confidence score_ is **not a mathematical probability**; it is a score computed from heuristics. If the score exceeds a certain **threshold**, the rule is deemed reliable and applied, and the corresponding schema is used.
+The result of applying the rule contains the confidence score and its justifications.
 
-- le **nom de la variable** (`PORT`, `URL`, `ENABLE`, etc.)
-- le **format de la valeur**
-- des patterns simples (regex, plages numériques, formats connus)
+The confidence score is only used to:
 
-Les patterns sont volontairement simples, non-ambigus, et durs.
+- compare several possible inferences
+- decide whether a rule is reliable enough
+- display understandable justifications
 
-Exemples :
+A high score does not mean the inference is "true", but that it is **plausible according to known heuristics**.
 
-- `PORT=3000` → port probable
-- `ENABLE_CACHE=true` → boolean probable
-- `API_URL=https://...` → URL probable
-
-Ces règles sont **volontairement simples** et explicables.
-
-> _Des heuristiques, pas de magie_
+> confidence score ≠ probability
 
 ---
 
-### Détection des secrets
+### Heuristics used
 
-`infer` tente d’identifier les variables **sensibles** :
+Heuristics mainly rely on:
 
-- clés API
+- the **variable name** (`PORT`, `URL`, `ENABLE`, etc.)
+- the **value format**
+- simple patterns (regex, numeric ranges, known formats)
+
+Patterns are intentionally simple, unambiguous, and strict.
+
+Examples:
+
+- `PORT=3000` → probable port
+- `ENABLE_CACHE=true` → probable boolean
+- `API_URL=https://...` → probable URL
+
+These rules are **intentionally simple** and explainable.
+
+> _Heuristics, not magic_
+
+---
+
+### Secret detection
+
+`infer` attempts to identify **sensitive** variables:
+
+- API keys
 - tokens
 - secrets
-- mots de passe
+- passwords
 
-Cette détection repose principalement sur le nom de la variable (`SECRET`, `TOKEN`, `KEY`, etc.)
+This detection mainly relies on the variable name (`SECRET`, `TOKEN`, `KEY`, etc.).
 
-⚠️ La détection n’est **jamais garantie à 100%**  
-Elle sert à **alerter**, pas à sécuriser.
+⚠️ Detection is **never guaranteed 100%**  
+It is meant to **warn**, not to secure.
 
 ---
 
-### Cas ambigus et warnings
+### Ambiguous cases and warnings
 
-Certaines variables sont intrinsèquement ambiguës :
+Some variables are inherently ambiguous:
 
 - `VERSION`
 - `PORT`
@@ -216,33 +218,33 @@ Certaines variables sont intrinsèquement ambiguës :
 - `ID`
 - `LEVEL`
 
-Dans ces cas :
+In these cases:
 
-- `infer` peut hésiter entre plusieurs types
-- un warning est généré directement en commentaire dans le schéma
-- le type retenu est celui jugé le plus plausible, ou choisi selon l'ordre des priorité
+- `infer` may hesitate between several types
+- a warning is generated directly as a comment in the schema
+- the retained type is the one deemed most plausible, or chosen according to priority order
 
-Ces warnings sont un **signal fort** indiquant qu’une revue manuelle est nécessaire.
-
----
-
-# Workflow recommandé
-
-1. Lancer `dnl infer`
-2. Générer un schéma initial
-3. Relire attentivement chaque variable
-4. Corriger manuellement les types douteux
-5. Ajouter descriptions et contraintes métier
-6. Considérer le schéma comme la vérité finale
-   Une fois le schéma stabilisé, `infer` devient généralement inutile.
+These warnings are a **strong signal** that manual review is needed.
 
 ---
 
-# En résumé
+# Recommended workflow
 
-- `infer` est un **outil d’aide**
-- pas une autorité
-- pas une IA magique
-- pas une vérité métier
+1. Run `dnl infer`
+2. Generate an initial schema
+3. Carefully review each variable
+4. Manually correct questionable types
+5. Add descriptions and business constraints
+6. Consider the schema the final truth
+   Once the schema is stable, `infer` usually becomes unnecessary.
 
-Il permet de **démarrer vite**, pas de **finir automatiquement**.
+---
+
+# In summary
+
+- `infer` is a **helper tool**
+- not an authority
+- not a magic AI
+- not a business truth
+
+It helps you **start fast**, not **finish automatically**.
