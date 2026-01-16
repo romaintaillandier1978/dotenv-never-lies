@@ -332,7 +332,9 @@ program
             "By default, the command will try to guess sensitive variables (e.g. SECRET, KEY, TOKEN, PASSWORD) as secrets.\n" +
             "This detection is intentionally aggressive and may flag variables that are not secrets.\n" +
             "This is a deliberate design choice to avoid missing sensitive values.\n" +
-            "Use the --dont-guess-secret option to disable this behavior."
+            "Use the --dont-guess-secret option to disable this behavior.\n" +
+            "\n" +
+            "Documentation: https://github.com/rtaillandier/dotenv-never-lies/blob/main/docs/commands/infer.md"
     )
     .option("-s, --source <source>", "Source .env file", ".env")
     .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")
@@ -371,6 +373,9 @@ program
   
   # Generate an env.dnl.ts schema from a .env file and overwrite the existing file
   dnl infer --force 
+  
+  # Full documentation:
+  # https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/infer.md
   `
     );
 // #endregion infer

@@ -1,5 +1,17 @@
 # Road Map :
 
+## CLI
+
+### dnl schema init
+
+créer un schema from scratch, sans .env initial, juste les preset
+exemple : dnl schema init prisma, express
+
+### dnl add
+
+ajouter un preset dans un env
+exemple : dnl add prisma, express
+
 ## LLM
 
 - générer un document utilisable par l'ia dans le contexte de l'utilisateur

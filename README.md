@@ -323,16 +323,15 @@ Useful for:
 
 ### infer: discover a .envfile, and generate a schema from an existing .env
 
-Creates an `env.dnl.ts` file from a `.env`.
+Generate a DNL schema from an existing `.env` file.
 
 ```bash
 dnl infer --source .env
 ```
 
-Useful for:
+Useful for migrating an existing project
 
-- migrating an existing project
-- documenting a legacy configuration afterwards
+→ [Read infer documentation](docs/commands/infer.md)
 
 ### explain: Display variables documentation
 
