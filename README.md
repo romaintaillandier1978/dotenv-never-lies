@@ -173,32 +173,8 @@ JWT_SECRET: {
 }
 ```
 
-### Secrets and CLI commands
-
-assert: validates secrets like any other variable
-
-infer: when generating the schema, with `--guess-secret` option, the command tries to automatically identify sensitive variables (e.g. SECRET, KEY, TOKEN, PASSWORD).  
-**This detection is heuristic and must always be reviewed and corrected manually.**
-
-export: adapts behavior depending on the target format (env, docker, CI, Kubernetes…). See the table below for details by format.
-
-### During export
-
-Variables marked `secret: true` in the schema are treated differently depending on the export format.
-
-| Format        | Secrets included by default | Maskable (`--hide-secret`) | Excludable (`--exclude-secret`) | Notes                      |
-| ------------- | --------------------------- | -------------------------- | ------------------------------- | -------------------------- |
-| env           | yes                         | yes                        | yes                             | classic .env               |
-| docker-env    | yes                         | yes                        | yes                             | For --env-file             |
-| docker-args   | yes                         | yes                        | yes                             | For docker run -e          |
-| json          | yes                         | yes                        | yes                             | Debug / tooling            |
-| ts            | yes                         | yes                        | yes                             | Typed export               |
-| js            | yes                         | yes                        | yes                             | Runtime export             |
-| github-env    | yes                         | yes                        | yes                             | visible in logs            |
-| github-secret | secrets only                | no                         | yes                             | Via gh secret set          |
-| gitlab-env    | yes                         | yes                        | yes                             | GitLab CI variables        |
-| k8s-configmap | yes                         | yes                        | yes                             | warning if secret unmasked |
-| k8s-secret    | secrets only                | yes                        | yes                             | Kubernetes Secret          |
+More about secrets, and usage in cli commands :
+→ [Read secret documentation](docs/concepts/secrets.md)
 
 ## Variable lifecycle
 
@@ -312,7 +288,7 @@ Initialize a documented `.env` from the schema.
 Do not read any environment variables
 
 ```bash
-dnl generate --schema env.dnl.ts --out .env
+dnl init --schema env.dnl.ts --out .env
 ```
 
 Useful for:
@@ -506,7 +482,7 @@ jobs:
             - run: corepack enable
             - run: yarn install --frozen-lockfile
 
-            # Example with a .env file provided by a secret
+            # Example with a .env file
             - run: yarn dnl assert --source .env
 ```
 
@@ -522,7 +498,7 @@ The `.env` file can be generated from a GitHub secret or mounted dynamically.
 
 |                               Situation | Command to use                 |
 | --------------------------------------: | ------------------------------ |
-|                             New project | generate                       |
+|                             New project | init                           |
 |            Existing project with a .env | infer                          |
 |            Validate configuration in CI | assert                         |
 | Validate config injected by the runtime | assert                         |

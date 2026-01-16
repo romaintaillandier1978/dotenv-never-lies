@@ -6,30 +6,14 @@
 - ajouter une remarque personnelle sur vrai vécu, gros projet avec 150 variables d'environnement
 
 - INFERENCE
-    - vérifer les priorité d'inférences.
-    - doc inférence philosophie
     - ajouter un warning en cas de doublons dans infer
-    - schema version ok, mais ajouter l'inférence.
 
 - tests de non regression sur l'inférence.
 
 ### readme inférence :
 
-1. Inference rules
-
-Inference rules are internal to DNL and not configurable.
-
-This is a deliberate design choice to guarantee:
-• determinism
-• reproducibility
-• documentation consistency
-
-If you need domain-specific behavior, use presets or edit the generated schema.
-
 2. No path schéma (and probably never)
    explain why
-
-3. infer réduit l'ambiguité avant d'imposer la rigueur
 
 ## à réfléchir
 
