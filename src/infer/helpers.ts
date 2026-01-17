@@ -1,20 +1,4 @@
-import { zStringGenSchema } from "./generated/basic.js";
-import { LIST_RULES } from "./index.js";
 import { GeneratedSchema } from "./types.js";
-
-export const inferSimpleSchemaForListItem = (rawValue: string): GeneratedSchema => {
-    for (const rule of LIST_RULES) {
-        const result = rule.tryInfer({ name: "", rawValue });
-
-        if (!result) continue;
-
-        if (result.confidence >= rule.threshold) {
-            return result.generated;
-        }
-    }
-
-    return zStringGenSchema;
-};
 
 export type MatchesEnvKeyResult = { matched: boolean; reason: string };
 

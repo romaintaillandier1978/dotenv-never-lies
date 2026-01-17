@@ -52,6 +52,16 @@ Overly aggressive inference creates false confidence and pushes errors further i
 
 The confidence score is not a _measurement_, it is an interface tool between the machine and the human. It is used to rank hypotheses, justify a decision, and signal fragile areas.
 
+**Inference strictness vs schema permissiveness**
+
+Inference and schemas serve different purposes.
+
+Inference aims to detect the first strongly plausible schema based on clear, unambiguous signals.
+Schemas, on the other hand, define the full set of values that are considered valid.
+
+Therefore, inference rules are deliberately stricter than the schemas they produce.
+Inference does not attempt to detect all possible values a schema could accept, but only those that clearly justify selecting that schema without forcing interpretation.
+
 ---
 
 ## Rule engine

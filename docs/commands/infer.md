@@ -33,6 +33,14 @@ This is deliberate.
 
 If an inference is incorrect, **it is up to the user to correct it**.
 
+**Inference rules are intentionally stricter than the schemas they generate.**
+
+A schema describes what is allowed.
+Inference only triggers when a value clearly matches a pattern, without ambiguity.
+
+As a result, some values that would be accepted by a schema may not be detected by infer.
+This is intentional: inference favors reliability over coverage.
+
 ---
 
 ### When to use `infer`

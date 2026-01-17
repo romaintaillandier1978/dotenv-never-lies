@@ -13,7 +13,7 @@ export const looksLikeValidBoolean = (value: string) => {
  * @param name - The name of the boolean value.
  * @returns A Zod schema for a boolean value.
  */
-export const boolSchema = (name: string): z.ZodType<boolean> => {
+export const booleanSchema = (name: string): z.ZodType<boolean> => {
     return z.string().transform((v, ctx) => {
         const normalized = v.trim().toLowerCase();
         if (TRUE_VALUES.includes(normalized)) return true;

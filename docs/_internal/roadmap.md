@@ -2,6 +2,10 @@
 
 ## CLI
 
+### dnl infer
+
+ajouter un moteur de règle transverse minimaliste.
+
 ### dnl schema init
 
 créer un schema from scratch, sans .env initial, juste les preset
@@ -11,6 +15,12 @@ exemple : dnl schema init prisma, express
 
 ajouter un preset dans un env
 exemple : dnl add prisma, express
+
+## TU
+
+### ajouter des TU plus haut pour l'inférence,
+
+qui testent de vraies entrées.
 
 ## LLM
 
