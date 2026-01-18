@@ -1,10 +1,10 @@
 import path from "node:path";
 import dnl from "../../index.js";
 import { guessSecret } from "../../infer/helpers.js";
-import { infer } from "../utils/infer-schema.js";
+import { crossInfer, infer } from "../utils/infer-rule-engine.js";
 import fs from "node:fs";
 import { ExportError } from "../../errors.js";
-import { Import } from "../../infer/types.js";
+import { Import, CrossInferContext, InferContext } from "../../infer/types.js";
 
 export type InferCliOptions = {
     source?: string;
@@ -47,28 +47,36 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
     lines.push("");
     lines.push(`export default define({`);
 
-    for (const [key, value] of Object.entries(env)) {
-        const isValidIdentifier = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(key);
-        const safeKey = isValidIdentifier ? key : JSON.stringify(key);
+    for (const [name, rawValue] of Object.entries(env)) {
+        const isValidIdentifier = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name);
+        const safeKey = isValidIdentifier ? name : JSON.stringify(name);
         if (!isValidIdentifier) {
-            warnings.push(`Key ${key} is not a valid identifier. It has been escaped to ${safeKey}.`);
+            warnings.push(`Key ${name} is not a valid identifier. It has been escaped to ${safeKey}.`);
         }
         lines.push(`    ${safeKey}: {`);
         lines.push(`        description: "TODO",`);
-        if (value === undefined) {
+
+        const isSecret = !opts?.dontGuessSecret && guessSecret(name);
+
+        // TODO check if this wouls be better
+        //if (rawValue === undefined || rawValue === '""' || rawValue === "''") { // undefined means the variable is not set in the .env file
+        if (rawValue === undefined) {
+            // undefined means the variable is not set in the .env file
             lines.push(`        schema: z.string().optional(),`);
         } else {
-            const localWarnings: string[] = [];
-            const schema = infer(key, value, importedSchemas, verbose, localWarnings);
-            for (const warning of localWarnings) {
-                lines.push("        // " + warning);
+            const context: InferContext = { name, rawValue, imports: importedSchemas, reasons: verbose, codeWarnings: [] };
+
+            const schema = infer(context);
+            crossInfer({ schema, isSecret, ...context });
+            for (const w of context.codeWarnings) {
+                lines.push("        // " + w);
             }
             lines.push(`        schema: ${schema},`);
         }
-        if (!opts?.dontGuessSecret && guessSecret(key)) {
+        if (isSecret) {
             lines.push(`        secret: true, //  ⚠️  inferred as secret`);
             verbose.push(`    -> inferred as secret`);
-            warnings.push(`${key} inferred as secret`);
+            warnings.push(`${name} inferred as secret`);
         }
         lines.push(`    },`);
     }

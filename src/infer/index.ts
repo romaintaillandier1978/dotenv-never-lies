@@ -7,8 +7,9 @@ import { emailRule, numberRule, stringRule } from "./rules/basic.js";
 import { urlRule } from "./rules/url.js";
 import { ipRule } from "./rules/ip.js";
 import { versionRule } from "./rules/version.js";
-import { InferRule } from "./types.js";
+import { CrossRule, InferRule } from "./types.js";
 import { keyValueRule } from "./rules/key-value.js";
+import { secretVsNonStringRule } from "./cross-rules/secret-non-string.js";
 
 // ⚠️ Règle d’or :
 // JSON avant list,
@@ -32,3 +33,5 @@ export const RULES: InferRule[] = [
 ].sort((a, b) => b.priority - a.priority);
 
 // WARNING see additionnal rules list in rules/list.ts and rules/key-value.ts
+
+export const CROSS_RULES: CrossRule[] = [secretVsNonStringRule];

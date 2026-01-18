@@ -80,15 +80,15 @@ export const stringRule: InferRule = {
 
     tryInfer({ rawValue }) {
         const reasons: string[] = [];
-        const warnings: string[] = [];
+        const codeWarnings: string[] = [];
 
         // never happen via dotenv, but migth happen via process.env
         if (rawValue === "" || rawValue === "''" || rawValue === '""') {
-            warnings.push(" ⚠️ Inferred string was detected as an empty string, may indicate optional variable of any type");
+            codeWarnings.push(" ⚠️ Inferred string was detected as an empty string, may indicate optional variable of any type");
         } else {
             const containsOnlyBlank = rawValue.match(/^\s+$/);
             if (containsOnlyBlank) {
-                warnings.push(" ⚠️ Inferred string was detected as containing only blank spaces, may indicate optional variable of any type");
+                codeWarnings.push(" ⚠️ Inferred string was detected as containing only blank spaces, may indicate optional variable of any type");
             }
         }
 
@@ -96,7 +96,7 @@ export const stringRule: InferRule = {
             generated: zStringGenSchema,
             confidence: 0,
             reasons: [...reasons, "Fallback to string"],
-            warnings,
+            codeWarnings,
         };
     },
 };

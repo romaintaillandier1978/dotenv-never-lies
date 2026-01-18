@@ -54,7 +54,7 @@ export const listRule: InferRule = {
         let confidence = 0;
         let splitter: string = ";";
         const reasons: string[] = [];
-        const warnings: string[] = [];
+        const codeWarnings: string[] = [];
         const hasSemicolon = semicolonItems.length > 1;
         const hasComma = commaItems.length > 1;
         const hasAmpersand = ampersandItems.length > 1;
@@ -62,7 +62,7 @@ export const listRule: InferRule = {
         const isOnlyEmptyList = /^;+$/.test(rawValue) || /^,+$/.test(rawValue);
 
         if (isOnlyEmptyList) {
-            warnings.push(" ⚠️ Inferred list was detected as containing only empty values, consider completing the 'of' parameter of the listSchema");
+            codeWarnings.push(" ⚠️ Inferred list was detected as containing only empty values, consider completing the 'of' parameter of the listSchema");
         }
 
         if (hasSemicolon) {
@@ -105,7 +105,7 @@ export const listRule: InferRule = {
                 generated: listSchemaGen(name, splitter, zStringGenSchema),
                 confidence,
                 reasons,
-                warnings,
+                codeWarnings,
             };
         }
         // from here, all elements are of the same type => we can generate a typed list
@@ -120,7 +120,7 @@ export const listRule: InferRule = {
                 generated: listOfSchemaGen(name, splitter, itemTypes[0]),
                 confidence,
                 reasons,
-                warnings,
+                codeWarnings,
             };
         }
 
@@ -136,7 +136,7 @@ export const listRule: InferRule = {
                 generated: listSchemaGen(name, splitter, itemTypes[0]),
                 confidence,
                 reasons,
-                warnings,
+                codeWarnings,
             };
         }
 
@@ -148,7 +148,7 @@ export const listRule: InferRule = {
                 generated: emailListSchemaGen(name, splitter),
                 confidence,
                 reasons,
-                warnings,
+                codeWarnings,
             };
         }
 
@@ -163,7 +163,7 @@ export const listRule: InferRule = {
                 //generated: keyValueListSchemaGen(name, splitter, itemTypes[0]),
                 confidence,
                 reasons,
-                warnings,
+                codeWarnings,
             };
         }
 
@@ -175,7 +175,7 @@ export const listRule: InferRule = {
                 generated: listOfSchemaGen(name, splitter, itemTypes[0]),
                 confidence,
                 reasons,
-                warnings,
+                codeWarnings,
             };
         }
         // List of strings
@@ -185,7 +185,7 @@ export const listRule: InferRule = {
             generated: listSchemaGen(name, splitter, zStringGenSchema),
             confidence,
             reasons,
-            warnings,
+            codeWarnings,
         };
     },
 };

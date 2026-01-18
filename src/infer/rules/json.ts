@@ -53,7 +53,7 @@ export const jsonRule: InferRule = {
             generated: jsonGenSchema(name, isArray ? zArrayOfUnknownGenSchema : zUnknownGenSchema),
             confidence,
             reasons,
-            warnings: [
+            codeWarnings: [
                 isArray
                     ? " ⚠️ Inferred string was detected as containing a json array, please think to complete the 'of' parameter of the jsonSchema"
                     : " ⚠️ Inferred string was detected as containing a json object, please think to complete the 'of' parameter of the jsonSchema",

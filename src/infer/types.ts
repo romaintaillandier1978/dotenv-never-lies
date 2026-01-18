@@ -49,7 +49,7 @@ export type InferResult = {
     /**
      * for warnings, to inject in dnl schema. (not too much)
      */
-    warnings?: string[];
+    codeWarnings?: string[];
 };
 
 /**
@@ -89,5 +89,24 @@ export type InferRule = {
      * Tries to infer a schema for the input.
      * Returns null if the rule does not apply at all.
      */
+    // WARNING: do not change input type to InferContext.
+    // Rules must remain pure and side-effect free.
+    // Giving access to InferContext would allow rules to mutate global state (imports, warnings, reasons) before validation,
+    // breaking inference determinism and test isolation.
     tryInfer(input: InferInput): InferResult | null;
 };
+
+export type InferContext = {
+    name: string;
+    rawValue: string;
+    imports: Array<Import>;
+    reasons: Array<string>;
+    codeWarnings: Array<string>;
+};
+
+export type CrossInferContext = InferContext & {
+    schema: string;
+    isSecret: boolean;
+};
+
+export type CrossRule = (context: CrossInferContext) => void;
