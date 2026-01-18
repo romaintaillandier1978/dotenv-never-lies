@@ -5,8 +5,8 @@ import { boolGenSchema } from "../generated/boolean.js";
 
 const BOOLEAN_KEYS = ["IS", "HAS", "ENABLE", "DISABLE", "ENABLED", "DISABLED", "ALLOW", "DENY"];
 
-export const booleanRule: InferRule = {
-    type: "boolean",
+export const booleanRule: InferRule<"boolean"> = {
+    kind: "boolean",
     priority: 6,
     threshold: 5,
     tryInfer({ name, rawValue }) {

@@ -1,6 +1,6 @@
 import { GeneratedSchema } from "../types.js";
 
-export const listSchemaGen = (name: string, splitter: string, of: GeneratedSchema): GeneratedSchema => ({
+export const listSchemaGen = (name: string, splitter: string, of: GeneratedSchema): GeneratedSchema<"list"> => ({
     kind: "list",
     code: `listSchema(${JSON.stringify(name)}, { splitter: "${splitter}" ${of ? `, of: ${of.code}` : ""} })`,
     imports: [
@@ -12,7 +12,7 @@ export const listSchemaGen = (name: string, splitter: string, of: GeneratedSchem
     ],
 });
 
-export const keyValueListSchemaGen = (name: string, splitter: string, of: GeneratedSchema): GeneratedSchema => ({
+export const keyValueListSchemaGen = (name: string, splitter: string, of: GeneratedSchema): GeneratedSchema<"keyValue"> => ({
     kind: "keyValue",
     code: `keyValueListSchema(${JSON.stringify(name)}, { splitter: "${splitter}" ${of ? `, of: ${of.code}` : ""} })`,
     imports: [
@@ -23,7 +23,7 @@ export const keyValueListSchemaGen = (name: string, splitter: string, of: Genera
     ],
 });
 
-export const urlListSchemaGen = (name: string, splitter: string): GeneratedSchema => ({
+export const urlListSchemaGen = (name: string, splitter: string): GeneratedSchema<"url"> => ({
     kind: "url",
     code: `urlListSchema(${JSON.stringify(name)}, { splitter: "${splitter}" })`,
     imports: [
@@ -34,7 +34,7 @@ export const urlListSchemaGen = (name: string, splitter: string): GeneratedSchem
     ],
 });
 
-export const emailListSchemaGen = (name: string, splitter: string): GeneratedSchema => ({
+export const emailListSchemaGen = (name: string, splitter: string): GeneratedSchema<"email"> => ({
     kind: "email",
     code: `emailListSchema(${JSON.stringify(name)}, { splitter: "${splitter}" })`,
     imports: [

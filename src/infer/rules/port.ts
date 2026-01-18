@@ -2,10 +2,10 @@ import { InferRule } from "../types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { portGenSchema } from "../generated/port.js";
 
-const PORT_KEYS = ["PORT", "PORT", "PORT"];
+const PORT_KEYS = ["PORT"];
 
-export const portRule: InferRule = {
-    type: "port",
+export const portRule: InferRule<"port"> = {
+    kind: "port",
     priority: 7,
     threshold: 5,
     tryInfer({ name, rawValue }) {

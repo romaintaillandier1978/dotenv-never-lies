@@ -40,8 +40,8 @@ const LIST_KEYS = ["LIST", "ITEMS", "ARRAY", "VALUES"];
  * @param rawValue - The raw value of the list.
  * @returns The inferred list schema.
  */
-export const listRule: InferRule = {
-    type: "list",
+export const listRule: InferRule<"list"> = {
+    kind: "list",
     priority: 7,
     threshold: 5,
     tryInfer({ name, rawValue }) {

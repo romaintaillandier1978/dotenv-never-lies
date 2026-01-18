@@ -1,6 +1,6 @@
 import { GeneratedSchema } from "../types.js";
 
-export const versionGenSchema = (name: string): GeneratedSchema => ({
+export const versionGenSchema = (name: string): GeneratedSchema<"version"> => ({
     kind: "version",
     code: `versionSchema(${JSON.stringify(name)})`,
     imports: [

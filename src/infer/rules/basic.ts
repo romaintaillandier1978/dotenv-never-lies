@@ -10,8 +10,8 @@ const NUMBER_KEYS = ["NUMBER", "NUM", "NB", "COUNT", "SIZE", "LENGTH", "RATE", "
  * @param rawValue - The raw value of the environment variable.
  * @returns The inferred number schema.
  */
-export const numberRule: InferRule = {
-    type: "number",
+export const numberRule: InferRule<"number"> = {
+    kind: "number",
     priority: 4,
     threshold: 5,
 
@@ -50,7 +50,7 @@ export const numberRule: InferRule = {
 const EMAIL_KEYS = ["EMAIL", "MAIL"];
 
 export const emailRule: InferRule = {
-    type: "email",
+    kind: "email",
     priority: 4,
     threshold: 5,
 
@@ -74,7 +74,7 @@ export const emailRule: InferRule = {
 };
 
 export const stringRule: InferRule = {
-    type: "string",
+    kind: "string",
     priority: 0,
     threshold: 0,
 

@@ -69,11 +69,11 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
             const context: InferContext = { name, rawValue, imports: importedSchemas, reasons: verbose, codeWarnings: [] };
 
             const schema = infer(context);
-            crossInfer({ schema, isSecret, ...context });
+            crossInfer({ inferredSchema: schema, isSecret, ...context });
             for (const w of context.codeWarnings) {
                 lines.push("        // " + w);
             }
-            lines.push(`        schema: ${schema},`);
+            lines.push(`        schema: ${schema.code},`);
         }
         if (isSecret) {
             lines.push(`        secret: true, //  ⚠️  inferred as secret`);

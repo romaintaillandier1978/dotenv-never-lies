@@ -31,8 +31,8 @@ const inferSimpleSchemaForKeyPart = (rawValue: string): GeneratedSchema => {
     return zStringGenSchema;
 };
 
-export const keyValueRule: InferRule = {
-    type: "keyValue",
+export const keyValueRule: InferRule<"keyValue"> = {
+    kind: "keyValue",
     priority: 3.5,
     threshold: 5,
 

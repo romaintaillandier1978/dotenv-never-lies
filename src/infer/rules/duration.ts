@@ -5,8 +5,8 @@ import { durationGenSchema } from "../generated/duration.js";
 
 const DURATION_KEYS = ["TIMEOUT", "TTL", "DELAY", "DURATION", "INTERVAL"];
 
-export const durationRule: InferRule = {
-    type: "duration",
+export const durationRule: InferRule<"duration"> = {
+    kind: "duration",
     priority: 6,
     threshold: 5,
     tryInfer({ name, rawValue }) {

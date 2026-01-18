@@ -22,16 +22,19 @@ const OTHER_KEYS = ["OTHER", "MISC", "MISC_URL", "MISC_URI", "MISC_LINK", "MISC_
 type SubUrlConst = {
     message: string;
     keys: string[];
-    schema: GeneratedSchema;
+    schema: GeneratedSchema<"url">;
 };
-type SubUrlRuleInput = SubUrlConst & {
+
+type SubUrlContext = {
     name: string;
     rawValue: string;
     confidence: number;
     reasons: string[];
 };
 
-const subUrlRule = (input: SubUrlRuleInput): InferResult | null => {
+type SubUrlRuleInput = SubUrlConst & SubUrlContext;
+
+const subUrlRule = (input: SubUrlRuleInput): InferResult<"url"> | null => {
     input.confidence += 2;
     const reasons: string[] = [`Valid ${input.message} URL (+2)`];
     const { matched, reason } = matchesEnvKey(input.name, input.keys);
@@ -49,7 +52,7 @@ const subUrlRule = (input: SubUrlRuleInput): InferResult | null => {
 const subUrlRules: Record<string, (name: string) => SubUrlConst> = {
     HTTP: (name: string) => {
         return {
-            message: "HTTP",
+            message: "http",
             keys: URL_KEYS,
             schema: httpUrlGenSchema(name),
         };
@@ -90,8 +93,8 @@ const subUrlRules: Record<string, (name: string) => SubUrlConst> = {
         };
     },
 };
-export const urlRule: InferRule = {
-    type: "url",
+export const urlRule: InferRule<"url"> = {
+    kind: "url",
     priority: 5,
     threshold: 5,
 
@@ -107,60 +110,14 @@ export const urlRule: InferRule = {
             reasons.push(`${reason} (+2)`);
         }
 
-        if (looksLikeHttpUrl(rawValue)) {
-            return subUrlRule({
-                name,
-                rawValue,
-                confidence,
-                reasons,
-                ...subUrlRules.HTTP(name),
-            });
-        }
-        if (looksLikeDbUrl(rawValue)) {
-            return subUrlRule({
-                name,
-                rawValue,
-                confidence,
-                reasons,
-                ...subUrlRules.DATABASE(name),
-            });
-        }
-        if (looksLikeQueueUrl(rawValue)) {
-            return subUrlRule({
-                name,
-                rawValue,
-                confidence,
-                reasons,
-                ...subUrlRules.QUEUE(name),
-            });
-        }
-        if (looksLikeWsUrl(rawValue)) {
-            return subUrlRule({
-                name,
-                rawValue,
-                confidence,
-                reasons,
-                ...subUrlRules.WS(name),
-            });
-        }
-        if (looksLikeStorageUrl(rawValue)) {
-            return subUrlRule({
-                name,
-                rawValue,
-                confidence,
-                reasons,
-                ...subUrlRules.STORAGE(name),
-            });
-        }
-        if (looksLikeOtherUrl(rawValue)) {
-            return subUrlRule({
-                name,
-                rawValue,
-                confidence,
-                reasons,
-                ...subUrlRules.OTHER(name),
-            });
-        }
+        const partial: SubUrlContext = { name, rawValue, confidence, reasons };
+
+        if (looksLikeHttpUrl(rawValue)) return subUrlRule({ ...partial, ...subUrlRules.HTTP(name) });
+        if (looksLikeDbUrl(rawValue)) return subUrlRule({ ...partial, ...subUrlRules.DATABASE(name) });
+        if (looksLikeQueueUrl(rawValue)) return subUrlRule({ ...partial, ...subUrlRules.QUEUE(name) });
+        if (looksLikeWsUrl(rawValue)) return subUrlRule({ ...partial, ...subUrlRules.WS(name) });
+        if (looksLikeStorageUrl(rawValue)) return subUrlRule({ ...partial, ...subUrlRules.STORAGE(name) });
+        if (looksLikeOtherUrl(rawValue)) return subUrlRule({ ...partial, ...subUrlRules.OTHER(name) });
 
         return {
             generated: zUrlGenSchema,

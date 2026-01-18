@@ -1,6 +1,6 @@
 import { GeneratedSchema } from "../types.js";
 
-export const boolGenSchema = (name: string): GeneratedSchema => ({
+export const boolGenSchema = (name: string): GeneratedSchema<"boolean"> => ({
     kind: "boolean",
     code: `booleanSchema(${JSON.stringify(name)})`,
     imports: [

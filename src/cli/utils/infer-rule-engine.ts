@@ -1,7 +1,8 @@
+import { zStringGenSchema } from "../../infer/generated/basic.js";
 import { CROSS_RULES, RULES } from "../../infer/index.js";
-import { CrossInferContext, InferContext } from "../../infer/types.js";
+import { CrossInferContext, GeneratedSchema, InferContext } from "../../infer/types.js";
 
-export const infer = (context: InferContext): string => {
+export const infer = (context: InferContext): GeneratedSchema => {
     for (const rule of RULES) {
         const result = rule.tryInfer({ name: context.name, rawValue: context.rawValue });
 
@@ -19,10 +20,10 @@ export const infer = (context: InferContext): string => {
             if (result.codeWarnings) {
                 context.codeWarnings.push(...result.codeWarnings);
             }
-            return result.generated.code;
+            return result.generated;
         }
     }
-    return "z.string()";
+    return zStringGenSchema;
 };
 
 export const crossInfer = (context: CrossInferContext): void => {

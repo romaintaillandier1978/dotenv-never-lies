@@ -5,8 +5,8 @@ import { InferRule } from "../types.js";
 
 const IP_KEYS = ["IP", "ADDRESS", "HOST", "HOSTNAME"];
 
-export const ipRule: InferRule = {
-    type: "ip",
+export const ipRule: InferRule<"ip"> = {
+    kind: "ip",
     priority: 5.5,
     threshold: 5,
     tryInfer({ name, rawValue }) {

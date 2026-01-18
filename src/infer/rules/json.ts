@@ -5,8 +5,8 @@ import { zArrayOfUnknownGenSchema, zUnknownGenSchema } from "../generated/basic.
 const JSON_KEYS_HIGH = ["JSON"];
 const JSON_KEYS_LOW = ["PAYLOAD", "CONFIG", "DATA", "META"];
 
-export const jsonRule: InferRule = {
-    type: "json",
+export const jsonRule: InferRule<"json"> = {
+    kind: "json",
     priority: 10,
     threshold: 5,
     tryInfer({ name, rawValue }) {
