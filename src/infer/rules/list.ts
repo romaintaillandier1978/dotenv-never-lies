@@ -1,10 +1,8 @@
-import { areAllSameGenSchemas, areSameGenSchemas } from "../helpers.js";
+import { areAllSameGenSchemas } from "../helpers.js";
 import { GeneratedSchema, InferRule } from "../types.js";
 import { matchesEnvKey } from "../helpers.js";
-import { keyValueListSchemaGen, listSchemaGen, urlListSchemaGen, emailListSchemaGen, listOfSchemaGen } from "../generated/list.js";
-import { portGenSchemaNoName } from "../generated/port.js";
-import { zEmailGenSchema, zNumberGenSchema, zStringGenSchema, zUrlGenSchema } from "../generated/basic.js";
-import { keyValueSchemaGenNoName } from "../generated/key-value.js";
+import { listSchemaGen } from "../generated/list.js";
+import { zStringGenSchema } from "../generated/basic.js";
 import { portRule } from "./port.js";
 import { urlRule } from "./url.js";
 import { emailRule, numberRule, stringRule } from "./basic.js";
@@ -109,80 +107,11 @@ export const listRule: InferRule = {
             };
         }
         // from here, all elements are of the same type => we can generate a typed list
-        reasons.push("All elements are of the same type (+2)");
-        confidence += 2;
 
-        // List of ports
-        if (areSameGenSchemas(itemTypes[0], portGenSchemaNoName)) {
-            reasons.push("All elements are PORTS (+2)");
-            confidence += 2;
-            return {
-                generated: listOfSchemaGen(name, splitter, itemTypes[0]),
-                confidence,
-                reasons,
-                codeWarnings,
-            };
-        }
-
-        // here we assume we have a list of simple URLs.
-        // possible evolution with all types of URLs.
-        // List of URLs
-
-        // if (areSameGenSchemas(itemTypes[0], zUrlGenSchema)) {
-        if (itemTypes[0].code.includes("UrlSchema")) {
-            reasons.push("All elements are URLs (+2)");
-            confidence += 2;
-            return {
-                generated: listSchemaGen(name, splitter, itemTypes[0]),
-                confidence,
-                reasons,
-                codeWarnings,
-            };
-        }
-
-        // List of emails
-        if (areSameGenSchemas(itemTypes[0], zEmailGenSchema)) {
-            reasons.push("All elements are emails (+2)");
-            confidence += 2;
-            return {
-                generated: emailListSchemaGen(name, splitter),
-                confidence,
-                reasons,
-                codeWarnings,
-            };
-        }
-
-        // List of key-value pairs
-        // if (areSameGenSchemas(itemTypes[0], keyValueSchemaGenNoName)) {
-        if (itemTypes[0].code.includes("keyValueSchema")) {
-            reasons.push("All elements are key-value pairs (+2)");
-            confidence += 2;
-            return {
-                generated: listSchemaGen(name, splitter, itemTypes[0]),
-                // On devrait reussir a produire ca !
-                //generated: keyValueListSchemaGen(name, splitter, itemTypes[0]),
-                confidence,
-                reasons,
-                codeWarnings,
-            };
-        }
-
-        // List of numbers
-        if (areSameGenSchemas(itemTypes[0], zNumberGenSchema)) {
-            reasons.push("All elements are numbers (+2)");
-            confidence += 2;
-            return {
-                generated: listOfSchemaGen(name, splitter, itemTypes[0]),
-                confidence,
-                reasons,
-                codeWarnings,
-            };
-        }
-        // List of strings
-        reasons.push("All elements are strings (+2)");
-        confidence += 2;
+        confidence += 4;
+        reasons.push("All elements are type of " + itemTypes[0].kind + " (+4)");
         return {
-            generated: listSchemaGen(name, splitter, zStringGenSchema),
+            generated: listSchemaGen(name, splitter, itemTypes[0]),
             confidence,
             reasons,
             codeWarnings,

@@ -1,6 +1,7 @@
 import { GeneratedSchema } from "../types.js";
 
 export const ipGenSchema = (name: string): GeneratedSchema => ({
+    kind: "ip",
     code: `ipSchema(${JSON.stringify(name)})`,
     imports: [
         {

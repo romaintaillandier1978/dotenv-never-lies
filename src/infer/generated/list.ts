@@ -1,6 +1,7 @@
 import { GeneratedSchema } from "../types.js";
 
 export const listSchemaGen = (name: string, splitter: string, of: GeneratedSchema): GeneratedSchema => ({
+    kind: "list",
     code: `listSchema(${JSON.stringify(name)}, { splitter: "${splitter}" ${of ? `, of: ${of.code}` : ""} })`,
     imports: [
         {
@@ -12,6 +13,7 @@ export const listSchemaGen = (name: string, splitter: string, of: GeneratedSchem
 });
 
 export const keyValueListSchemaGen = (name: string, splitter: string, of: GeneratedSchema): GeneratedSchema => ({
+    kind: "keyValue",
     code: `keyValueListSchema(${JSON.stringify(name)}, { splitter: "${splitter}" ${of ? `, of: ${of.code}` : ""} })`,
     imports: [
         {
@@ -22,6 +24,7 @@ export const keyValueListSchemaGen = (name: string, splitter: string, of: Genera
 });
 
 export const urlListSchemaGen = (name: string, splitter: string): GeneratedSchema => ({
+    kind: "url",
     code: `urlListSchema(${JSON.stringify(name)}, { splitter: "${splitter}" })`,
     imports: [
         {
@@ -32,6 +35,7 @@ export const urlListSchemaGen = (name: string, splitter: string): GeneratedSchem
 });
 
 export const emailListSchemaGen = (name: string, splitter: string): GeneratedSchema => ({
+    kind: "email",
     code: `emailListSchema(${JSON.stringify(name)}, { splitter: "${splitter}" })`,
     imports: [
         {
@@ -39,8 +43,4 @@ export const emailListSchemaGen = (name: string, splitter: string): GeneratedSch
             from: "@romaintaillandier1978/dotenv-never-lies",
         },
     ],
-});
-export const listOfSchemaGen = (name: string, splitter: string, of: GeneratedSchema): GeneratedSchema => ({
-    code: `listSchema(${JSON.stringify(name)}, { splitter: "${splitter}", of: ${of.code} })`,
-    imports: [{ name: "listSchema", from: "@romaintaillandier1978/dotenv-never-lies" }, ...of.imports],
 });

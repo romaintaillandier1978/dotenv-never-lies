@@ -1,6 +1,7 @@
 import { GeneratedSchema } from "../types.js";
 
 export const portGenSchema = (name: string): GeneratedSchema => ({
+    kind: "port",
     code: `portSchema(${JSON.stringify(name)})`,
     imports: [
         {

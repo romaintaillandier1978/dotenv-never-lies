@@ -1,6 +1,7 @@
 import { GeneratedSchema } from "../types.js";
 
 export const keyValueSchemaGen = (name: string, splitter: string, of?: GeneratedSchema): GeneratedSchema => ({
+    kind: "keyValue",
     code: `keyValueSchema(${JSON.stringify(name)}, { splitter: "${splitter}"${of ? `, of: ${of.code}` : ""} })`,
     imports: [
         {

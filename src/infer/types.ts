@@ -1,3 +1,19 @@
+export type GeneratedSchemaKind =
+    | "unknown"
+    | "array"
+    | "string"
+    | "number"
+    | "boolean"
+    | "port"
+    | "url"
+    | "email"
+    | "keyValue"
+    | "list"
+    | "json"
+    | "duration"
+    | "ip"
+    | "version";
+
 /**
  * represent an import in a generated env.dnl.ts file
  */
@@ -20,6 +36,10 @@ export type Import = {
  * }
  */
 export type GeneratedSchema = {
+    /**
+     * The kind of schema generated
+     */
+    kind: GeneratedSchemaKind;
     /**
      * The code that will be written in the dnl schema output, ex: "z.string()" or `jsonSchema("${name}")`
      */

@@ -4,10 +4,10 @@ import { keyValueRule } from "../infer/rules/key-value.js";
 
 const main = () => {
     console.log("----MAIN");
-    const result1 = keyValueRule.tryInfer({
-        name: "APP_CONFIG",
-        rawValue: "c=2",
-    });
+    // const result1 = keyValueRule.tryInfer({
+    //     name: "APP_CONFIG",
+    //     rawValue: "c=2",
+    // });
     // console.log(a);
     const result2 = listRule.tryInfer({
         name: "ALLOWED_LIST",
