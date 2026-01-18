@@ -40,7 +40,6 @@ export const emailListSchemaGen = (name: string, splitter: string): GeneratedSch
         },
     ],
 });
-// TODO WRONG ! options: SplitterSchemaOptions<T> = {}
 export const listOfSchemaGen = (name: string, splitter: string, of: GeneratedSchema): GeneratedSchema => ({
     code: `listSchema(${JSON.stringify(name)}, { splitter: "${splitter}", of: ${of.code} })`,
     imports: [{ name: "listSchema", from: "@romaintaillandier1978/dotenv-never-lies" }, ...of.imports],

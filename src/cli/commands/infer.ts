@@ -58,8 +58,10 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
 
         const isSecret = !opts?.dontGuessSecret && guessSecret(name);
 
-        // TODO check if this wouls be better
-        //if (rawValue === undefined || rawValue === '""' || rawValue === "''") { // undefined means the variable is not set in the .env file
+        // NO : if (rawValue === undefined || rawValue === '""' || rawValue === "''") { // WRONG !
+        // Note: dotenv normalizes `FOO=`, `FOO=""` and `FOO=''` into an empty string ("").
+        // At this stage, we only treat `undefined` as "variable not set".
+        // Empty strings are handled by inference rules when relevant (e.g. number coercion).
         if (rawValue === undefined) {
             // undefined means the variable is not set in the .env file
             lines.push(`        schema: z.string().optional(),`);
