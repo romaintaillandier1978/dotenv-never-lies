@@ -5,10 +5,10 @@
 - supprimer sample
 - ajouter une remarque personnelle sur vrai vécu, gros projet avec 150 variables d'environnement
 
-- INFERENCE
-    - ajouter un warning en cas de doublons dans infer
-
 - tests de non regression sur l'inférence.
+
+- doc : parler du preload dotenv :
+  `node -r dotenv/config your_script.js`
 
 ### readme inférence :
 

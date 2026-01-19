@@ -10,12 +10,13 @@ It fails fast, loud, and before production.
 
 ## Why?
 
-Because all of this happens all the time:
+ecause all of this happens all the time:
 
 - ❌ a missing env variable → runtime crash
 - ❌ a malformed URL → subtle production bug
 - ❌ CI was not updated after a new variable → confusing red deployment
 - ❌ an optimistic `process.env.FOO!` → lying to yourself
+- ❌ dotenv silently overrides duplicate keys
 
 And because `.env` files are:
 
@@ -30,12 +31,13 @@ And because `.env` files are:
 
 ## What the library does
 
-- ✅ validates environment variables at startup
-  powered by zod, enables complex transformations (arrays, parsing, coercion…)
-- ✅ provides infer .Env to get a first real life dnl schema
+- ✅ validates environment variables at startup  
+  powered by Zod, enabling complex transformations (arrays, parsing, coercion…)
+- ✅ prevents duplicate environment variables
+- ✅ infers a first real-world DNL schema from an existing `.env`
 - ✅ provides reliable TypeScript typings
 - ✅ documents each variable
-- ✅ exposes a CLI for CI and humans (dnl export)
+- ✅ exposes a CLI for CI and humans (`dnl export`)
 
 ---
 

@@ -8,18 +8,25 @@ import { ProgramCliOptions } from "./program.js";
 
 export type AssertCliOptions = ProgramCliOptions & {
     source?: string;
+    warnOnDuplicates?: boolean;
+};
+export type AssertResult = {
+    warnings: string[];
 };
 
-export const assertCommand = async (opts?: AssertCliOptions | undefined): Promise<void> => {
+export const assertCommand = async (opts?: AssertCliOptions | undefined): Promise<AssertResult> => {
     const schemaPath = resolveSchemaPath(opts?.schema);
 
     const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<any>;
 
+    const warnings: string[] = [];
     try {
         envDef.assert({
-            source: opts?.source ? dnl.readEnvFile(path.resolve(process.cwd(), opts.source)) : process.env,
+            source: opts?.source
+                ? dnl.readEnvFile(path.resolve(process.cwd(), opts.source), { onDuplicate: opts?.warnOnDuplicates ? "warn" : "error" }, warnings)
+                : process.env,
         });
-        console.log("✅ Environment is valid");
+        return { warnings };
     } catch (error) {
         if (error instanceof z.ZodError) {
             throw new ValidationError(

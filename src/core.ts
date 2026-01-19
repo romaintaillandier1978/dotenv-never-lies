@@ -129,6 +129,8 @@ export const define = <T extends EnvDefinition>(def: T): EnvDefinitionHelper<T> 
     return { def, zodShape, zodSchema, check, assert };
 };
 
+export type ReadEnvFileOptions = { onDuplicate: "warn" | "error" };
+
 /**
  * Reads a .env file and returns environment variables as an object.
  * Uses dotenv and dotenv-expand.
@@ -137,14 +139,24 @@ export const define = <T extends EnvDefinition>(def: T): EnvDefinitionHelper<T> 
  * const ENV = envDefinition.load({ source: readEnvFile(".env") });
  * ```
  * @param path - The path to the .env file.
+ * @param options - The options for reading the .env file.
+ * @param warnings - The warnings to add to.
  * @returns The environment variables as an object.
  * @throws If the .env file does not exist, or is not valid.
  */
-export const readEnvFile = (path: string): EnvSource => {
+export const readEnvFile = (path: string, options: ReadEnvFileOptions = { onDuplicate: "error" }, warnings?: string[]): EnvSource => {
     if (!fs.existsSync(path)) {
         throw new DnlError(`Env file not found: ${path}`, ExitCodes.usageError);
     }
+
     const content = fs.readFileSync(path);
+    const onDuplicate = options?.onDuplicate ?? "error";
+
+    const warnDoublons = checkForDuplicates(content, onDuplicate);
+    if (warnDoublons && warnings) {
+        warnings.push(...warnDoublons);
+    }
+
     const parsed = dotenv.parse(content);
 
     dotenvExpand.expand({
@@ -153,4 +165,32 @@ export const readEnvFile = (path: string): EnvSource => {
     });
 
     return parsed;
+};
+
+const checkForDuplicates = (content: Buffer, onDuplicate: "warn" | "error"): string[] | undefined => {
+    const ENV_REGEX = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=/gm;
+
+    const keys = content.toString().matchAll(ENV_REGEX);
+    if (keys === null) {
+        return undefined;
+    }
+
+    const seen = new Set<string>();
+    const duplicates = new Set<string>();
+
+    for (const key of keys) {
+        if (seen.has(key[1])) {
+            duplicates.add(key[1]);
+        }
+        seen.add(key[1]);
+    }
+    if (duplicates.size <= 0) return undefined;
+
+    if (onDuplicate === "error") {
+        throw new DnlError(
+            `Duplicate environment variables detected in .env: ${Array.from(duplicates).join(", ")} (dotenv keeps the last value)`,
+            ExitCodes.validationError
+        );
+    }
+    return Array.from(duplicates).map((key) => `⚠️ Duplicate env key detected in .env: ${key} (dotenv keeps the last value)`);
 };

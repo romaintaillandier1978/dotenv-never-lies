@@ -90,9 +90,14 @@ program
     .command("assert")
     .description("Verifies the runtime environment and exits the process if the schema is not satisfied.")
     .option("-s, --source <source>", "Variables source (default: process.env)")
+    .option("--warn-on-duplicates", "Warn on duplicate environment variables instead of failing")
     .action(async (opts: AssertCliOptions) => {
         const globalOpts = program.opts<ProgramCliOptions>();
-        await assertCommand({ ...opts, schema: globalOpts.schema });
+        const { warnings } = await assertCommand({ ...opts, schema: globalOpts.schema });
+        for (const warning of warnings) {
+            console.error(`${warning}`);
+        }
+        console.log("✅ Environment is valid");
     })
     .addHelpText(
         "after",
@@ -136,6 +141,7 @@ program
     .description("Exports environment variables to a specified format. Variables are exported after being validated against the schema.")
     .argument("<format>", "Export format. See list and examples at the end")
     .option("-s, --source <source>", "Variables source (default: process.env if none provided)")
+    .option("--warn-on-duplicates", "Warn on duplicate environment variables instead of failing")
     .option("--hide-secret", 'Mask sensitive variables (replace with "********")')
     .option("--exclude-secret", "Exclude sensitive variables (do not show them at all)")
     .option("--include-comments", "Include comments in the export (does not work with the json format)")
@@ -341,6 +347,7 @@ program
     .option("-f, --force", "Overwrite existing file")
     .option("--verbose", "Verbose mode")
     .option("--dont-guess-secret", "Do not try to guess sensitive variables (heuristic)")
+    .option("--warn-on-duplicates", "Warn on duplicate environment variables instead of failing")
     .action(async (opts: InferCliOptions) => {
         const { content, out, warnings, verbose } = await inferCommand(opts);
         if (opts.verbose) {

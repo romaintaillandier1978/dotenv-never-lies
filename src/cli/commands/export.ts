@@ -29,6 +29,7 @@ export type ExportResult = {
 export type ExportCliOptions = ProgramCliOptions & {
     format: ExportFormat;
     source?: string | undefined;
+    warnOnDuplicates?: boolean;
     hideSecret?: boolean;
     excludeSecret?: boolean;
     includeComments?: boolean;
@@ -119,7 +120,9 @@ const getRawValue = (key: string, source: EnvSource, envDef: dnl.EnvDefinitionHe
 
 // this clones the .env
 export const exportEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const source = options?.source
+        ? dnl.readEnvFile(path.resolve(process.cwd(), options.source), { onDuplicate: options?.warnOnDuplicates ? "warn" : "error" }, warnings)
+        : process.env;
     const values = envDef.assert({ source });
     const args = [];
     for (const key of Object.keys(values)) {
@@ -139,7 +142,9 @@ export const exportDockerArgs = (envDef: dnl.EnvDefinitionHelper<any>, options: 
     if (options?.includeComments) {
         warnings.push("The --include-comments option is invalid with the docker-args format");
     }
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const source = options?.source
+        ? dnl.readEnvFile(path.resolve(process.cwd(), options.source), { onDuplicate: options?.warnOnDuplicates ? "warn" : "error" }, warnings)
+        : process.env;
     const values = envDef.assert({ source });
     const args: string[] = [];
     for (const key of Object.keys(values)) {
@@ -153,7 +158,9 @@ export const exportDockerArgs = (envDef: dnl.EnvDefinitionHelper<any>, options: 
 };
 
 export const exportDockerEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const source = options?.source
+        ? dnl.readEnvFile(path.resolve(process.cwd(), options.source), { onDuplicate: options?.warnOnDuplicates ? "warn" : "error" }, warnings)
+        : process.env;
     const values = envDef.assert({ source });
     const args = [];
     for (const key of Object.keys(values)) {
@@ -171,7 +178,9 @@ export const exportDockerEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: E
 };
 
 export const exportK8sConfigmap = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const source = options?.source
+        ? dnl.readEnvFile(path.resolve(process.cwd(), options.source), { onDuplicate: options?.warnOnDuplicates ? "warn" : "error" }, warnings)
+        : process.env;
     const values = envDef.assert({ source });
 
     const args: string[] = [];
@@ -198,7 +207,9 @@ export const exportK8sConfigmap = (envDef: dnl.EnvDefinitionHelper<any>, options
 };
 
 export const exportK8sSecret = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const source = options?.source
+        ? dnl.readEnvFile(path.resolve(process.cwd(), options.source), { onDuplicate: options?.warnOnDuplicates ? "warn" : "error" }, warnings)
+        : process.env;
     const values = envDef.assert({ source });
 
     const args: string[] = [];
@@ -222,7 +233,9 @@ export const exportK8sSecret = (envDef: dnl.EnvDefinitionHelper<any>, options: E
 };
 
 export const exportGithubEnv = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const source = options?.source
+        ? dnl.readEnvFile(path.resolve(process.cwd(), options.source), { onDuplicate: options?.warnOnDuplicates ? "warn" : "error" }, warnings)
+        : process.env;
     const values = envDef.assert({ source });
 
     const args: string[] = [];
@@ -243,7 +256,9 @@ export const exportGithubSecret = (envDef: dnl.EnvDefinitionHelper<any>, options
     if (options?.githubOrg && options.githubOrg.includes(" ")) {
         warnings.push("github-org contains a space; gh command likely invalid");
     }
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const source = options?.source
+        ? dnl.readEnvFile(path.resolve(process.cwd(), options.source), { onDuplicate: options?.warnOnDuplicates ? "warn" : "error" }, warnings)
+        : process.env;
     const values = envDef.assert({ source });
 
     const scopeFlag = options?.githubOrg ? `--org ${shellEscape(options.githubOrg)}` : "";
@@ -291,7 +306,9 @@ export const exportJson = (envDef: dnl.EnvDefinitionHelper<any>, options: Export
     if (options?.includeComments) {
         warnings.push("The --include-comments option is ignored for the json format");
     }
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const source = options?.source
+        ? dnl.readEnvFile(path.resolve(process.cwd(), options.source), { onDuplicate: options?.warnOnDuplicates ? "warn" : "error" }, warnings)
+        : process.env;
     const values = envDef.assert({ source });
 
     const args: Record<string, unknown> = {};
@@ -305,7 +322,9 @@ export const exportJson = (envDef: dnl.EnvDefinitionHelper<any>, options: Export
 };
 
 export const exportTs = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const source = options?.source
+        ? dnl.readEnvFile(path.resolve(process.cwd(), options.source), { onDuplicate: options?.warnOnDuplicates ? "warn" : "error" }, warnings)
+        : process.env;
     const values = envDef.assert({ source });
 
     const middle: string[] = [];
@@ -324,7 +343,9 @@ export const exportTs = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCl
 };
 
 export const exportJs = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCliOptions, warnings: string[]): string => {
-    const source = options?.source ? dnl.readEnvFile(path.resolve(process.cwd(), options.source)) : process.env;
+    const source = options?.source
+        ? dnl.readEnvFile(path.resolve(process.cwd(), options.source), { onDuplicate: options?.warnOnDuplicates ? "warn" : "error" }, warnings)
+        : process.env;
     const values = envDef.assert({ source });
 
     const middle: string[] = [];
