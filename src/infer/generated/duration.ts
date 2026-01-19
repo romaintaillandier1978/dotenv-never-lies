@@ -1,4 +1,4 @@
-import { GeneratedSchema } from "../types.js";
+import { GeneratedSchema } from "../rules.types.js";
 
 export const durationGenSchema = (name: string): GeneratedSchema<"duration"> => ({
     kind: "duration",

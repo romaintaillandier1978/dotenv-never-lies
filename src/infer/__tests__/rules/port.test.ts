@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { portRule } from "../../rules/port.js";
 import { portGenSchema } from "../../generated/port.js";
-import type { InferInput, InferResult } from "../../types.js";
+import type { InferInput, InferResult } from "../../rules.types.js";
 
 describe("Inference rules – port", () => {
     it("portRule should match a valid port number", () => {

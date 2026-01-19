@@ -1,6 +1,6 @@
 import { booleanRule } from "../../rules/boolean.js";
 import { boolGenSchema } from "../../generated/boolean.js";
-import { InferInput, InferResult } from "../../types.js";
+import { InferInput, InferResult } from "../../rules.types.js";
 import { describe, it, expect } from "vitest";
 
 describe("Inference rules – boolean", () => {

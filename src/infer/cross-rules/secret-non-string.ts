@@ -1,5 +1,4 @@
-import { zStringGenSchema } from "../generated/basic.js";
-import { CrossRule, CrossInferContext } from "../types.js";
+import { CrossRule, CrossInferContext } from "../rules.types.js";
 
 export const secretVsNonStringRule: CrossRule = (context: CrossInferContext): void => {
     if (context.isSecret && context.inferredSchema.kind !== "string") {

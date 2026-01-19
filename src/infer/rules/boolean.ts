@@ -1,5 +1,5 @@
 import { looksLikeValidBoolean } from "../../schemas/boolean.js";
-import { InferRule } from "../types.js";
+import { InferRule } from "../rules.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { boolGenSchema } from "../generated/boolean.js";
 

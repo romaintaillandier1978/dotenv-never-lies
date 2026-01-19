@@ -7,7 +7,7 @@ import {
     looksLikeStorageUrl,
     looksLikeOtherUrl,
 } from "../../schemas/urls.js";
-import { GeneratedSchema, InferResult, InferRule } from "../types.js";
+import { GeneratedSchema, InferResult, InferRule } from "../rules.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { databaseUrlGenSchema, httpUrlGenSchema, otherUrlGenSchema, queueUrlGenSchema, storageUrlGenSchema, wsUrlSchemaGen } from "../generated/url.js";
 import { zUrlGenSchema } from "../generated/basic.js";

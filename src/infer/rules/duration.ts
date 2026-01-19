@@ -1,5 +1,5 @@
 import { looksLikeValidDuration } from "../../schemas/duration.js";
-import { InferRule } from "../types.js";
+import { InferRule } from "../rules.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { durationGenSchema } from "../generated/duration.js";
 

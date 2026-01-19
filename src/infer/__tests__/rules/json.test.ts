@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { jsonRule } from "../../rules/json.js";
 import { jsonGenSchema, jsonGenSchemaNoName } from "../../generated/json.js";
-import type { InferInput, InferResult } from "../../types.js";
+import type { InferInput, InferResult } from "../../rules.types.js";
 
 describe("Inference rules – json", () => {
     it("jsonRule should match JSON objects", () => {

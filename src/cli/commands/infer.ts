@@ -4,7 +4,7 @@ import { guessSecret } from "../../infer/helpers.js";
 import { crossInfer, infer } from "../utils/infer-rule-engine.js";
 import fs from "node:fs";
 import { ExportError } from "../../errors.js";
-import { Import, CrossInferContext, InferContext } from "../../infer/types.js";
+import { Import, CrossInferContext, InferContext } from "../../infer/rules.types.js";
 
 export type InferCliOptions = {
     source?: string;

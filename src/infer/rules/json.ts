@@ -1,4 +1,4 @@
-import { InferRule } from "../types.js";
+import { InferRule } from "../rules.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { jsonGenSchema } from "../generated/json.js";
 import { zArrayOfUnknownGenSchema, zUnknownGenSchema } from "../generated/basic.js";

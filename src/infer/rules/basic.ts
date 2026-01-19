@@ -1,4 +1,4 @@
-import { InferRule } from "../types.js";
+import { InferRule } from "../rules.types.js";
 import { zEmailGenSchema, zNumberGenSchema, zStringGenSchema } from "../generated/basic.js";
 import { matchesEnvKey } from "../helpers.js";
 

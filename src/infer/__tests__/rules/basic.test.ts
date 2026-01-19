@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { numberRule, emailRule, stringRule } from "../../rules/basic.js";
 import { zEmailGenSchema, zNumberGenSchema, zStringGenSchema } from "../../generated/basic.js";
-import type { InferInput, InferResult } from "../../types.js";
+import type { InferInput, InferResult } from "../../rules.types.js";
 
 describe("Inference rules – basic", () => {
     it("numberRule should match a valid number", () => {

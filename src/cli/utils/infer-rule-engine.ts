@@ -1,6 +1,6 @@
 import { zStringGenSchema } from "../../infer/generated/basic.js";
-import { CROSS_RULES, RULES } from "../../infer/index.js";
-import { CrossInferContext, GeneratedSchema, InferContext } from "../../infer/types.js";
+import { CROSS_RULES, RULES } from "../../infer/rules.js";
+import { CrossInferContext, GeneratedSchema, InferContext } from "../../infer/rules.types.js";
 
 export const infer = (context: InferContext): GeneratedSchema => {
     for (const rule of RULES) {

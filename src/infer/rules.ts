@@ -7,7 +7,7 @@ import { emailRule, numberRule, stringRule } from "./rules/basic.js";
 import { urlRule } from "./rules/url.js";
 import { ipRule } from "./rules/ip.js";
 import { versionRule } from "./rules/version.js";
-import { CrossRule, InferRule } from "./types.js";
+import { CrossRule, InferRule } from "./rules.types.js";
 import { keyValueRule } from "./rules/key-value.js";
 import { secretVsNonStringRule } from "./cross-rules/secret-non-string.js";
 

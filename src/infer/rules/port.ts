@@ -1,4 +1,4 @@
-import { InferRule } from "../types.js";
+import { InferRule } from "../rules.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { portGenSchema } from "../generated/port.js";
 

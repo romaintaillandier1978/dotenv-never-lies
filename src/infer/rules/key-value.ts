@@ -1,4 +1,4 @@
-import { GeneratedSchema, InferRule } from "../types.js";
+import { GeneratedSchema, InferRule } from "../rules.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { keyValueSchemaGen } from "../generated/key-value.js";
 import { zStringGenSchema } from "../generated/basic.js";

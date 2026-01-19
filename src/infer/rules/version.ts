@@ -1,5 +1,5 @@
 import { looksLikeVersion } from "../../schemas/dotted.js";
-import { InferRule } from "../types.js";
+import { InferRule } from "../rules.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { versionGenSchema } from "../generated/version.js";
 

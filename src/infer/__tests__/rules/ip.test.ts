@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { ipRule } from "../../rules/ip.js";
 import { ipGenSchema } from "../../generated/ip.js";
-import type { InferInput, InferResult } from "../../types.js";
+import type { InferInput, InferResult } from "../../rules.types.js";
 
 describe("Inference rules – ip", () => {
     it("ipRule should match a valid IP address", () => {

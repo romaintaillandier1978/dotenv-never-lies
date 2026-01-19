@@ -1,5 +1,5 @@
 import { areAllSameGenSchemas } from "../helpers.js";
-import { GeneratedSchema, InferRule } from "../types.js";
+import { GeneratedSchema, InferRule } from "../rules.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { listSchemaGen } from "../generated/list.js";
 import { zStringGenSchema } from "../generated/basic.js";

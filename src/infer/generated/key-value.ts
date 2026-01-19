@@ -1,4 +1,4 @@
-import { GeneratedSchema } from "../types.js";
+import { GeneratedSchema } from "../rules.types.js";
 
 export const keyValueSchemaGen = (name: string, splitter: string, of?: GeneratedSchema): GeneratedSchema<"keyValue"> => ({
     kind: "keyValue",

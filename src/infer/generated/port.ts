@@ -1,4 +1,4 @@
-import { GeneratedSchema } from "../types.js";
+import { GeneratedSchema } from "../rules.types.js";
 
 export const portGenSchema = (name: string): GeneratedSchema<"port"> => ({
     kind: "port",

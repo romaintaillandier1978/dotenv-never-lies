@@ -1,7 +1,7 @@
 import { looksLikeIp } from "../../schemas/dotted.js";
 import { ipGenSchema } from "../generated/ip.js";
 import { matchesEnvKey } from "../helpers.js";
-import { InferRule } from "../types.js";
+import { InferRule } from "../rules.types.js";
 
 const IP_KEYS = ["IP", "ADDRESS", "HOST", "HOSTNAME"];
 
