@@ -1,6 +1,6 @@
 import { InferPreset } from "./presets.types.js";
 
-const exportKindNames = [
+export const exportKindNames = [
     "unknown",
     "array",
     "string",

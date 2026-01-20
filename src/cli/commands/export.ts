@@ -5,6 +5,7 @@ import path from "path";
 import { UsageError } from "../../errors.js";
 import { isRequired, isTransform, printZodTypeDts } from "../utils/printer.js";
 import { ProgramCliOptions } from "./program.js";
+// import { JsonObject } from "type-fest";
 
 export const exportFormatsNames = [
     "docker-env",
@@ -311,6 +312,7 @@ export const exportJson = (envDef: dnl.EnvDefinitionHelper<any>, options: Export
         : process.env;
     const values = envDef.assert({ source });
 
+    //const args: JsonObject = {};
     const args: Record<string, unknown> = {};
     for (const key of Object.keys(values)) {
         if (options?.excludeSecret && envDef.def[key].secret) {

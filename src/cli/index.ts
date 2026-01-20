@@ -11,6 +11,7 @@ import { DnlError, ExitCodes, ValidationError } from "../errors.js";
 
 import { createRequire } from "node:module";
 import { ProgramCliOptions } from "./commands/program.js";
+import { Except } from "type-fest";
 
 const require = createRequire(import.meta.url);
 const packageJson = require("../../package.json") as { version: string };
@@ -150,7 +151,7 @@ program
     .option("-f, --force", "Overwrite the existing file, in conjunction with -o or --out")
     .option("--k8s-name <name>", "Name for the k8s resource. Default: env-secret for k8s-secret, env-config for k8s-configmap")
     .option("--github-org <org>", "GitHub organization name")
-    .action(async (format: ExportFormat, opts: Omit<ExportCliOptions, "format">) => {
+    .action(async (format: ExportFormat, opts: Except<ExportCliOptions, "format">) => {
         const globalOpts = program.opts<ProgramCliOptions>();
         const { content, warnings, out } = await exportCommand({ ...opts, format, schema: globalOpts.schema });
 
@@ -297,9 +298,9 @@ program
     .command("init")
     .description(
         "Initialize an environment file from a DNL schema.\n" +
-            "This command does NOT read any existing environment variables.\n" +
-            "Useful to bootstrap a project or facilitate onboarding of a new developer.\n" +
-            "Only default values defined in the schema are written."
+        "This command does NOT read any existing environment variables.\n" +
+        "Useful to bootstrap a project or facilitate onboarding of a new developer.\n" +
+        "Only default values defined in the schema are written."
     )
     .option("-o, --out <file>", "Output file (default: .env)")
     .option("-f, --force", "Overwrite existing file")
@@ -332,15 +333,15 @@ program
     .command("infer")
     .description(
         "Generates a dotenv-never-lies schema from a .env file.\n" +
-            "Useful to migrate an existing project to dotenv-never-lies.\n" +
-            "The generated schema is a starting point and must be refined manually.\n" +
-            "Keys in the .env file that are not valid identifiers are escaped to JSON strings. (e.g. MY-KEY -> 'MY-KEY')\n" +
-            "By default, the command will try to guess sensitive variables (e.g. SECRET, KEY, TOKEN, PASSWORD) as secrets.\n" +
-            "This detection is intentionally aggressive and may flag variables that are not secrets.\n" +
-            "This is a deliberate design choice to avoid missing sensitive values.\n" +
-            "Use the --dont-guess-secret option to disable this behavior.\n" +
-            "\n" +
-            "Documentation: https://github.com/rtaillandier/dotenv-never-lies/blob/main/docs/commands/infer.md"
+        "Useful to migrate an existing project to dotenv-never-lies.\n" +
+        "The generated schema is a starting point and must be refined manually.\n" +
+        "Keys in the .env file that are not valid identifiers are escaped to JSON strings. (e.g. MY-KEY -> 'MY-KEY')\n" +
+        "By default, the command will try to guess sensitive variables (e.g. SECRET, KEY, TOKEN, PASSWORD) as secrets.\n" +
+        "This detection is intentionally aggressive and may flag variables that are not secrets.\n" +
+        "This is a deliberate design choice to avoid missing sensitive values.\n" +
+        "Use the --dont-guess-secret option to disable this behavior.\n" +
+        "\n" +
+        "Documentation: https://github.com/rtaillandier/dotenv-never-lies/blob/main/docs/commands/infer.md"
     )
     .option("-s, --source <source>", "Source .env file", ".env")
     .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")

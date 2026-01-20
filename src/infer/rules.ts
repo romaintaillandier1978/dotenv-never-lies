@@ -10,13 +10,14 @@ import { versionRule } from "./rules/version.js";
 import { CrossRule, InferRule } from "./rules.types.js";
 import { keyValueRule } from "./rules/key-value.js";
 import { secretVsNonStringRule } from "./cross-rules/secret-non-string.js";
+import { ReadonlyDeep } from "type-fest";
 
 // ⚠️ Règle d’or :
 // JSON avant list,
 // port avant number
 // duration avant number,
 
-export const RULES: InferRule[] = [
+export const RULES: ReadonlyDeep<InferRule[]> = [
     jsonRule, // 10
     listRule, // 7
     portRule, //7

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { keyValueSchema } from "./key-value.js";
 import { SplitterSchemaOptions, DoubleSplitterSchemaOptions } from "./common.js";
+import { Except } from "type-fest";
 
 const defaultListOptions = {
     splitter: ";",
@@ -48,7 +49,7 @@ export const listSchema = <T = string>(name: string, options: SplitterSchemaOpti
  * @param options - The options for the list schema.
  * @returns A Zod schema for a list of URLs.
  */
-export const urlListSchema = (name: string, options?: Omit<SplitterSchemaOptions<string>, "of">) =>
+export const urlListSchema = (name: string, options?: Except<SplitterSchemaOptions<string>, "of">) =>
     listSchema(name, {
         ...options,
         of: z.url(),
@@ -60,7 +61,7 @@ export const urlListSchema = (name: string, options?: Omit<SplitterSchemaOptions
  * @param options - The options for the list schema.
  * @returns A Zod schema for a list of emails.
  */
-export const emailListSchema = (name: string, options?: Omit<SplitterSchemaOptions<string>, "of">) =>
+export const emailListSchema = (name: string, options?: Except<SplitterSchemaOptions<string>, "of">) =>
     listSchema(name, {
         ...options,
         of: z.email(),
