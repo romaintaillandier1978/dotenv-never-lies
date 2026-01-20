@@ -2,9 +2,7 @@
 
 ## CLI
 
-### dnl infer
 
-ajouter un moteur de règle transverse minimaliste.
 
 ### dnl schema init
 
@@ -49,43 +47,6 @@ preset exemples :
 - Auth0 -> AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET
 - Docker -> PORT, HOST, NODE_ENV
 
-```typescript
-// presets/prisma.ts
-export const prismaPreset = {
-  DATABASE_URL: z.string().url(),
-  SHADOW_DATABASE_URL: z.string().url().optional(),
-};
-
-// presets/node.ts
-export const nodePreset = {
-  NODE_ENV: z.enum(["development", "test", "production"]),
-};
-
-inferEnv({
-  source: ".env",
-  presets: ["node", "prisma"],
-});
-
-EnvVarDefinition {
-    presetOrigin:{
-        inferredFrom?:string|string[]; // PresetName
-        resolution: "fusion",
-    }
-}
-```
-
-// En cas de conflit :
-
-```typescript
-if (bothSchemasAreEnums) {
-    return mergeEnumsByUnion();
-}
-if (schemasAreCompatiblePrimitives) {
-    return normalizeToMostSpecific();
-}
-warnings.push("Preset inference conflict on NODE_ENV: incompatible schemas, fallback to z.string()");
-return z.string();
-```
 
 ## Extensibilité exporters / preset
 

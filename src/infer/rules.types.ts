@@ -1,3 +1,5 @@
+import { InferPreset } from "./presets.types.js";
+
 const exportKindNames = [
     "unknown",
     "array",
@@ -13,6 +15,7 @@ const exportKindNames = [
     "json",
     "ip",
     "version",
+    "enum",
 ] as const;
 
 /**
@@ -127,23 +130,27 @@ export type InferRule<K extends InferKind = InferKind> = {
  */
 export type InferContext = {
     /**
-     * Name of the .env entry
+     * [IN] : Name of the .env entry
      */
     name: string;
     /**
-     * Raw value of the .env entry
+     * [IN] : Raw value of the .env entry
      */
     rawValue: string;
     /**
-     * Imports to be added to the generated schema
+     * [IN] : Presets that are used to infer the schema
+     */
+    presets?: Array<InferPreset>;
+    /**
+     * [OUT] : Imports to be added to the generated schema
      */
     imports: Array<Import>;
     /**
-     * Reasons for infering to that particular type. (shown in verbose mode)
+     * [OUT] : Reasons for infering to that particular type. (shown in verbose mode)
      */
     reasons: Array<string>;
     /**
-     * Warnings as code comments, for that inference, to be injected in dnl schema. (not too much)
+     * [OUT] : Warnings as code comments, for that inference, to be injected in dnl schema. (not too much)
      */
     codeWarnings: Array<string>;
 };

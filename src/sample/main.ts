@@ -1,4 +1,4 @@
-import "../infer/index.js";
+import "../infer/rules.js";
 import { listRule } from "../infer/rules/list.js";
 import { keyValueRule } from "../infer/rules/key-value.js";
 

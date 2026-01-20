@@ -348,6 +348,8 @@ program
     .option("--verbose", "Verbose mode")
     .option("--dont-guess-secret", "Do not try to guess sensitive variables (heuristic)")
     .option("--warn-on-duplicates", "Warn on duplicate environment variables instead of failing")
+    .option("--presets <presets...>", "Presets to use for inference (no discovery of presets in package.json)")
+    .option("--no-discover-presets", "Do not discover presets in package.json")
     .action(async (opts: InferCliOptions) => {
         const { content, out, warnings, verbose } = await inferCommand(opts);
         if (opts.verbose) {

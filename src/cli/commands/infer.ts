@@ -5,6 +5,8 @@ import { crossInfer, infer } from "../utils/infer-rule-engine.js";
 import fs from "node:fs";
 import { ExportError } from "../../errors.js";
 import { Import, CrossInferContext, InferContext } from "../../infer/rules.types.js";
+import { discoverPresets, findPresetEntry, getPresetsFromNames } from "../../infer/presets.js";
+import { InferPreset } from "../../infer/presets.types.js";
 
 export type InferCliOptions = {
     source?: string;
@@ -13,6 +15,8 @@ export type InferCliOptions = {
     dontGuessSecret?: boolean; // if true, the command will not try to guess secret variables
     verbose?: boolean;
     warnOnDuplicates?: boolean;
+    presets?: Array<string>;
+    discoverPresets?: boolean;
 };
 
 export type InferResult = {
@@ -32,8 +36,27 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
     if (fs.existsSync(target) && !opts?.force) {
         throw new ExportError(`${out} already exists. Use --force to overwrite.`);
     }
+    
 
     const warnings: string[] = [];
+    let presets: Array<InferPreset> = [];
+
+    // Preset selection strategy:
+    // - `--presets ...`  -> use ONLY the provided presets (disables discovery)
+    // - `--no-discover-presets` -> use no presets at all
+    // - default -> discover presets from package.json
+    const presetNames = (opts?.presets ?? []).filter((x): x is string => typeof x === "string" && x.length > 0);
+
+    if (presetNames.length > 0) {
+        presets = getPresetsFromNames(presetNames);
+    } else if (opts?.discoverPresets === true) {
+        presets = await discoverPresets(warnings);
+    } else {
+        presets = [];
+    }
+
+
+
     const env = dnl.readEnvFile(source, { onDuplicate: opts?.warnOnDuplicates ? "warn" : "error" }, warnings);
 
     const lines: string[] = [];
@@ -55,6 +78,23 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
             warnings.push(`Key ${name} is not a valid identifier. It has been escaped to ${safeKey}.`);
         }
         lines.push(`    ${safeKey}: {`);
+
+        const result = findPresetEntry(presets,name,warnings);
+        if(result) {
+            const [origin, presetEntry] = result;
+            verbose.push(`  Infer ${name} : `);
+            verbose.push(`    -> inferred from preset ${result[0]}`);
+            lines.push(`        // from @preset ${origin}`);
+            lines.push(`        description: "${presetEntry.description}",`);
+            lines.push(`        schema: ${presetEntry.code},`);
+            lines.push(`        secret: ${presetEntry.secret ? "true" : "false"},`);
+            lines.push(`        examples: ${presetEntry.examples ? JSON.stringify(presetEntry.examples) : "[]"},`);
+            lines.push(`    },`);
+            importedSchemas.push(...presetEntry.imports);
+            continue;
+        }
+
+
         lines.push(`        description: "TODO",`);
 
         const isSecret = !opts?.dontGuessSecret && guessSecret(name);
