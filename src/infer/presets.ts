@@ -6,16 +6,17 @@ import { typeorm } from "./presets/typeorm.js";
 import { jsonwebtoken } from "./presets/jsonwebtoken.js";
 import { something1, something2 } from "./presets/something.js";
 import { vitestPreset } from "./presets/vitest.js";
+import type { PackageJson } from "type-fest";
 
 /** search in package.json, find preset that are present, and help to infer specific entrey of the schema */
 export const discoverPresets = async (warnings: Array<string>): Promise<Array<InferPreset>> => {
 
     const packageJsonPath = path.join(process.cwd(), "package.json");
 
-    let pkg: any;
+    let pkg: PackageJson = {};
     try {
         const content = await fs.readFile(packageJsonPath, "utf-8");
-        pkg = JSON.parse(content);
+        pkg = JSON.parse(content) as PackageJson;
     } catch {
         // Pas de package.json → pas de preset
         return [];
@@ -55,46 +56,46 @@ presetStore.set("jsonwebtoken", jsonwebtoken);
 presetStore.set("something1", something1);
 presetStore.set("something2", something2);
 presetStore.set("vitest", vitestPreset);
-    
-export const getPresetsFromNames = (names: Array<string>|undefined): Array<InferPreset> => {
-    if(!names) {
+
+export const getPresetsFromNames = (names: Array<string> | undefined): Array<InferPreset> => {
+    if (!names) {
         return [];
     }
     const presets: Array<InferPreset> = [];
-    for(const name of names) {
+    for (const name of names) {
         const preset = presetStore.get(name);
-        if(preset) {
+        if (preset) {
             presets.push(preset);
         }
     }
     return presets;
 };
 
-export const findPresetEntry = (presets: Array<InferPreset>|undefined, name: string, warnings: Array<string>): [origin:string,entry:PresetEntry] | null => {
-    if(!presets || presets.length === 0) {
+export const findPresetEntry = (presets: Array<InferPreset> | undefined, name: string, warnings: Array<string>): [origin: string, entry: PresetEntry] | null => {
+    if (!presets || presets.length === 0) {
         return null;
     }
     const candidates = Array<PresetEntry>();
     const origins = Array<string>();
-    for(const preset of presets) {
+    for (const preset of presets) {
         const entry = preset.presets[name];
         const origin = preset.origin;
-        if(entry) {
+        if (entry) {
             candidates.push(entry);
             origins.push(origin);
         }
     }
-    if(candidates.length === 0) {
+    if (candidates.length === 0) {
         return null;
     }
-    if(candidates.length === 1) {
+    if (candidates.length === 1) {
         return [origins[0], candidates[0]];
     }
     warnings.push(
         `Preset conflict on ${name}: multiple definitions found (${origins.join(
-          ", "
+            ", "
         )}). Preset ignored.`
-      );
-    
+    );
+
     return null;
 };

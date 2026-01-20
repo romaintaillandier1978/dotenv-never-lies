@@ -14,7 +14,6 @@ export const infer = (context: InferContext): GeneratedSchema => {
         if (!result) continue;
 
         if (result.confidence >= rule.threshold) {
-            context.reasons.push(`  Infer ${context.name} : `);
             const importedNames = result.generated.imports.map((entry) => entry.name);
             context.reasons.push(`    [${importedNames.join(", ")}]  confidence: ${result.confidence} / threshold: ${rule.threshold}`);
             context.imports.push(...result.generated.imports);

@@ -4,7 +4,7 @@ import { guessSecret } from "../../infer/helpers.js";
 import { crossInfer, infer } from "../utils/infer-rule-engine.js";
 import fs from "node:fs";
 import { ExportError } from "../../errors.js";
-import { Import, CrossInferContext, InferContext } from "../../infer/rules.types.js";
+import { Import, InferContext } from "../../infer/rules.types.js";
 import { discoverPresets, findPresetEntry, getPresetsFromNames } from "../../infer/presets.js";
 import { InferPreset } from "../../infer/presets.types.js";
 
@@ -36,7 +36,6 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
     if (fs.existsSync(target) && !opts?.force) {
         throw new ExportError(`${out} already exists. Use --force to overwrite.`);
     }
-    
 
     const warnings: string[] = [];
     let presets: Array<InferPreset> = [];
@@ -77,23 +76,28 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
         if (!isValidIdentifier) {
             warnings.push(`Key ${name} is not a valid identifier. It has been escaped to ${safeKey}.`);
         }
+
         lines.push(`    ${safeKey}: {`);
+        verbose.push(`  Infer ${name} : `);
 
-        const result = findPresetEntry(presets,name,warnings);
-        if(result) {
+        const result = findPresetEntry(presets, name, warnings);
+        if (result) {
             const [origin, presetEntry] = result;
-            verbose.push(`  Infer ${name} : `);
-            verbose.push(`    -> inferred from preset ${result[0]}`);
-            lines.push(`        // from @preset ${origin}`);
-            lines.push(`        description: "${presetEntry.description}",`);
-            lines.push(`        schema: ${presetEntry.code},`);
-            lines.push(`        secret: ${presetEntry.secret ? "true" : "false"},`);
-            lines.push(`        examples: ${presetEntry.examples ? JSON.stringify(presetEntry.examples) : "[]"},`);
-            lines.push(`    },`);
-            importedSchemas.push(...presetEntry.imports);
-            continue;
-        }
+            if (presetEntry.schema.safeParse(rawValue).success) {
+                verbose.push(`    -> inferred from preset ${origin}`);
+                lines.push(`        // from @preset ${origin}`);
+                lines.push(`        description: "${presetEntry.description}",`);
+                lines.push(`        schema: ${presetEntry.code},`);
+                lines.push(`        secret: ${presetEntry.secret ? "true" : "false"},`);
+                lines.push(`        examples: ${presetEntry.examples ? JSON.stringify(presetEntry.examples) : "[]"},`);
+                lines.push(`    },`);
+                importedSchemas.push(...presetEntry.imports);
+                continue;
+            }
 
+            warnings.push(`Preset "${origin}" ignored for ${name}: value "${rawValue}" does not match preset schema`);
+
+        }
 
         lines.push(`        description: "TODO",`);
 

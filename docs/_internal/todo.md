@@ -10,6 +10,27 @@
 - doc : parler du preload dotenv :
   `node -r dotenv/config your_script.js`
 
+- doc : infer + preset + cli options.
+
+- liste de preset : 
+    • 	prisma
+	•	jsonwebtoken
+	•	vitest (déjà fait)
+	•	next
+	•	vite
+	•	nodemailer
+	•	sentry
+	•	stripe
+	•	redis
+	•	postgres (client libs)
+	•	cloud providers (AWS, GCP) — avec prudence
+    -   open ai / other LLM
+
+
+- regarder mieux et utiliser type-fest !
+- TODO : regarde l'extensibilité de ce package JSON pour les trucs persos., dans src/cli/utils/resolve-schema.ts
+
+
 ### readme inférence :
 
 2. No path schéma (and probably never)
