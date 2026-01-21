@@ -6,11 +6,11 @@ export const googleMapsPreset: InferPreset = {
     presets: {
         GOOGLE_MAPS_API_KEY: {
             description: "Google Maps API key",
-            schema: z.string().min(1),
+            schema: z.string(),
             secret: true,
             examples: ["AIzaSyD-EXAMPLEKEY"],
             kind: "string",
-            code: "z.string().min(1)",
+            code: "z.string()",
             imports: [{ name: "z", from: "zod" }],
         },
     },

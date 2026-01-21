@@ -2,7 +2,7 @@ import { GeneratedSchema } from "./rules.types.js";
 
 export type MatchesEnvKeyResult = { matched: boolean; reason: string };
 
-const tokenizeEnvName = (name: string): string[] => name.toUpperCase().split(/[_\-]/);
+const tokenizeEnvName = (name: string): string[] => name.toUpperCase().split(/[-_]/);
 
 export const matchesEnvKey = (name: string, keys: string[]): MatchesEnvKeyResult => {
     const tokens = tokenizeEnvName(name);
@@ -30,7 +30,8 @@ export const areAllSameGenSchemas = (elements: GeneratedSchema[]): boolean => {
 
 export const areSameGenSchemas = (a: GeneratedSchema, b: GeneratedSchema): boolean => {
     if (a === b) return true;
+    if (a.kind !== b.kind) return false;
     if (a.code !== b.code) return false;
-    if (a.imports.length !== b.imports.length) return false;
-    return a.imports.every((i) => b.imports.some((j) => i.name === j.name && i.from === j.from));
+    if (!a.imports.every((i) => b.imports.some((j) => i.name === j.name && i.from === j.from))) return false;
+    return true;
 };

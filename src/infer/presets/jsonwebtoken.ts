@@ -6,10 +6,10 @@ export const jsonwebtokenPreset: InferPreset = {
     origin: "jsonwebtoken",
     presets: {
         JWT_SECRET: {
-            description: "JWT Secret",
+            description: "JWT signing secret",
             schema: z.string(),
             secret: true,
-            examples: ["1234567890-secret-key"],
+            examples: ["super-long-random-jwt-secret"],
             kind: "string",
             code: "z.string()",
             imports: [{ name: "z", from: "zod" }],

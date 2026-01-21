@@ -21,14 +21,14 @@ export const looksLikeFilePath = (value: string) => (value.includes("/") || valu
  * @param name - The name of the path.
  * @returns A Zod schema for a path.
  */
-export const pathSchema = (name: string): z.ZodType<string> => z.string().min(1);
+export const pathSchema = (): z.ZodType<string> => z.string();
 
 /**
  * Creates a Zod schema for a file path.
  * @param name - The name of the file path.
  * @returns A Zod schema for a file path.
  */
-export const filePathSchema = (name: string): z.ZodType<string> => z.string().min(1);
+export const filePathSchema = (): z.ZodType<string> => z.string();
 
 /**
  * Creates a Zod schema for a filename.

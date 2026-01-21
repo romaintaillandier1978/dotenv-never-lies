@@ -2,28 +2,70 @@
 // Do not modify manually - run the script to regenerate (npm run gen:presets or yarn gen:presets)
 
 import { InferPreset } from "./presets.types.js"
+import { agendaPreset } from "./presets/agenda.js"
+import { amqplibPreset } from "./presets/amqplib.js"
+import { awsSdkPreset } from "./presets/aws-sdk.js"
+import { awsSdkS3Preset } from "./presets/aws-sdk_client-s3.js"
+import { bcryptPreset } from "./presets/bcrypt.js"
+import { bullPreset } from "./presets/bull.js"
 import { cookieParserPreset } from "./presets/cookie-parser.js"
 import { cronPreset } from "./presets/cron.js"
+import { dotenvPreset } from "./presets/dotenv.js"
 import { expressSessionPreset } from "./presets/express-session.js"
+import { googleCloudStoragePreset } from "./presets/google-cloud_storage.js"
 import { googleMapsPreset } from "./presets/google-maps.js"
+import { ioredisPreset } from "./presets/ioredis.js"
 import { jsonwebtokenPreset } from "./presets/jsonwebtoken.js"
+import { mongoosePreset } from "./presets/mongoose.js"
+import { multerPreset } from "./presets/multer.js"
+import { mysql2Preset } from "./presets/mysql2.js"
+import { newrelicPreset } from "./presets/newrelic.js"
 import { nodePreset } from "./presets/node.js"
 import { nodemailerPreset } from "./presets/nodemailer.js"
+import { passportPreset } from "./presets/passport.js"
+import { passportGithubPreset } from "./presets/passport-github2.js"
+import { passportGooglePreset } from "./presets/passport-google-oauth20.js"
+import { passportJwtPreset } from "./presets/passport-jwt.js"
+import { pgPreset } from "./presets/pg.js"
+import { pinoPreset } from "./presets/pino.js"
 import { prismaPreset } from "./presets/prisma.js"
+import { sentryPreset } from "./presets/sentry.js"
 import { stripePreset } from "./presets/stripe.js"
 import { typeormPreset } from "./presets/typeorm.js"
 import { vitestPreset } from "./presets/vitest.js"
+import { winstonPreset } from "./presets/winston.js"
 
 export const officialPresetRegistry: Map<string, InferPreset> = new Map();
 
+officialPresetRegistry.set(agendaPreset.origin, agendaPreset);
+officialPresetRegistry.set(amqplibPreset.origin, amqplibPreset);
+officialPresetRegistry.set(awsSdkPreset.origin, awsSdkPreset);
+officialPresetRegistry.set(awsSdkS3Preset.origin, awsSdkS3Preset);
+officialPresetRegistry.set(bcryptPreset.origin, bcryptPreset);
+officialPresetRegistry.set(bullPreset.origin, bullPreset);
 officialPresetRegistry.set(cookieParserPreset.origin, cookieParserPreset);
 officialPresetRegistry.set(cronPreset.origin, cronPreset);
+officialPresetRegistry.set(dotenvPreset.origin, dotenvPreset);
 officialPresetRegistry.set(expressSessionPreset.origin, expressSessionPreset);
+officialPresetRegistry.set(googleCloudStoragePreset.origin, googleCloudStoragePreset);
 officialPresetRegistry.set(googleMapsPreset.origin, googleMapsPreset);
+officialPresetRegistry.set(ioredisPreset.origin, ioredisPreset);
 officialPresetRegistry.set(jsonwebtokenPreset.origin, jsonwebtokenPreset);
+officialPresetRegistry.set(mongoosePreset.origin, mongoosePreset);
+officialPresetRegistry.set(multerPreset.origin, multerPreset);
+officialPresetRegistry.set(mysql2Preset.origin, mysql2Preset);
+officialPresetRegistry.set(newrelicPreset.origin, newrelicPreset);
 officialPresetRegistry.set(nodePreset.origin, nodePreset);
 officialPresetRegistry.set(nodemailerPreset.origin, nodemailerPreset);
+officialPresetRegistry.set(passportPreset.origin, passportPreset);
+officialPresetRegistry.set(passportGithubPreset.origin, passportGithubPreset);
+officialPresetRegistry.set(passportGooglePreset.origin, passportGooglePreset);
+officialPresetRegistry.set(passportJwtPreset.origin, passportJwtPreset);
+officialPresetRegistry.set(pgPreset.origin, pgPreset);
+officialPresetRegistry.set(pinoPreset.origin, pinoPreset);
 officialPresetRegistry.set(prismaPreset.origin, prismaPreset);
+officialPresetRegistry.set(sentryPreset.origin, sentryPreset);
 officialPresetRegistry.set(stripePreset.origin, stripePreset);
 officialPresetRegistry.set(typeormPreset.origin, typeormPreset);
 officialPresetRegistry.set(vitestPreset.origin, vitestPreset);
+officialPresetRegistry.set(winstonPreset.origin, winstonPreset);

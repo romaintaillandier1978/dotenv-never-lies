@@ -15,9 +15,9 @@ export const cronPreset: InferPreset = {
         CRON_TZ: {
             description: "Cron timezone",
             examples: ["Europe/Paris"],
-            schema: z.string().min(1),
+            schema: z.string(),
             kind: "string",
-            code: "z.string().min(1)",
+            code: "z.string()",
             imports: [{ name: "z", from: "zod" }],
         },
     },

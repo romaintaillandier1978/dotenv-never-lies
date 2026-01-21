@@ -1,14 +1,16 @@
+
+
 import { z } from "zod";
 import { InferPreset } from "../presets.types.js";
 
-export const cookieParserPreset: InferPreset = {
-    origin: "cookie-parser",
+export const newrelicPreset: InferPreset = {
+    origin: "newrelic",
     presets: {
-        COOKIE_SECRET: {
-            description: "Cookie secret",
+        NEW_RELIC_LICENSE_KEY: {
+            description: "New Relic license key",
             schema: z.string(),
             secret: true,
-            examples: ["a-very-long-random-secret"],
+            examples: ["xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"],
             kind: "string",
             code: "z.string()",
             imports: [{ name: "z", from: "zod" }],

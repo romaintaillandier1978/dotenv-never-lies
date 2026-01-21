@@ -10,10 +10,10 @@ export const nodemailerPreset: InferPreset = {
     presets: {
         SMTP_HOST: {
             description: "SMTP server hostname",
-            schema: z.string().min(1),
+            schema: z.string(),
             examples: ["smtp.gmail.com"],
             kind: "string",
-            code: "z.string().min(1)",
+            code: "z.string()",
             imports: [{ name: "z", from: "zod" }],
         },
         SMTP_PORT: {
@@ -26,20 +26,20 @@ export const nodemailerPreset: InferPreset = {
         },
         SMTP_USER: {
             description: "SMTP authentication user",
-            schema: z.string().min(1),
+            schema: z.string(),
             secret: true,
             examples: ["user@example.com"],
             kind: "string",
-            code: "z.string().min(1)",
+            code: "z.string()",
             imports: [{ name: "z", from: "zod" }],
         },
         SMTP_PASS: {
             description: "SMTP authentication password",
-            schema: z.string().min(1),
+            schema: z.string(),
             secret: true,
             examples: ["super-secret-password"],
             kind: "string",
-            code: "z.string().min(1)",
+            code: "z.string()",
             imports: [{ name: "z", from: "zod" }],
         },
         SMTP_SECURE: {

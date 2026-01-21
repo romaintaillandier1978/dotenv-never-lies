@@ -7,11 +7,11 @@ export const expressSessionPreset: InferPreset = {
     presets: {
         SESSION_SECRET: {
             description: "Session secret used to sign the session ID cookie",
-            schema: z.string().min(16),
+            schema: z.string(),
             secret: true,
             examples: ["a-very-long-random-secret"],
             kind: "string",
-            code: "z.string().min(16)",
+            code: "z.string()",
             imports: [{ name: "z", from: "zod" }],
         },
         SESSION_NAME: {

@@ -1,32 +1,34 @@
+
+
 import { z } from "zod";
 import { InferPreset } from "../presets.types.js";
 
-export const stripePreset: InferPreset = {
-    origin: "stripe",
+export const awsSdkPreset: InferPreset = {
+    origin: "aws-sdk",
     presets: {
-        STRIPE_SECRET_KEY: {
-            description: "Stripe secret API key ( starts with 'sk_')",
+        AWS_ACCESS_KEY_ID: {
+            description: "AWS access key ID",
             schema: z.string(),
             secret: true,
-            examples: ["sk_test_1234567890"],
+            examples: ["AKIAIOSFODNN7EXAMPLE"],
             kind: "string",
             code: "z.string()",
             imports: [{ name: "z", from: "zod" }],
         },
-        STRIPE_WEBHOOK_SECRET: {
-            description: "Stripe webhook signing secret ( starts with 'whsec_')",
+        AWS_SECRET_ACCESS_KEY: {
+            description: "AWS secret access key",
             schema: z.string(),
             secret: true,
-            examples: ["whsec_1234567890"],
+            examples: ["wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"],
             kind: "string",
             code: "z.string()",
             imports: [{ name: "z", from: "zod" }],
         },
-        STRIPE_TAX_RATE_20_EXCL_ID: {
-            description: "Stripe tax rate 20% exclusive ID ( starts with 'txr_')",
+        AWS_REGION: {
+            description: "AWS region",
             schema: z.string(),
-            secret: true,
-            examples: ["txr_1234567890"],
+            secret: false,
+            examples: ["eu-west-1"],
             kind: "string",
             code: "z.string()",
             imports: [{ name: "z", from: "zod" }],

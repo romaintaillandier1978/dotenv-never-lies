@@ -1,14 +1,16 @@
+
+
 import { z } from "zod";
 import { InferPreset } from "../presets.types.js";
 
-export const cookieParserPreset: InferPreset = {
-    origin: "cookie-parser",
+export const multerPreset: InferPreset = {
+    origin: "multer",
     presets: {
-        COOKIE_SECRET: {
-            description: "Cookie secret",
+        UPLOAD_DIR: {
+            description: "Directory where uploaded files are stored",
             schema: z.string(),
-            secret: true,
-            examples: ["a-very-long-random-secret"],
+            secret: false,
+            examples: ["./uploads"],
             kind: "string",
             code: "z.string()",
             imports: [{ name: "z", from: "zod" }],

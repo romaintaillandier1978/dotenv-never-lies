@@ -1,14 +1,16 @@
+
+
 import { z } from "zod";
 import { InferPreset } from "../presets.types.js";
 
-export const cookieParserPreset: InferPreset = {
-    origin: "cookie-parser",
+export const passportPreset: InferPreset = {
+    origin: "passport",
     presets: {
-        COOKIE_SECRET: {
-            description: "Cookie secret",
+        SESSION_SECRET: {
+            description: "Session secret used to sign cookies",
             schema: z.string(),
             secret: true,
-            examples: ["a-very-long-random-secret"],
+            examples: ["super-long-session-secret"],
             kind: "string",
             code: "z.string()",
             imports: [{ name: "z", from: "zod" }],
