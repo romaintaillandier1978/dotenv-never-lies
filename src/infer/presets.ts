@@ -1,26 +1,16 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import type { PackageJson } from "type-fest";
 import { InferPreset, PresetEntry } from "./presets.types.js";
-import { presetRegistry } from "./preset-registry.js";
+import { officialPresetRegistry } from "./official-preset-registry.js";
 import { nodePreset } from "./presets/node.js";
+import { readUserPackageJson } from "../utils/read-user-package-json.js";
 
 
 
 
 /** search in package.json, find preset that are present, and help to infer specific entrey of the schema */
-export const discoverPresets = async (warnings: Array<string>): Promise<Array<InferPreset>> => {
+export const discoverPresets = (warnings: Array<string>): Array<InferPreset> => {
 
-    const packageJsonPath = path.join(process.cwd(), "package.json");
-
-    let pkg: PackageJson = {};
-    try {
-        const content = await fs.readFile(packageJsonPath, "utf-8");
-        pkg = JSON.parse(content) as PackageJson;
-    } catch {
-        // Pas de package.json → pas de preset
-        return [];
-    }
+    const pkg = readUserPackageJson();
+    if (!pkg) return [];
 
     const deps = {
         ...pkg.dependencies,
@@ -37,7 +27,7 @@ export const discoverPresets = async (warnings: Array<string>): Promise<Array<In
     ];
 
     for (const depName of Object.keys(deps)) {
-        const preset = presetRegistry.get(depName);
+        const preset = officialPresetRegistry.get(depName);
         if (preset) {
             discovered.push(preset);
         }
@@ -58,7 +48,7 @@ export const getPresetsFromNames = (names: Array<string> | undefined): Array<Inf
     }
     const presets: Array<InferPreset> = [];
     for (const name of names) {
-        const preset = presetRegistry.get(name);
+        const preset = officialPresetRegistry.get(name);
         if (preset) {
             presets.push(preset);
         }

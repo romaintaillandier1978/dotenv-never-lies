@@ -49,7 +49,7 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
     if (presetNames.length > 0) {
         presets = getPresetsFromNames(presetNames);
     } else if (opts?.discoverPresets === true) {
-        presets = await discoverPresets(warnings);
+        presets = discoverPresets(warnings);
     } else {
         presets = [];
     }

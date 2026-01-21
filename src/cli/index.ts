@@ -9,12 +9,12 @@ import { ExportCliOptions, exportCommand, ExportFormat } from "./commands/export
 import { toFile } from "./utils/toFile.js";
 import { DnlError, ExitCodes, ValidationError } from "../errors.js";
 
-import { createRequire } from "node:module";
 import { ProgramCliOptions } from "./commands/program.js";
-import { Except } from "type-fest";
+import { Except, PackageJson } from "type-fest";
 
-const require = createRequire(import.meta.url);
-const packageJson = require("../../package.json") as { version: string };
+import pkg from "../../package.json" with { type: "json" };
+export const dnlPackageJson: PackageJson = pkg as PackageJson;
+
 
 const exitCodeHelp: { [key in ExitCodes]: string } = {
     [ExitCodes.success]: "Success (everything is valid, exit OK)",
@@ -28,7 +28,7 @@ const exitCodeHelp: { [key in ExitCodes]: string } = {
 program
     .name("dnl")
     //.version("0.3.0")
-    .version(packageJson.version)
+    .version(dnlPackageJson.version ?? "0.0.0")
     // allows passing positional arguments, before/after options
     .enablePositionalOptions()
     .exitOverride()

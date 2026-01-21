@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { SchemaNotFoundError } from "../../errors.js";
-import { PackageJsonWithDnl, dnlConfigSchema } from "../../dnl-config.js";
+import { readDnlConfigInUserPackageJson } from "../../utils/read-user-package-json.js";
 
 const CANDIDATES = ["env.dnl.ts", "env.dnl.js", "dnl.config.ts", "dnl.config.js"];
 
@@ -19,15 +19,10 @@ export const resolveSchemaPath = (cliPath?: string): string => {
     }
 
     // 2. package.json
-    const pkgPath = path.resolve(process.cwd(), "package.json");
-    if (fs.existsSync(pkgPath)) {
-        const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8")) as PackageJsonWithDnl;
-        const dnlConfig = pkg?.["dotenv-never-lies"];
-        const parsed = dnlConfigSchema.safeParse(dnlConfig);
-        if (parsed.success) {
-            const resolved = resolveIfExists(parsed.data.schema);
-            if (resolved) return resolved;
-        }
+    const dnlConfig = readDnlConfigInUserPackageJson();
+    if (dnlConfig !== null) {
+        const resolved = resolveIfExists(dnlConfig.schema);
+        if (resolved) return resolved;
     }
 
     // 3. convention

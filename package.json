@@ -10,6 +10,7 @@
         "url": "https://github.com/romaintaillandier1978/dotenv-never-lies"
     },
     "scripts": {
+        "desc": "tsx src/scripts/script-desc.ts",
         "build": "tsc",
         "pack": "rm -rf dist && yarn build && npm pack --pack-destination ./dist",
         "pack:check": "npm pack --dry-run",
@@ -21,7 +22,24 @@
         "test:watch": "vitest",
         "sample:infer": "yarn build && dnl infer --source .env --out src/sample/env.dnl.ts -f ",
         "sample:assert": "yarn build && dnl --schema src/sample/env.dnl.ts  assert --source .env ",
-        "sample:main": "yarn build && tsx src/sample/main.ts"
+        "sample:main": "yarn build && tsx src/sample/main.ts",
+        "gen:presets": "tsx src/infer/scripts/official-preset-registry.gen.ts"
+    },
+    "scripts-descriptions": {
+        "desc": "Displays the list of available scripts with their short descriptions.",
+        "build": "Compiles the project, creating the dist folder.",
+        "pack": "Packs the project, creating the dotenv-never-lies-v*.tgz file.",
+        "pack:check": "Verifies the project pack.",
+        "release:patch": "Publishes a new patch version.",
+        "release:minor": "Publishes a new minor version.",
+        "release:major": "Publishes a new major version.",
+        "test": "Runs tests.",
+        "test:run": "Runs tests.",
+        "test:watch": "Runs tests in watch mode.",
+        "sample:infer": "Runs sample inference.",
+        "sample:assert": "Runs sample assertion.",
+        "sample:main": "Runs the sample main file.",
+        "gen:presets": "Generates the official presets registry."
     },
     "keywords": [
         "env",

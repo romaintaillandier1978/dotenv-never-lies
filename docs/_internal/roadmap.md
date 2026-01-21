@@ -38,14 +38,23 @@ qui testent de vraies entrées.
 
 preset exemples :
 
-- prisma -> DATABASE_URL
 - Jest -> NODE_ENV, CI
-- Express -> NODE_ENV
-- NestJs -> NODE_ENV, PORT
-- typeORM -> DATABASE_URL, ou DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME
-- jsonwebtoken -> JWT_SECRET
 - Auth0 -> AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET
 - Docker -> PORT, HOST, NODE_ENV
+
+### registry tiers
+
+Preset registry architecture
+DNL repose sur deux registres distincts.
+
+existant :Un registry officiel, généré au build-time (official-preset-registry.ts), référence l’ensemble des presets maintenus par DNL. Il est figé, versionné et importé statiquement pour garantir stabilité, typage et absence de surprises à l’exécution.
+
+à faire : Un registry tiers, construit dynamiquement au runtime lors de dnl infer, découvre les presets exposés par les dépendances du projet utilisateur. Ce registre est éphémère, non persistant, et strictement isolé du registry officiel.
+
+Lors de l’inférence, les deux registres seraient fusionnés dans un pool disponible contrôlé, sans qu’un preset tiers puisse écraser un preset officiel. Les presets réellement activés dépendent du mode (discover ou --presets).
+
+Cette séparation garantit une architecture extensible, prévisible et sûre, tout en ouvrant DNL à un écosystème de presets externes.
+
 
 
 ## Extensibilité exporters / preset
