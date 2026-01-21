@@ -2,9 +2,9 @@ import { databaseUrlSchema, portSchema } from "../../schemas/index.js";
 import { InferPreset } from "../presets.types.js";
 import { z } from "zod";
 
-export const typeorm : InferPreset = {  
-    origin : "typeorm",
-    presets : {
+export const typeormPreset: InferPreset = {
+    origin: "typeorm",
+    presets: {
         DATABASE_URL: {
             description: "URL to the database",
             schema: databaseUrlSchema("DATABASE_URL"),
@@ -20,7 +20,7 @@ export const typeorm : InferPreset = {
             examples: ["localhost"],
             kind: "string",
             code: "z.string()",
-            imports: [],
+            imports: [{ name: "z", from: "zod" }],
         },
         DB_PORT: {
             description: "Port of the database",
@@ -36,7 +36,7 @@ export const typeorm : InferPreset = {
             examples: ["user"],
             kind: "string",
             code: "z.string()",
-            imports: [],
+            imports: [{ name: "z", from: "zod" }],
         },
         DB_PASSWORD: {
             description: "Password of the database",
@@ -45,7 +45,7 @@ export const typeorm : InferPreset = {
             examples: ["password"],
             kind: "string",
             code: "z.string()",
-            imports: [],
+            imports: [{ name: "z", from: "zod" }],
         },
         DB_NAME: {
             description: "Name of the database",
@@ -53,7 +53,7 @@ export const typeorm : InferPreset = {
             examples: ["mydb"],
             kind: "string",
             code: "z.string()",
-            imports: [],
+            imports: [{ name: "z", from: "zod" }],
         },
     },
 };

@@ -1,9 +1,9 @@
 import { databaseUrlSchema } from "../../schemas/urls.js";
 import { InferPreset } from "../presets.types.js";
 
-export const prisma : InferPreset = {
-    origin : "prisma",
-    presets : {
+export const prismaPreset: InferPreset = {
+    origin: "prisma",
+    presets: {
         DATABASE_URL: {
             description: "Database URL for Prisma",
             schema: databaseUrlSchema("DATABASE_URL"),

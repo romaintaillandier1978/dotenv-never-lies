@@ -1,22 +1,15 @@
-import { z } from "zod";
 import { InferPreset } from "../presets.types.js";
+import { booleanSchema } from "../../schemas/boolean.js";
 
 export const vitestPreset: InferPreset = {
-  origin: "vitest",
-  presets: {
-    NODE_ENV: {
-      description: "Node environment when running Vitest",
-      schema: z.enum(["test"]),
-      kind: "enum",
-      code: 'z.enum(["test"])',
-      imports: [],
+    origin: "vitest",
+    presets: {
+        VITEST: {
+            description: "Defined when running under Vitest",
+            schema: booleanSchema("VITEST"),
+            kind: "boolean",
+            code: "booleanSchema(\"VITEST\")",
+            imports: [{ name: "booleanSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+        },
     },
-    VITEST: {
-      description: "Defined when running under Vitest",
-      schema: z.string(),
-      kind: "string",
-      code: "z.string()",
-      imports: [],
-    },
-  },
 };

@@ -1,12 +1,12 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { InferPreset, PresetEntry } from "./presets.types.js";
-import { prisma } from "./presets/prisma.js";
-import { typeorm } from "./presets/typeorm.js";
-import { jsonwebtoken } from "./presets/jsonwebtoken.js";
-import { something1, something2 } from "./presets/something.js";
-import { vitestPreset } from "./presets/vitest.js";
 import type { PackageJson } from "type-fest";
+import { InferPreset, PresetEntry } from "./presets.types.js";
+import { presetRegistry } from "./preset-registry.js";
+import { nodePreset } from "./presets/node.js";
+
+
+
 
 /** search in package.json, find preset that are present, and help to infer specific entrey of the schema */
 export const discoverPresets = async (warnings: Array<string>): Promise<Array<InferPreset>> => {
@@ -32,10 +32,12 @@ export const discoverPresets = async (warnings: Array<string>): Promise<Array<In
         return [];
     }
 
-    const discovered: InferPreset[] = [];
+    const discovered: InferPreset[] = [
+        nodePreset, // core preset, always enabled
+    ];
 
     for (const depName of Object.keys(deps)) {
-        const preset = presetStore.get(depName);
+        const preset = presetRegistry.get(depName);
         if (preset) {
             discovered.push(preset);
         }
@@ -49,13 +51,6 @@ export const discoverPresets = async (warnings: Array<string>): Promise<Array<In
 };
 
 
-const presetStore = new Map<string, InferPreset>();
-presetStore.set("prisma", prisma);
-presetStore.set("typeorm", typeorm);
-presetStore.set("jsonwebtoken", jsonwebtoken);
-presetStore.set("something1", something1);
-presetStore.set("something2", something2);
-presetStore.set("vitest", vitestPreset);
 
 export const getPresetsFromNames = (names: Array<string> | undefined): Array<InferPreset> => {
     if (!names) {
@@ -63,7 +58,7 @@ export const getPresetsFromNames = (names: Array<string> | undefined): Array<Inf
     }
     const presets: Array<InferPreset> = [];
     for (const name of names) {
-        const preset = presetStore.get(name);
+        const preset = presetRegistry.get(name);
         if (preset) {
             presets.push(preset);
         }
