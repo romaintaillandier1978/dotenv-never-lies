@@ -20,8 +20,9 @@
         "test": "vitest",
         "test:run": "vitest run",
         "test:watch": "vitest",
-        "sample:infer": "yarn build && dnl infer --source .env --out src/sample/env.dnl.ts -f ",
-        "sample:assert": "yarn build && dnl --schema src/sample/env.dnl.ts  assert --source .env ",
+        "sample:infer": "yarn build && dnl infer --source src/sample/.env --out src/sample/env.dnl.ts -f ",
+        "sample:assert": "yarn build && dnl --schema src/sample/env.dnl.ts  assert --source src/sample/.env ",
+        "sample:init": "yarn build && dnl --schema src/sample/env.dnl.ts  init --out src/sample/.env.out -f ",
         "sample:main": "yarn build && tsx src/sample/main.ts",
         "gen:presets": "tsx src/infer/scripts/official-preset-registry.gen.ts"
     },

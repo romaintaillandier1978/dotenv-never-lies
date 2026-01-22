@@ -10,26 +10,14 @@
 - doc : parler du preload dotenv :
   `node -r dotenv/config your_script.js`
 
-- doc : infer + preset + cli options.
 
 - liste de preset : 
-    • 	prisma
-	•	jsonwebtoken
-	•	vitest (déjà fait)
-	•	next
-	•	vite
-	•	nodemailer
-	•	sentry
-	•	stripe
-	•	redis
-	•	postgres (client libs)
-	•	cloud providers (AWS, GCP) — avec prudence
-    -   open ai / other LLM
+   -   open ai / other LLM
 
 
 - regarder mieux et utiliser type-fest !
-- TODO : regarde l'extensibilité de ce package JSON pour les trucs persos., dans src/cli/utils/resolve-schema.ts
 
+-dnl init : option --no-comment, option --compact
 
 ### readme inférence :
 
@@ -56,14 +44,3 @@
     },
 ```
 
-- j'ai deux mécanismes :
-
-dnl export
-=> export des truc avec les valeurs
-dont dnl export .env
-sauf dnl export types (-> \*.d.ts)
-
-dnl init
-=> créé un template de .env sans les valeurs (-> .env vide)
-
-c'est pas symétrique.

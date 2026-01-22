@@ -339,7 +339,10 @@ program
         "By default, the command will try to guess sensitive variables (e.g. SECRET, KEY, TOKEN, PASSWORD) as secrets.\n" +
         "This detection is intentionally aggressive and may flag variables that are not secrets.\n" +
         "This is a deliberate design choice to avoid missing sensitive values.\n" +
-        "Use the --dont-guess-secret option to disable this behavior.\n" +
+        "Use the --no-guess-secret option to disable this behavior.\n" +
+        "By default, the command will discover presets in package.json.\n" +
+        "Use the --no-discover-presets option to disable this behavior, or --presets option to specify presets to use for inference.\n" +
+
         "\n" +
         "Documentation: https://github.com/rtaillandier/dotenv-never-lies/blob/main/docs/commands/infer.md"
     )
@@ -347,7 +350,7 @@ program
     .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")
     .option("-f, --force", "Overwrite existing file")
     .option("--verbose", "Verbose mode")
-    .option("--dont-guess-secret", "Do not try to guess sensitive variables (heuristic)")
+    .option("--no-guess-secret", "Do not try to guess sensitive variables (heuristic)")
     .option("--warn-on-duplicates", "Warn on duplicate environment variables instead of failing")
     .option("--presets <presets...>", "Presets to use for inference (no discovery of presets in package.json)")
     .option("--no-discover-presets", "Do not discover presets in package.json")
@@ -372,17 +375,32 @@ program
         "after",
         `\nExamples:
         
-  # Generate an env.dnl.ts schema from a .env file, try to guess sensitive variables
-  dnl infer --guess-secret
+  # Generate an env.dnl.ts schema from a .env file, and will show every inference rules applied, with confidence scoring and reasons
+  dnl infer --verbose
+  
+  # Generate an env.dnl.ts schema from a .env file, do not try to guess sensitive variables
+  dnl infer --no-guess-secret
   
   # Generate an env.dnl.ts schema from a .env.local file
   dnl infer --source .env.local
   
-  # Generate a my-dnl.ts schema from a .env file
+  # Generate a my-dnl.ts schema from a .env file,
   dnl infer --out my-dnl.ts
   
-  # Generate an env.dnl.ts schema from a .env file and overwrite the existing file
+  # Generate an env.dnl.ts schema from a .env file, and overwrite the existing file
   dnl infer --force 
+
+  # Generate an env.dnl.ts schema from a .env file, and use only specified presets (no package.json scanning)
+  dnl infer --presets prisma node
+
+  # Generate an env.dnl.ts schema from a .env file, do not automatically discover presets in package.json
+  dnl infer --no-discover-presets
+  
+  # Generate an env.dnl.ts schema from a .env file, prevent to fail on duplicate keys, warn instead (dnl will never be silent on duplicate keys)
+  dnl infer --warn-on-duplicates
+
+  # Generate an env.dnl.ts schema from a .env file, Minimal inference (no preset discovery, no secret guessing)
+  dnl infer --no-discover-presets --no-guess-secret
   
   # Full documentation:
   # https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/infer.md

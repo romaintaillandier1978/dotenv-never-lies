@@ -3,34 +3,34 @@ import { GeneratedSchema } from "../rules.types.js";
 export const zUnknownGenSchema: GeneratedSchema<"unknown"> = {
     kind: "unknown",
     code: "z.unknown()",
-    imports: [],
+    imports: [{ name: "z", from: "zod" }],
 };
 export const zArrayOfUnknownGenSchema: GeneratedSchema<"array"> = {
     kind: "array",
     code: "z.array(z.unknown())",
-    imports: [],
+    imports: [{ name: "z", from: "zod" }],
 };
 
 export const zUrlGenSchema: GeneratedSchema<"url"> = {
     kind: "url",
     code: "z.url()",
-    imports: [],
+    imports: [{ name: "z", from: "zod" }],
 };
 
 export const zStringGenSchema: GeneratedSchema<"string"> = {
     kind: "string",
     code: "z.string()",
-    imports: [],
+    imports: [{ name: "z", from: "zod" }],
 };
 
 export const zNumberGenSchema: GeneratedSchema<"number"> = {
     kind: "number",
     code: "z.coerce.number()",
-    imports: [],
+    imports: [{ name: "z", from: "zod" }],
 };
 
 export const zEmailGenSchema: GeneratedSchema<"email"> = {
     kind: "email",
     code: "z.email()",
-    imports: [],
+    imports: [{ name: "z", from: "zod" }],
 };

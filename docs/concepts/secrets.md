@@ -34,7 +34,7 @@ This warning is meant to force a manual review.
 Inference can be made fully neutral using:
 
 ```bash
-dnl infer --dont-guess-secret
+dnl infer --no-guess-secret
 ```
 
 In that case, all generated variables are emitted with secret: undefined.

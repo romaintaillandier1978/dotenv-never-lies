@@ -7,10 +7,10 @@ export const nodePreset: InferPreset = {
     presets: {
         NODE_ENV: {
             description: "Node.js runtime environment",
-            schema: z.enum(["development", "production", "test"]),
+            schema: z.enum(["test", "development", "staging", "production"]).default("test"),
             examples: ["development"],
             kind: "enum",
-            code: "z.enum([\"development\", \"production\", \"test\"])",
+            code: "z.enum([\"test\", \"development\", \"staging\", \"production\"]).default(\"test\")",
             imports: [{ name: "z", from: "zod" }],
         },
         PORT: {
@@ -19,6 +19,14 @@ export const nodePreset: InferPreset = {
             examples: ["3000"],
             kind: "port",
             code: "portSchema(\"PORT\").default(3000)",
+            imports: [{ name: "portSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
+        },
+        NODE_PORT: {
+            description: "Node.js port",
+            schema: portSchema("NODE_PORT").default(3000),
+            examples: ["3000"],
+            kind: "port",
+            code: "portSchema(\"NODE_PORT\").default(3000)",
             imports: [{ name: "portSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
         HOST: {
