@@ -13,6 +13,7 @@ import { ProgramCliOptions } from "./commands/program.js";
 import { Except, PackageJson } from "type-fest";
 
 import pkg from "../../package.json" with { type: "json" };
+import { TypesCliOptions, typesCommand } from "./commands/types.js";
 export const dnlPackageJson: PackageJson = pkg as PackageJson;
 
 
@@ -86,6 +87,115 @@ program
     );
 // #endregion Program
 
+// #region infer
+program
+    .command("infer")
+    .description(
+        "Generates a dotenv-never-lies schema from a .env file.\n\n" +
+        "This command is intended as a starting point when migrating a project to DNL.\n" +
+        "The generated schema must be reviewed and refined manually."
+    )
+    .option("-s, --source <source>", "Source .env file", ".env")
+    .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")
+    .option("-f, --force", "Overwrite existing file")
+    .option("--verbose", "Verbose mode")
+    .option("--no-guess-secret", "Do not try to guess sensitive variables (heuristic)")
+    .option("--warn-on-duplicates", "Warn on duplicate environment variables instead of failing")
+    .option("--presets <presets...>", "Presets to use for inference (no discovery of presets in package.json)")
+    .option("--no-discover-presets", "Do not discover presets in package.json")
+    .action(async (opts: InferCliOptions) => {
+        const { content, out, warnings, verbose } = await inferCommand(opts);
+        if (opts.verbose) {
+            for (const v of verbose ?? []) {
+                console.log(v);
+            }
+        }
+
+        if (out) {
+            await toFile(content, out, opts.force ?? false);
+        } else {
+            console.log(content);
+        }
+        for (const warning of warnings) {
+            console.error(`${warning}`);
+        }
+    })
+    .addHelpText(
+        "after",
+        `\nExamples:
+        
+  # Generate an env.dnl.ts schema from a .env file, and will show every inference rules applied, with confidence scoring and reasons
+  dnl infer --verbose
+  
+  # Generate an env.dnl.ts schema from a .env file, do not try to guess sensitive variables
+  dnl infer --no-guess-secret
+  
+  # Generate an env.dnl.ts schema from a .env.local file
+  dnl infer --source .env.local
+  
+  # Generate a my-dnl.ts schema from a .env file,
+  dnl infer --out my-dnl.ts
+  
+  # Generate an env.dnl.ts schema from a .env file, and overwrite the existing file
+  dnl infer --force 
+
+  # Generate an env.dnl.ts schema from a .env file, and use only specified presets (no package.json scanning)
+  dnl infer --presets prisma node
+
+  # Generate an env.dnl.ts schema from a .env file, do not automatically discover presets in package.json
+  dnl infer --no-discover-presets
+  
+  # Generate an env.dnl.ts schema from a .env file, prevent to fail on duplicate keys, warn instead (dnl will never be silent on duplicate keys)
+  dnl infer --warn-on-duplicates
+
+  # Generate an env.dnl.ts schema from a .env file, Minimal inference (no preset discovery, no secret guessing)
+  dnl infer --no-discover-presets --no-guess-secret
+  
+  # Full documentation:
+  # https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/infer.md
+  `
+    ).addHelpText(
+        "after",
+        `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/infer.md\n`
+    );
+// #endregion infer
+
+// #region types
+
+program
+    .command("types")
+    .description("Generate a TypeScript declaration file (.d.ts) from a DNL schema. \n\n" +
+        "Use this command after you have finished documenting your DNL schema.\nThis command produces a static, IDE-only representation of your environment contract.\n" +
+        "It enables rich IntelliSense (auto-completion, documentation on hover)."
+    )
+    .option("-o, --out <file>", "Output file")
+    .option("-f, --force", "Overwrite the existing file, in conjunction with -o or --out")
+    .action(async (opts: TypesCliOptions) => {
+        const globalOpts = program.opts<ProgramCliOptions>();
+        const { content, out } = await typesCommand({ ...opts, schema: globalOpts.schema });
+
+        if (out) {
+            await toFile(content, out, opts.force ?? false);
+        } else {
+            console.log(content);
+        }
+
+    })
+    .addHelpText(
+        "after",
+        `\nExamples:
+
+  # Generate types from ./env.dnl.ts (default) to src/types/env.dnl.d.ts (default)
+  dnl types 
+  
+  # Generate types from specific dnl schema to specific location, with overwrite
+  dnl --schema ./my-dnl.ts types --out ./path/to/my-dnl.d.ts --force \n`
+    ).addHelpText(
+        "after",
+        `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/master/docs/commands/types.md\n`
+    );
+//#endregion types
+
 // #region assert
 program
     .command("assert")
@@ -118,8 +228,91 @@ program
   dnl assert --source $ENV_FILE
   dnl assert --schema my-dnl.ts --source $ENV_FILE
       `
+    ).addHelpText(
+        "after",
+        `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/assert.md\n`
     );
 // #endregion assert
+
+
+// #region init
+program
+    .command("init")
+    .description(
+        "Initialize an environment file from a DNL schema.\n" +
+        "This command does NOT read any existing environment variables.\n" +
+        "Useful to bootstrap a project or facilitate onboarding of a new developer.\n" +
+        "Only default values defined in the schema are written."
+    )
+    .option("-o, --out <file>", "Output file (default: .env)")
+    .option("-f, --force", "Overwrite existing file")
+    .action(async (opts: initCliOptions) => {
+        const globalOpts = program.opts<ProgramCliOptions>();
+        const { content, out } = await initCommand({ ...opts, schema: globalOpts.schema });
+        await toFile(content, out, opts.force ?? false);
+    })
+    .addHelpText(
+        "after",
+        `\nExamples:
+        
+  # Initialize a .env file from the default DNL schema (env.dnl.ts)
+  dnl init
+  
+  # Initialize a .env file from a specified DNL schema
+  dnl init --schema my-dnl.ts
+  
+  # Initialize a .env.local file from the DNL schema
+  dnl init --out .env.local
+  
+  # Initialize a .env file from a DNL schema and overwrite the existing file
+  dnl init --out .env --force
+      `
+    ).addHelpText(
+        "after",
+        `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/init.md\n`
+    );
+// #endregion init
+
+// #region explain
+program
+    .command("explain")
+    .description("Displays the list of known environment variables and their description.")
+    .argument("[keys...]", "Keys to explain (0..N). Without argument, all keys.")
+    .option("-f, --format <format>", 'Output format ("human" | "json")', "human")
+    .action(async (keys: string[] | undefined, opts: ExplainCliOptions) => {
+        const globalOpts = program.opts<ProgramCliOptions>();
+        const { format, result } = await explainCommand({ keys: keys ?? [], schema: globalOpts.schema, format: opts.format });
+        if (format === "human") {
+            printHuman(result);
+        } else {
+            console.log(JSON.stringify(result, null, 2));
+        }
+    })
+    .addHelpText(
+        "after",
+        `\nExamples:
+        
+  # explain all known variables and their description
+  dnl explain
+  
+  # explain a variable in detail
+  dnl explain NODE_ENV
+  
+  # machine-readable output
+  dnl explain --format json
+  
+  # explain all known variables and their description from a schema
+  dnl explain --schema my-dnl.ts
+  
+  # explain a subset of known variables and their description
+  dnl explain NODE_ENV NODE_PORT 
+        
+      `
+    ).addHelpText(
+        "after",
+        `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/explain.md\n`
+    );
+// #endregion explain
 
 // #region export
 const exportHelp: { [key in ExportFormat]: string } = {
@@ -134,7 +327,6 @@ const exportHelp: { [key in ExportFormat]: string } = {
     json: "Key/value JSON object",
     ts: "Typed TypeScript object",
     js: "JavaScript object",
-    types: "TypeScript declaration file (.d.ts) for your environment variables",
 } as const;
 
 program
@@ -269,182 +461,12 @@ program
   # Export variables as a typed TypeScript object, or js
   dnl export ts --out env.generated.ts --serialize-typed
   dnl export js --out env.generated.js --serialize-typed
-  `
-    )
-    .addHelpText(
-        "after",
-        `\nSpecific case of export types:
-      
-  This command generates a TypeScript declaration file (.d.ts)  describing the static contract of your environment variables.
-      
-  The generated types are intentionally conservative. Zod transforms are NOT reflected in the exported types.
-      
-  If a variable uses a Zod transform:
-    * a CLI warning is emitted
-    * the generated type is annotated with @dnl-transform
-    * the runtime value returned by assert() may differ from the declared type
-      
-  The --source option is NOT applicable to this format. Only the schema is used.
-      
-  # Example:
-  dnl export types --out src/types/env.dnl.d.ts
-  `
-    );
+  `).addHelpText(
+            "after",
+            `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/export.md\n`
+        );
 
 // #endregion export
-
-// #region init
-program
-    .command("init")
-    .description(
-        "Initialize an environment file from a DNL schema.\n" +
-        "This command does NOT read any existing environment variables.\n" +
-        "Useful to bootstrap a project or facilitate onboarding of a new developer.\n" +
-        "Only default values defined in the schema are written."
-    )
-    .option("-o, --out <file>", "Output file (default: .env)")
-    .option("-f, --force", "Overwrite existing file")
-    .action(async (opts: initCliOptions) => {
-        const globalOpts = program.opts<ProgramCliOptions>();
-        const { content, out } = await initCommand({ ...opts, schema: globalOpts.schema });
-        await toFile(content, out, opts.force ?? false);
-    })
-    .addHelpText(
-        "after",
-        `\nExamples:
-        
-  # Initialize a .env file from the default DNL schema (env.dnl.ts)
-  dnl init
-  
-  # Initialize a .env file from a specified DNL schema
-  dnl init --schema my-dnl.ts
-  
-  # Initialize a .env.local file from the DNL schema
-  dnl init --out .env.local
-  
-  # Initialize a .env file from a DNL schema and overwrite the existing file
-  dnl init --out .env --force
-      `
-    );
-// #endregion init
-
-// #region infer
-program
-    .command("infer")
-    .description(
-        "Generates a dotenv-never-lies schema from a .env file.\n" +
-        "Useful to migrate an existing project to dotenv-never-lies.\n" +
-        "The generated schema is a starting point and must be refined manually.\n" +
-        "Keys in the .env file that are not valid identifiers are escaped to JSON strings. (e.g. MY-KEY -> 'MY-KEY')\n" +
-        "By default, the command will try to guess sensitive variables (e.g. SECRET, KEY, TOKEN, PASSWORD) as secrets.\n" +
-        "This detection is intentionally aggressive and may flag variables that are not secrets.\n" +
-        "This is a deliberate design choice to avoid missing sensitive values.\n" +
-        "Use the --no-guess-secret option to disable this behavior.\n" +
-        "By default, the command will discover presets in package.json.\n" +
-        "Use the --no-discover-presets option to disable this behavior, or --presets option to specify presets to use for inference.\n" +
-
-        "\n" +
-        "Documentation: https://github.com/rtaillandier/dotenv-never-lies/blob/main/docs/commands/infer.md"
-    )
-    .option("-s, --source <source>", "Source .env file", ".env")
-    .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")
-    .option("-f, --force", "Overwrite existing file")
-    .option("--verbose", "Verbose mode")
-    .option("--no-guess-secret", "Do not try to guess sensitive variables (heuristic)")
-    .option("--warn-on-duplicates", "Warn on duplicate environment variables instead of failing")
-    .option("--presets <presets...>", "Presets to use for inference (no discovery of presets in package.json)")
-    .option("--no-discover-presets", "Do not discover presets in package.json")
-    .action(async (opts: InferCliOptions) => {
-        const { content, out, warnings, verbose } = await inferCommand(opts);
-        if (opts.verbose) {
-            for (const v of verbose ?? []) {
-                console.log(v);
-            }
-        }
-
-        if (out) {
-            await toFile(content, out, opts.force ?? false);
-        } else {
-            console.log(content);
-        }
-        for (const warning of warnings) {
-            console.error(`${warning}`);
-        }
-    })
-    .addHelpText(
-        "after",
-        `\nExamples:
-        
-  # Generate an env.dnl.ts schema from a .env file, and will show every inference rules applied, with confidence scoring and reasons
-  dnl infer --verbose
-  
-  # Generate an env.dnl.ts schema from a .env file, do not try to guess sensitive variables
-  dnl infer --no-guess-secret
-  
-  # Generate an env.dnl.ts schema from a .env.local file
-  dnl infer --source .env.local
-  
-  # Generate a my-dnl.ts schema from a .env file,
-  dnl infer --out my-dnl.ts
-  
-  # Generate an env.dnl.ts schema from a .env file, and overwrite the existing file
-  dnl infer --force 
-
-  # Generate an env.dnl.ts schema from a .env file, and use only specified presets (no package.json scanning)
-  dnl infer --presets prisma node
-
-  # Generate an env.dnl.ts schema from a .env file, do not automatically discover presets in package.json
-  dnl infer --no-discover-presets
-  
-  # Generate an env.dnl.ts schema from a .env file, prevent to fail on duplicate keys, warn instead (dnl will never be silent on duplicate keys)
-  dnl infer --warn-on-duplicates
-
-  # Generate an env.dnl.ts schema from a .env file, Minimal inference (no preset discovery, no secret guessing)
-  dnl infer --no-discover-presets --no-guess-secret
-  
-  # Full documentation:
-  # https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/infer.md
-  `
-    );
-// #endregion infer
-
-// #region explain
-program
-    .command("explain")
-    .description("Displays the list of known environment variables and their description.")
-    .argument("[keys...]", "Keys to explain (0..N). Without argument, all keys.")
-    .option("-f, --format <format>", 'Output format ("human" | "json")', "human")
-    .action(async (keys: string[] | undefined, opts: ExplainCliOptions) => {
-        const globalOpts = program.opts<ProgramCliOptions>();
-        const { format, result } = await explainCommand({ keys: keys ?? [], schema: globalOpts.schema, format: opts.format });
-        if (format === "human") {
-            printHuman(result);
-        } else {
-            console.log(JSON.stringify(result, null, 2));
-        }
-    })
-    .addHelpText(
-        "after",
-        `\nExamples:
-        
-  # explain all known variables and their description
-  dnl explain
-  
-  # explain a variable in detail
-  dnl explain NODE_ENV
-  
-  # machine-readable output
-  dnl explain --format json
-  
-  # explain all known variables and their description from a schema
-  dnl explain --schema my-dnl.ts
-  
-  # explain a subset of known variables and their description
-  dnl explain NODE_ENV NODE_PORT 
-        
-      `
-    );
-// #endregion explain
 
 try {
     await program.parseAsync(process.argv);

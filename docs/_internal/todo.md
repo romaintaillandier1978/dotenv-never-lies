@@ -1,6 +1,6 @@
 ## TODO :
 
-- vérifier les expands lors de l'export.
+
 
 - supprimer sample
 - ajouter une remarque personnelle sur vrai vécu, gros projet avec 150 variables d'environnement
@@ -17,7 +17,11 @@
 
 - regarder mieux et utiliser type-fest !
 
--dnl init : option --no-comment, option --compact
+- dnl init : option --no-comment, option --compact
+
+- tester le refacto des variables d'env ! => C'est merdeux !
+
+
 
 ### readme inférence :
 

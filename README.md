@@ -247,7 +247,7 @@ Choosing to refactor (or not) those usages depends on context and is intentional
 
 ## CLI
 
-The CLI lets you validate, load, generate, export, and document environment variables from a `dotenv-never-lies` schema.
+The CLI lets you infer, types, assert, export, and explain environment variables to/from a `dotenv-never-lies` schema.
 
 It is designed to be used:
 
@@ -267,16 +267,45 @@ It is designed to be used:
 |    3 | Environment validation failed |
 |    4 | Error during export           |
 
-### assert: Validate a `.env` file (CI-friendly)
+### infer: discover a .envfile, and generate a schema from an existing .env
+
+Generate a DNL schema from an existing `.env` file.
+
+```bash
+dnl infer --source .env
+```
+
+Useful for migrating an existing project
+
+→ [Read infer documentation](docs/commands/infer.md)
+
+### types: generate a TypeScript declaration file from an existing DNL schema
+
+Generates a `./src/types/env.dnl.d.ts` file from the `env.dnl.ts` file.
+
+```bash
+dnl types
+```
+
+Useful for getting IntelliSense *after* finalizing your DNL schema completion.
+
+→ [Read infer documentation](docs/commands/types.md)
+
+### assert: Validate environement variables (runtime, CI-friendly)
+
 
 Validates variables without injecting them into `process.env`.
 
 ```bash
-dnl assert --source .env --schema env.dnl.ts
+dnl assert --source .env
 ```
 
 Without `--source`, `dnl assert` validates `process.env`.  
 This is the recommended mode when variables are injected by the runtime or CI.
+
+```bash
+dnl assert
+```
 
 → fails if:
 
@@ -290,7 +319,7 @@ Initialize a documented `.env` from the schema.
 Do not read any environment variables
 
 ```bash
-dnl init --schema env.dnl.ts --out .env
+dnl init --out .env
 ```
 
 Useful for:
@@ -298,18 +327,6 @@ Useful for:
 - bootstrapping a project
 - sharing a template
 - avoiding obsolete `.env.example` files
-
-### infer: discover a .envfile, and generate a schema from an existing .env
-
-Generate a DNL schema from an existing `.env` file.
-
-```bash
-dnl infer --source .env
-```
-
-Useful for migrating an existing project
-
-→ [Read infer documentation](docs/commands/infer.md)
 
 ### explain: Display variables documentation
 
@@ -384,23 +401,7 @@ printf '%s\n' "NODE_PORT=3000" >> $GITHUB_ENV
 
 There are a few more formats and options (see CLI docs `dnl export --help`).
 
-## export types : Exporting TypeScript types
 
-`dnl export types` generates a `.d.ts` file describing the **static contract** of your environment variables.
-
-This file is intentionally **conservative**.
-
-### Transformed variables
-
-If a variable uses a Zod `transform`, the exported type always reflects the **input type**, not the runtime output.
-
-In that case:
-
-- a warning is emitted in the CLI
-- the generated type is annotated with `@dnl-transform`
-- the runtime value returned by `assert()` may differ
-
-This is a deliberate design choice to avoid lying to TypeScript.
 
 ## Real-life usage
 
@@ -535,13 +536,6 @@ This validates the environment before startup, without changing runtime behavior
 
 > This is optional. It does not replace runtime validation.
 
-**Intellisens and JSdoc for env vars**
-
-After using `dnl export types` and importing the generated file, you get strong typing, auto-completion, IntelliSense and JSDoc for each environment variable.
-
-![IntelliSense and JSDoc for environment variables](docs/images/env-intellisense.png)
-
-> IntelliSense and JSDoc generated from the DNL schema after `dnl export types`.
 
 ## Common issues / Troubleshooting
 

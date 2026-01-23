@@ -11,7 +11,6 @@ Legacy projects already have one or more `.env` files, whose variables are neith
 ## Positioning
 
 ### What `infer` does
-### What `infer` does
 
 **1) Fail on duplicate keys**
 Before reading the environment variable source (using `dotenv` and `dotenv-expand`), `infer` checks for **duplicate keys** in the source file.  

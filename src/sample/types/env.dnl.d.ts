@@ -1,30 +1,26 @@
+import envDefinition from "../env.dnl.js";
+type RuntimeEnv = ReturnType<typeof envDefinition.assert>;
 export interface Env {
     /**
-     * Runtime environment
+     * Node.js runtime environment
+     * @env NODE_ENV
      */
-    NODE_ENV: "test" | "development" | "staging" | "production";
+    NODE_ENV?: RuntimeEnv["NODE_ENV"];
     /**
-     * API port
+     * The username for the PostgreSQL user. It SHOULD have Admin role !
+
+Please ask John (john.doe@somewhere.com) to get one.
+     * @env POSTGRES_USER
+     * @required
      */
-    NODE_PORT?: number;
+    POSTGRES_USER: RuntimeEnv["POSTGRES_USER"];
     /**
-     * JWT Secret
+     * The password for the PostgreSQL user.
+
+Please ask John (john.doe@somewhere.com) to get one.
+     * @env POSTGRES_PASSWORD
+     * @secret
+     * @required
      */
-    JWT_SECRET: string;
-    /**
-     * URL of site A
-     */
-    FRONT_A: string;
-    /**
-     * URL of site B
-     */
-    FRONT_B: string;
-    /**
-     * URL of site C
-     */
-    FRONT_C: string;
-    /**
-     * the front-end URLs allowed to make requests to this API, separated by semicolons
-     */
-    NODE_CORS_ORIGIN: string[];
+    POSTGRES_PASSWORD: RuntimeEnv["POSTGRES_PASSWORD"];
 }

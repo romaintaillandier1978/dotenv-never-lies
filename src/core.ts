@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import dotenvExpand from "dotenv-expand";
 import { DnlError, ExitCodes } from "./errors.js";
 import fs from "fs";
+import { Simplify } from "type-fest";
 
 /**
  * An object containing environment variables as strings, coming from a .env file or from process.env.
@@ -12,7 +13,7 @@ export type EnvSource = Record<string, string | undefined>;
 /**
  * An environment variable.
  */
-export interface EnvVarDefinition<T extends z.ZodType = z.ZodType> {
+export type EnvVarDefinition<T extends z.ZodType = z.ZodType> = Simplify<{
     // export interface EnvVarDefinition<T extends z.ZodType = z.ZodType, M = unknown> {
     /**
      * The Zod schema of the environment variable.
@@ -34,7 +35,7 @@ export interface EnvVarDefinition<T extends z.ZodType = z.ZodType> {
     //  * User metadata for this variable. DNL NEVER USE THIS FIELD.
     //  */
     // metadata?: M;
-}
+}>;
 
 // any is required here to leverage TypeScript inference.
 //export type EnvDefinition = Record<string, EnvVarDefinition<any>>;
@@ -53,9 +54,9 @@ export type ZodShapeFromEnv<T extends EnvDefinition> = {
 /**
  * The inferred type of the environment schema.
  */
-export type InferEnv<T extends EnvDefinition> = {
+export type InferEnv<T extends EnvDefinition> = Simplify<{
     [K in keyof T & string]: z.infer<T[K]["schema"]>;
-};
+}>;
 
 type CheckFn = (options?: { source?: EnvSource | undefined }) => boolean;
 type AssertFn<T extends EnvDefinition> = (options?: { source?: EnvSource | undefined }) => InferEnv<T>;

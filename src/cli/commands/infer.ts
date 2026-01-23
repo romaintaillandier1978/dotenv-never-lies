@@ -128,6 +128,23 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
 
     lines.push(`});`);
 
+    lines.push("/**");
+    lines.push(" * ----------------------------------------------------------------------------------------------------------");
+    lines.push(" * ℹ️ DNL TIP");
+    lines.push(" *");
+    lines.push(" * Once this schema is fully documented (descriptions, schemas, secrets, required flags),");
+    lines.push(" * run:");
+    lines.push(" *");
+    lines.push(" *   dnl types");
+    lines.push(" *");
+    lines.push(" * This will generate `env.dnl.d.ts` and enable rich IntelliSense directly in your IDE.");
+    lines.push(" *");
+    lines.push(" * Docs: https://github.com/romaintaillandier1978/dotenv-never-lies/blob/master/docs/commands/types.md");
+    lines.push(" *       dnl types --help");
+    lines.push(" * ----------------------------------------------------------------------------------------------------------");
+    lines.push(" */");
+
+
     // insert the imported schemas at the top of the file
     insertImports(lines, importedSchemas);
 
