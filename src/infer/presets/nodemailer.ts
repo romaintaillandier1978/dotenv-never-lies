@@ -1,5 +1,3 @@
-
-
 import { z } from "zod";
 import { InferPreset } from "../presets.types.js";
 import { portSchema } from "../../schemas/port.js";
@@ -21,7 +19,7 @@ export const nodemailerPreset: InferPreset = {
             schema: portSchema("SMTP_PORT"),
             examples: ["587"],
             kind: "port",
-            code: "portSchema(\"SMTP_PORT\")",
+            code: 'portSchema("SMTP_PORT")',
             imports: [{ name: "portSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
         SMTP_USER: {
@@ -47,7 +45,7 @@ export const nodemailerPreset: InferPreset = {
             schema: booleanSchema("SMTP_SECURE").optional(),
             examples: ["true"],
             kind: "boolean",
-            code: "booleanSchema(\"SMTP_SECURE\").optional()",
+            code: 'booleanSchema("SMTP_SECURE").optional()',
             imports: [{ name: "booleanSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
     },

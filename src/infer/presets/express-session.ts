@@ -27,7 +27,7 @@ export const expressSessionPreset: InferPreset = {
             schema: booleanSchema("SESSION_COOKIE_SECURE").optional(),
             examples: ["true"],
             kind: "boolean",
-            code: "booleanSchema(\"SESSION_COOKIE_SECURE\").optional()",
+            code: 'booleanSchema("SESSION_COOKIE_SECURE").optional()',
             imports: [{ name: "booleanSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
         SESSION_COOKIE_DOMAIN: {

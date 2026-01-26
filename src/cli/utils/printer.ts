@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { z } from "zod";
 import { EnvVarDefinition } from "../../core.js";
 
@@ -159,15 +160,15 @@ export function printZodTypeDts(def: z.core.$ZodTypeDef): string {
             return "string"; // fallback défensif
         }
 
-        case "transform": {
-            if ((def as any).schema?.def) {
-                return printZodTypeDts((def as any).schema.def);
-            }
-            if ((def as any).in) {
-                return printZodTypeDts((def as any).in);
-            }
-            return "string";
-        }
+        // case "transform": {
+        //     if ((def as any).schema?.def) {
+        //         return printZodTypeDts((def as any).schema.def);
+        //     }
+        //     if ((def as any).in) {
+        //         return printZodTypeDts((def as any).in);
+        //     }
+        //     return "string";
+        // }
         default:
             return "unknown";
     }

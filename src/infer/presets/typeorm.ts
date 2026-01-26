@@ -11,7 +11,7 @@ export const typeormPreset: InferPreset = {
             secret: true,
             examples: ["postgresql://user:password@localhost:5432/mydb"],
             kind: "url",
-            code: "databaseUrlSchema(\"DATABASE_URL\")",
+            code: 'databaseUrlSchema("DATABASE_URL")',
             imports: [{ name: "databaseUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
         DB_HOST: {
@@ -27,7 +27,7 @@ export const typeormPreset: InferPreset = {
             schema: portSchema("DB_PORT"),
             examples: ["5432"],
             kind: "port",
-            code: "portSchema(\"DB_PORT\")",
+            code: 'portSchema("DB_PORT")',
             imports: [{ name: "portSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
         DB_USER: {

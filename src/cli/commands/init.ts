@@ -26,11 +26,13 @@ export const initCommand = async (opts?: initCliOptions | undefined): Promise<{ 
     }
 
     const schemaPath = resolveSchemaPath(opts?.schema);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<any>;
 
     const lines: string[] = [];
 
     for (const [key, def] of Object.entries(envDef.def)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const typedDef = def as unknown as dnl.EnvVarDefinition<any>;
         if (typedDef.description) {
             lines.push(`# ${typedDef.description}`);

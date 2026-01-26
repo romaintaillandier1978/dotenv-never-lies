@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import dnl, { EnvSource, InferEnv } from "../../index.js";
 import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
@@ -58,7 +59,6 @@ export const exportCommand = async (options: ExportCliOptions): Promise<ExportRe
     if (options.serializeTyped && !["js", "ts", "json"].includes(options.format)) {
         throw new UsageError("--serialize-typed is only valid for js, ts and json exports");
     }
-
 
     const schemaPath = resolveSchemaPath(options?.schema);
     const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<any>;
@@ -357,7 +357,5 @@ export const exportJs = (envDef: dnl.EnvDefinitionHelper<any>, options: ExportCl
 
     return `export const env = {\n${middle.join("\n")}\n};`;
 };
-
-
 
 // #endregion serialisation json/ts/js

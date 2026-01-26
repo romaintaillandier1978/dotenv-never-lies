@@ -10,7 +10,7 @@ export const amqplibPreset: InferPreset = {
             secret: true,
             examples: ["amqp://user:password@localhost:5672"],
             kind: "string",
-            code: "queueUrlSchema(\"RABBITMQ_URL\")",
+            code: 'queueUrlSchema("RABBITMQ_URL")',
             imports: [{ name: "queueUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
     },

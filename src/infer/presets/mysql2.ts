@@ -10,7 +10,7 @@ export const mysql2Preset: InferPreset = {
             secret: true,
             examples: ["mysql://user:password@localhost:3306/db"],
             kind: "url",
-            code: "databaseUrlSchema(\"MYSQL_DATABASE_URL\")",
+            code: 'databaseUrlSchema("MYSQL_DATABASE_URL")',
             imports: [{ name: "databaseUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
     },

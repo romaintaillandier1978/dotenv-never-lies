@@ -17,6 +17,7 @@ export type AssertResult = {
 export const assertCommand = async (opts?: AssertCliOptions | undefined): Promise<AssertResult> => {
     const schemaPath = resolveSchemaPath(opts?.schema);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<any>;
 
     const warnings: string[] = [];

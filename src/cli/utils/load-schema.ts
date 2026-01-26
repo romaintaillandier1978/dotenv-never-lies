@@ -5,6 +5,7 @@ import { pathToFileURL } from "node:url";
 import { EnvDefinitionHelper } from "../../core.js";
 import { SchemaNotFoundError } from "../../errors.js";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const loadDef = async (schemaPath: string): Promise<EnvDefinitionHelper<any>> => {
     const outDir = path.join(process.cwd(), ".dnl");
     await fs.mkdir(outDir, { recursive: true });

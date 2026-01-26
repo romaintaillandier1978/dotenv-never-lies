@@ -10,7 +10,7 @@ export const prismaPreset: InferPreset = {
             secret: true,
             examples: ["postgresql://user:password@localhost:5432/mydb"],
             kind: "url",
-            code: "databaseUrlSchema(\"DATABASE_URL\")",
+            code: 'databaseUrlSchema("DATABASE_URL")',
             imports: [{ name: "databaseUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
         SHADOW_DATABASE_URL: {
@@ -19,9 +19,8 @@ export const prismaPreset: InferPreset = {
             secret: true,
             examples: ["postgresql://user:password@localhost:5432/myshadowdb"],
             kind: "url",
-            code: "databaseUrlSchema(\"SHADOW_DATABASE_URL\").optional()",
+            code: 'databaseUrlSchema("SHADOW_DATABASE_URL").optional()',
             imports: [{ name: "databaseUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
-
         },
     },
 };

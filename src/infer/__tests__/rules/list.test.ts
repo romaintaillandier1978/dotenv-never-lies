@@ -1,5 +1,4 @@
 import { describe, it, expect } from "vitest";
-import { keyValueRule } from "../../rules/key-value.js";
 import { listRule } from "../../rules/list.js";
 
 describe("Inference rules – list", () => {

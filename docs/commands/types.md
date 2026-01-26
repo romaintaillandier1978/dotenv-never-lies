@@ -14,7 +14,7 @@ It is intended exclusively for the IDE to provide:
 `dnl types` is not required for DNL to work.
 It only serves to improve the developer experience in the IDE.
 
-> 👉 ... but here begins the Real Black Magic.  😈 
+> 👉 ... but here begins the Real Black Magic. 😈
 
 ⸻
 
@@ -87,6 +87,7 @@ To provide rich and reliable IntelliSense, DNL therefore generates:
 - on which documentation can be properly attached
 
 This file acts as an official bridge between:
+
 - the runtime (DNL + Zod)
 - TypeScript inference
 - the IDE
@@ -110,7 +111,6 @@ Recommended:
 - when the DNL schema has been modified (addition, removal, modification of variables)
     - to update the type
 
-
 ⸻
 
 ## When NOT to use `dnl types`
@@ -121,7 +121,6 @@ Not necessary:
 - as long as the schema still contains `TODO`s
 - if the schema is still evolving significantly
 
-
 ⸻
 
 ## General operation
@@ -130,8 +129,10 @@ Not necessary:
 2. TypeScript infers the real type returned by `assert()`
 3. `dnl types` generates a documented interface
 4. Each property:
+
 - references exactly the inferred type
 - exposes the documentation written in the schema
+
 5. The `.d.ts` file is written to disk
 
 No application logic is executed.
@@ -140,8 +141,10 @@ No application logic is executed.
 
 ```bash
 dnl types
-``` 
+```
+
 By default:
+
 - source schema: `./env.dnl.ts`
 - output: `./src/types/env.dnl.d.ts`
 
@@ -150,20 +153,20 @@ By default:
 ### Generate for a specific file
 
 ```bash
-dnl --schema ./path/to/my-dnl.ts types 
-``` 
+dnl --schema ./path/to/my-dnl.ts types
+```
 
 ### Generate to a specific file
 
 ```bash
 dnl types --out ./src/types/env.dnl.d.ts
-``` 
+```
 
 ### Force overwrite
 
 ```bash
 dnl types --out ./src/types/env.dnl.d.ts --force
-``` 
+```
 
 ## Generated file structure
 
@@ -212,7 +215,7 @@ This interface is then used exclusively by the IDE.
 
 👉 With dnl types (IntelliSense + documentation)
 
-![With types - complete IntelliSense](../images/env-intellisense.png) 
+![With types - complete IntelliSense](../images/env-intellisense.png)
 
 ⸻
 
@@ -221,11 +224,13 @@ This interface is then used exclusively by the IDE.
 The two commands are complementary, but clearly separated:
 
 `dnl infer`:
+
 - creates an initial schema
 - applies heuristics
 - requires human review
 
 `dnl types`:
+
 - does not perform any inference
 - does not modify the schema
 - projects a stabilized schema to the IDE

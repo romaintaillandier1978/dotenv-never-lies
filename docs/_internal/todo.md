@@ -1,7 +1,5 @@
 ## TODO :
 
-
-
 - supprimer sample
 - ajouter une remarque personnelle sur vrai vécu, gros projet avec 150 variables d'environnement
 
@@ -10,18 +8,14 @@
 - doc : parler du preload dotenv :
   `node -r dotenv/config your_script.js`
 
-
-- liste de preset : 
-   -   open ai / other LLM
-
+- liste de preset :
+    - open ai / other LLM
 
 - regarder mieux et utiliser type-fest !
 
 - dnl init : option --no-comment, option --compact
 
 - tester le refacto des variables d'env ! => C'est merdeux !
-
-
 
 ### readme inférence :
 
@@ -47,4 +41,3 @@
         serializeBack : ((value:string[]) => value.join(";")) // <= bonne idée ? NON : extensibilité !
     },
 ```
-

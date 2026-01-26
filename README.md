@@ -287,12 +287,11 @@ Generates a `./src/types/env.dnl.d.ts` file from the `env.dnl.ts` file.
 dnl types
 ```
 
-Useful for getting IntelliSense *after* finalizing your DNL schema completion.
+Useful for getting IntelliSense _after_ finalizing your DNL schema completion.
 
 → [Read infer documentation](docs/commands/types.md)
 
 ### assert: Validate environement variables (runtime, CI-friendly)
-
 
 Validates variables without injecting them into `process.env`.
 
@@ -400,8 +399,6 @@ printf '%s\n' "NODE_PORT=3000" >> $GITHUB_ENV
 ```
 
 There are a few more formats and options (see CLI docs `dnl export --help`).
-
-
 
 ## Real-life usage
 
@@ -535,7 +532,6 @@ to validate your `.env` file before starting the application:
 This validates the environment before startup, without changing runtime behavior or application code.
 
 > This is optional. It does not replace runtime validation.
-
 
 ## Common issues / Troubleshooting
 

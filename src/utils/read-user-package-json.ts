@@ -3,7 +3,6 @@ import path from "node:path";
 import type { PackageJson } from "type-fest";
 import { DnlConfig, dnlConfigSchema } from "../dnl-config.js";
 
-
 export const readUserPackageJson = (): PackageJson | null => {
     // Do not create a cached singleton !
     // We need to read the package.json file each time, to get the latest version.
@@ -15,7 +14,7 @@ export const readUserPackageJson = (): PackageJson | null => {
     } catch {
         return null;
     }
-}
+};
 
 export const readDnlConfigInUserPackageJson = (): DnlConfig | null => {
     const pkg = readUserPackageJson();
@@ -24,4 +23,4 @@ export const readDnlConfigInUserPackageJson = (): DnlConfig | null => {
     const parsed = dnlConfigSchema.safeParse(dnlConfig);
     if (parsed.success) return parsed.data;
     return null;
-}
+};

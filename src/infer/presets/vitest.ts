@@ -8,7 +8,7 @@ export const vitestPreset: InferPreset = {
             description: "Defined when running under Vitest",
             schema: booleanSchema("VITEST"),
             kind: "boolean",
-            code: "booleanSchema(\"VITEST\")",
+            code: 'booleanSchema("VITEST")',
             imports: [{ name: "booleanSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
     },

@@ -1,7 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { durationRule } from "../../rules/duration.js";
-import { durationGenSchema } from "../../generated/duration.js";
-import type { InferInput, InferResult } from "../../rules.types.js";
 
 describe("Inference rules – duration", () => {
     it("durationRule should match a valid duration", () => {

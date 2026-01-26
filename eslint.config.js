@@ -1,34 +1,30 @@
 import js from "@eslint/js";
-import tsParser from "@typescript-eslint/parser";
-import tsPlugin from "@typescript-eslint/eslint-plugin";
-import globals from "globals";
+import { configs } from "typescript-eslint";
 
 export default [
-  js.configs.recommended,
-
-  {
-    files: ["**/*.ts"],
-    languageOptions: {
-      parser: tsParser,
-      sourceType: "module",
-      globals: globals.node
+    js.configs.recommended,
+    ...configs.recommended,
+    {
+        rules: {
+            "no-console": "off",
+        },
     },
-    plugins: {
-      "@typescript-eslint": tsPlugin
+    {
+        languageOptions: {
+            globals: {
+                console: "readonly",
+                process: "readonly",
+                Buffer: "readonly",
+                __dirname: "readonly",
+                __filename: "readonly",
+                global: "readonly",
+                module: "readonly",
+                require: "readonly",
+                exports: "readonly",
+            },
+        },
     },
-    rules: {
-      ...tsPlugin.configs.recommended.rules,
-
-      // pragmatique, pas chiant
-      "no-console": "off",
-      "@typescript-eslint/no-explicit-any": "off",
-      "@typescript-eslint/ban-ts-comment": "off",
-      "no-redeclare": "off",
-      "@typescript-eslint/no-redeclare": "error",
-    }
-  },
-
-  {
-    ignores: ["node_modules", "dist", "build"]
-  }
+    {
+        ignores: ["node_modules", "dist", "build", "package/dist"],
+    },
 ];

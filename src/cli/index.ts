@@ -16,7 +16,6 @@ import pkg from "../../package.json" with { type: "json" };
 import { TypesCliOptions, typesCommand } from "./commands/types.js";
 export const dnlPackageJson: PackageJson = pkg as PackageJson;
 
-
 const exitCodeHelp: { [key in ExitCodes]: string } = {
     [ExitCodes.success]: "Success (everything is valid, exit OK)",
     [ExitCodes.usageError]: "Usage error or internal error",
@@ -92,8 +91,8 @@ program
     .command("infer")
     .description(
         "Generates a dotenv-never-lies schema from a .env file.\n\n" +
-        "This command is intended as a starting point when migrating a project to DNL.\n" +
-        "The generated schema must be reviewed and refined manually."
+            "This command is intended as a starting point when migrating a project to DNL.\n" +
+            "The generated schema must be reviewed and refined manually."
     )
     .option("-s, --source <source>", "Source .env file", ".env")
     .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")
@@ -154,19 +153,18 @@ program
   # Full documentation:
   # https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/infer.md
   `
-    ).addHelpText(
-        "after",
-        `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/infer.md\n`
-    );
+    )
+    .addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/infer.md\n`);
 // #endregion infer
 
 // #region types
 
 program
     .command("types")
-    .description("Generate a TypeScript declaration file (.d.ts) from a DNL schema. \n\n" +
-        "Use this command after you have finished documenting your DNL schema.\nThis command produces a static, IDE-only representation of your environment contract.\n" +
-        "It enables rich IntelliSense (auto-completion, documentation on hover)."
+    .description(
+        "Generate a TypeScript declaration file (.d.ts) from a DNL schema. \n\n" +
+            "Use this command after you have finished documenting your DNL schema.\nThis command produces a static, IDE-only representation of your environment contract.\n" +
+            "It enables rich IntelliSense (auto-completion, documentation on hover)."
     )
     .option("-o, --out <file>", "Output file")
     .option("-f, --force", "Overwrite the existing file, in conjunction with -o or --out")
@@ -179,7 +177,6 @@ program
         } else {
             console.log(content);
         }
-
     })
     .addHelpText(
         "after",
@@ -190,10 +187,8 @@ program
   
   # Generate types from specific dnl schema to specific location, with overwrite
   dnl --schema ./my-dnl.ts types --out ./path/to/my-dnl.d.ts --force \n`
-    ).addHelpText(
-        "after",
-        `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/master/docs/commands/types.md\n`
-    );
+    )
+    .addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/master/docs/commands/types.md\n`);
 //#endregion types
 
 // #region assert
@@ -228,21 +223,18 @@ program
   dnl assert --source $ENV_FILE
   dnl assert --schema my-dnl.ts --source $ENV_FILE
       `
-    ).addHelpText(
-        "after",
-        `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/assert.md\n`
-    );
+    )
+    .addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/assert.md\n`);
 // #endregion assert
-
 
 // #region init
 program
     .command("init")
     .description(
         "Initialize an environment file from a DNL schema.\n" +
-        "This command does NOT read any existing environment variables.\n" +
-        "Useful to bootstrap a project or facilitate onboarding of a new developer.\n" +
-        "Only default values defined in the schema are written."
+            "This command does NOT read any existing environment variables.\n" +
+            "Useful to bootstrap a project or facilitate onboarding of a new developer.\n" +
+            "Only default values defined in the schema are written."
     )
     .option("-o, --out <file>", "Output file (default: .env)")
     .option("-f, --force", "Overwrite existing file")
@@ -267,10 +259,8 @@ program
   # Initialize a .env file from a DNL schema and overwrite the existing file
   dnl init --out .env --force
       `
-    ).addHelpText(
-        "after",
-        `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/init.md\n`
-    );
+    )
+    .addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/init.md\n`);
 // #endregion init
 
 // #region explain
@@ -308,10 +298,8 @@ program
   dnl explain NODE_ENV NODE_PORT 
         
       `
-    ).addHelpText(
-        "after",
-        `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/explain.md\n`
-    );
+    )
+    .addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/explain.md\n`);
 // #endregion explain
 
 // #region export
@@ -461,10 +449,9 @@ program
   # Export variables as a typed TypeScript object, or js
   dnl export ts --out env.generated.ts --serialize-typed
   dnl export js --out env.generated.js --serialize-typed
-  `).addHelpText(
-            "after",
-            `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/export.md\n`
-        );
+  `
+    )
+    .addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/export.md\n`);
 
 // #endregion export
 

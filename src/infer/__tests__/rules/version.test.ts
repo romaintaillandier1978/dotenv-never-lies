@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { versionRule } from "../../rules/version.js";
 import { versionGenSchema } from "../../generated/version.js";
-import type { InferInput, InferResult } from "../../rules.types.js";
 
 describe("Inference rules – version", () => {
     it("versionRule should match a strict semver value", () => {

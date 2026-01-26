@@ -12,6 +12,7 @@
     "scripts": {
         "desc": "tsx src/scripts/script-desc.ts",
         "build": "tsc",
+        "lint": "eslint . && prettier --write .",
         "pack": "rm -rf dist && yarn build && npm pack --pack-destination ./dist",
         "pack:check": "npm pack --dry-run",
         "release:patch": "npm version patch",
@@ -30,6 +31,7 @@
     "scripts-descriptions": {
         "desc": "Displays the list of available scripts with their short descriptions.",
         "build": "Compiles the project, creating the dist folder.",
+        "lint": "Runs ESLint to check code quality && Prettier to format code.",
         "pack": "Packs the project, creating the dotenv-never-lies-v*.tgz file.",
         "pack:check": "Verifies the project pack.",
         "release:patch": "Publishes a new patch version.",
@@ -89,10 +91,8 @@
     },
     "devDependencies": {
         "@types/node": "^25.0.3",
-        "@typescript-eslint/eslint-plugin": "^8.50.0",
-        "@typescript-eslint/parser": "^8.50.0",
         "eslint": "^9.39.2",
-        "prettier": "^3.7.4",
+        "prettier": "^3.8.1",
         "type-fest": "^5.4.1",
         "typescript": "^5.9.3",
         "typescript-eslint": "^8.53.1",

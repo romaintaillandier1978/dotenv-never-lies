@@ -19,7 +19,7 @@ export const jsonwebtokenPreset: InferPreset = {
             schema: durationSchema("JWT_EXPIRES_IN"),
             examples: ["1h"],
             kind: "duration",
-            code: "durationSchema(\"JWT_EXPIRES_IN\")",
+            code: 'durationSchema("JWT_EXPIRES_IN")',
             imports: [{ name: "durationSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
         JWT_ISSUER: {

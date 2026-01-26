@@ -18,7 +18,7 @@ type PresetInfo = {
     exportName: string;
     presetName: string;
     envNames: string[];
-}
+};
 
 /**
  * Extract the export name of the preset from the file content
@@ -34,26 +34,26 @@ const extractPresetExport = async (filePath: string): Promise<string | null> => 
     }
 
     return null;
-}
+};
 
 const extractEnvNames = async (filePath: string): Promise<string[]> => {
     const content = await readFile(filePath, "utf-8");
     const envNames = content.match(/^ {8}(\w+):/gm);
     if (envNames) {
-        return envNames.map(name => name.trim().split(":")[0]);
+        return envNames.map((name) => name.trim().split(":")[0]);
     }
     return [];
-}
+};
 
 const extractOrigin = async (filePath: string): Promise<string> => {
     const content = await readFile(filePath, "utf-8");
     const origin = content.match(/^ +origin: *"([^"]+)"/gm);
     if (origin) {
-        return origin[0].trim().split("\"")[1];
+        return origin[0].trim().split('"')[1];
     }
     console.log(`origin : ` + (origin === null ? "null" : "not null"));
     return "";
-}
+};
 
 /**
  * Scan the presets directory and return the information on each preset
@@ -87,7 +87,7 @@ const scanPresetsDirectory = async (): Promise<PresetInfo[]> => {
     presets.sort((a, b) => a.fileName.localeCompare(b.fileName));
 
     return presets;
-}
+};
 
 /**
  * Generate the content of the preset-registry.ts file
@@ -120,7 +120,7 @@ const generateRegistryContent = (presets: PresetInfo[]): string => {
     lines.push("");
 
     return lines.join("\n");
-}
+};
 
 /**
  * Generate the content of the preset-registry.ts file
@@ -132,7 +132,9 @@ const generateListMdContent = (presets: PresetInfo[]): string => {
     lines.push("# Official preset list \n");
     lines.push("This document lists all **official presets** provided and maintained by DNL.  ");
     lines.push("These presets cover the most common and widely adopted patterns found in real-world `env` files.  ");
-    lines.push("The list below is **generated automatically** from the internal preset registry to ensure it stays accurate and up to date with each release.\n");
+    lines.push(
+        "The list below is **generated automatically** from the internal preset registry to ensure it stays accurate and up to date with each release.\n"
+    );
 
     lines.push("| preset | env described |");
     lines.push("| :--- | :--- |");
@@ -143,7 +145,7 @@ const generateListMdContent = (presets: PresetInfo[]): string => {
     }
 
     return lines.join("\n");
-}
+};
 /**
  * Main function : generate the preset-registry.ts file
  */
@@ -159,7 +161,7 @@ export const generateOfficialPresetRegistry = async (presets: PresetInfo[]): Pro
         console.error("❌ Error generating the preset registry :", error);
         process.exit(1);
     }
-}
+};
 
 /**
  * Main function : generate the official-preset-list.md file
@@ -172,12 +174,11 @@ const generateOfficialPresetList = async (presets: PresetInfo[]): Promise<void> 
         await writeFile(OUTPUT_PATH_MD, content, "utf-8");
 
         console.log(`✅ File generated successfully: ${OUTPUT_FILENAME_MD}`);
-    }
-    catch (error) {
+    } catch (error) {
         console.error("❌ Error generating the official preset list :", error);
         process.exit(1);
     }
-}
+};
 
 const genBoth = async (): Promise<void> => {
     const presets = await scanPresetsDirectory();
@@ -187,9 +188,8 @@ const genBoth = async (): Promise<void> => {
     }
     await generateOfficialPresetRegistry(presets);
     await generateOfficialPresetList(presets);
-}
+};
 // Execute if the script is launched directly
 if (import.meta.url === `file://${process.argv[1]}`) {
     genBoth();
 }
-

@@ -3,11 +3,8 @@ import { CROSS_RULES, RULES } from "../../infer/rules.js";
 import { CrossInferContext, GeneratedSchema, InferContext } from "../../infer/rules.types.js";
 
 export const infer = (context: InferContext): GeneratedSchema => {
-    
-    
-    // for each rules, 
+    // for each rules,
     for (const rule of RULES) {
-
         // try to infer a schema for the current context
         const result = rule.tryInfer({ name: context.name, rawValue: context.rawValue });
 

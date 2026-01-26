@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const durationSuffixes = ["ms", "s", "m", "h", "d", "w", "M", "y"] as const;
+export const durationSuffixes = ["ms", "s", "m", "h", "d", "w", "M", "y"] as const;
 type DurationSuffix = (typeof durationSuffixes)[number];
 const durationSuffixesMap: Record<DurationSuffix, number> = {
     ms: 1,

@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { urlRule } from "../../rules/url.js";
 import { databaseUrlGenSchema, httpUrlGenSchema } from "../../generated/url.js";
-import type { InferInput, InferResult } from "../../rules.types.js";
 
 describe("Inference rules – url", () => {
     it("urlRule should match an HTTP URL", () => {

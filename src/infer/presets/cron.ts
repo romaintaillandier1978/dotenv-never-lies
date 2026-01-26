@@ -9,7 +9,7 @@ export const cronPreset: InferPreset = {
             description: "Whether cron is enabled",
             schema: booleanSchema("CRON_ENABLED"),
             kind: "boolean",
-            code: "booleanSchema(\"CRON_ENABLED\")",
+            code: 'booleanSchema("CRON_ENABLED")',
             imports: [{ name: "booleanSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
         CRON_TZ: {

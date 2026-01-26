@@ -10,7 +10,6 @@ export const jsonRule: InferRule<"json"> = {
     priority: 10,
     threshold: 5,
     tryInfer({ name, rawValue }) {
-        let parsed: unknown;
         // trim the raw value to avoid issues with leading or trailing spaces
         // never happen via dotenv, but migth happen via process.env
         if (rawValue === "" || rawValue === "''" || rawValue === '""') return null;
@@ -18,7 +17,7 @@ export const jsonRule: InferRule<"json"> = {
 
         const reasons: string[] = [];
         try {
-            parsed = JSON.parse(trimedRawValue);
+            JSON.parse(trimedRawValue);
         } catch {
             return null;
         }

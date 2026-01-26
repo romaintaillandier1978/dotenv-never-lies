@@ -1,4 +1,4 @@
-import dnl, { } from "../../index.js";
+import dnl from "../../index.js";
 import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { isRequired } from "../utils/printer.js";
@@ -15,8 +15,10 @@ export type TypesResult = {
 };
 
 export const typesCommand = async (options: TypesCliOptions): Promise<TypesResult> => {
-
     const schemaPath = resolveSchemaPath(options?.schema);
+
+    // we should let this one to maximize the flexibility of the schema, and typescript inference.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<any>;
 
     const content = exportDts(envDef, options);
@@ -25,11 +27,9 @@ export const typesCommand = async (options: TypesCliOptions): Promise<TypesResul
         content,
         out: options.out,
     };
-}
-
+};
 
 export const getSchemaPath = (options: TypesCliOptions): string => {
-
     const schemaTsPath = resolveSchemaPath(options?.schema);
     const schemaJsPath = schemaTsPath.replace(/\.ts$/, ".js");
 
@@ -41,10 +41,11 @@ export const getSchemaPath = (options: TypesCliOptions): string => {
     importPath = importPath.replace(/\\/g, "/");
 
     return importPath;
-}
+};
 
+// we should let this one to maximize the flexibility of the schema, and typescript inference.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const exportDts = (envDef: dnl.EnvDefinitionHelper<any>, options: TypesCliOptions): string => {
-
     const schemaPath = getSchemaPath(options);
     let top = `import envDefinition from "${schemaPath}";\n`;
     top += `type RuntimeEnv = ReturnType<typeof envDefinition.assert>;\n`;
@@ -66,8 +67,6 @@ export const exportDts = (envDef: dnl.EnvDefinitionHelper<any>, options: TypesCl
         comment += `     */`;
         middle.push(comment);
         middle.push(`    ${key}${optional}: ${type};`);
-
-
     }
 
     return `${top}${middle.join("\n")}\n}\n`;

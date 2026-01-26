@@ -41,22 +41,20 @@ const makeUrlLooksLike = (protocols: string[]): ((value: string) => boolean) => 
 
 const makeUrlSchema =
     (message: string, looksLike: (value: string) => boolean) =>
-        (name: string): z.ZodURL => {
-            return z
-                .url()
-                .refine(
-                    (v) => {
-                        try {
-                            return looksLike(v.toString());
-                        } catch {
-                            return false;
-                        }
-                    },
-                    {
-                        message: `${name} has invalid ${message} URL`,
-                    }
-                );
-        };
+    (name: string): z.ZodURL => {
+        return z.url().refine(
+            (v) => {
+                try {
+                    return looksLike(v.toString());
+                } catch {
+                    return false;
+                }
+            },
+            {
+                message: `${name} has invalid ${message} URL`,
+            }
+        );
+    };
 
 export const looksLikeHttpUrl = makeUrlLooksLike(HTTP_PROTOCOLS);
 export const looksLikeDbUrl = makeUrlLooksLike(DB_PROTOCOLS);

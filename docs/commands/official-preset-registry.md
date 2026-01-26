@@ -1,40 +1,40 @@
-# Official preset list 
+# Official preset list
 
 This document lists all **official presets** provided and maintained by DNL.  
 These presets cover the most common and widely adopted patterns found in real-world `env` files.  
 The list below is **generated automatically** from the internal preset registry to ensure it stays accurate and up to date with each release.
 
-| preset | env described |
-| :--- | :--- |
-| [agenda](../../src/infer/presets/agenda.ts) | MONGODB_URI |
-| [amqplib](../../src/infer/presets/amqplib.ts) | RABBITMQ_URL |
-| [aws-sdk](../../src/infer/presets/aws-sdk.ts) | AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION |
-| [@aws-sdk/client-s3](../../src/infer/presets/aws-sdk_client-s3.ts) | AWS_S3_BUCKET |
-| [bcrypt](../../src/infer/presets/bcrypt.ts) | BCRYPT_SALT_ROUNDS |
-| [bull](../../src/infer/presets/bull.ts) | REDIS_URL, REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, REDIS_USERNAME, REDIS_DB, REDIS_TLS, REDIS_CA_CERT, REDIS_CLIENT_CERT, REDIS_CLIENT_KEY, REDIS_PREFIX, REDIS_CONNECT_TIMEOUT |
-| [cookie-parser](../../src/infer/presets/cookie-parser.ts) | COOKIE_SECRET |
-| [cron](../../src/infer/presets/cron.ts) | CRON_ENABLED, CRON_TZ |
-| [dotenv](../../src/infer/presets/dotenv.ts) | DOTENV_CONFIG_PATH |
-| [express-session](../../src/infer/presets/express-session.ts) | SESSION_SECRET, SESSION_NAME, SESSION_COOKIE_SECURE, SESSION_COOKIE_DOMAIN |
-| [@google-cloud/storage](../../src/infer/presets/google-cloud_storage.ts) | GOOGLE_APPLICATION_CREDENTIALS |
-| [google-maps](../../src/infer/presets/google-maps.ts) | GOOGLE_MAPS_API_KEY |
-| [ioredis](../../src/infer/presets/ioredis.ts) | REDIS_URL |
-| [jsonwebtoken](../../src/infer/presets/jsonwebtoken.ts) | JWT_SECRET, JWT_EXPIRES_IN, JWT_ISSUER, JWT_AUDIENCE |
-| [mongoose](../../src/infer/presets/mongoose.ts) | MONGODB_URI |
-| [multer](../../src/infer/presets/multer.ts) | UPLOAD_DIR |
-| [mysql2](../../src/infer/presets/mysql2.ts) | MYSQL_DATABASE_URL |
-| [newrelic](../../src/infer/presets/newrelic.ts) | NEW_RELIC_LICENSE_KEY |
-| [node](../../src/infer/presets/node.ts) | NODE_ENV, PORT, NODE_PORT, HOST, TZ |
-| [nodemailer](../../src/infer/presets/nodemailer.ts) | SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE |
-| [passport](../../src/infer/presets/passport.ts) | SESSION_SECRET |
-| [passport-github2](../../src/infer/presets/passport-github2.ts) | GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET |
-| [passport-google-oauth20](../../src/infer/presets/passport-google-oauth20.ts) | GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET |
-| [passport-jwt](../../src/infer/presets/passport-jwt.ts) | JWT_SECRET |
-| [pg](../../src/infer/presets/pg.ts) | DATABASE_URL |
-| [pino](../../src/infer/presets/pino.ts) | LOG_LEVEL |
-| [prisma](../../src/infer/presets/prisma.ts) | DATABASE_URL, SHADOW_DATABASE_URL |
-| [@sentry/node](../../src/infer/presets/sentry.ts) | SENTRY_DSN |
-| [stripe](../../src/infer/presets/stripe.ts) | STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_TAX_RATE_20_EXCL_ID |
-| [typeorm](../../src/infer/presets/typeorm.ts) | DATABASE_URL, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME |
-| [vitest](../../src/infer/presets/vitest.ts) | VITEST |
-| [winston](../../src/infer/presets/winston.ts) | LOG_LEVEL |
+| preset                                                                        | env described                                                                                                                                                                   |
+| :---------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [agenda](../../src/infer/presets/agenda.ts)                                   | MONGODB_URI                                                                                                                                                                     |
+| [amqplib](../../src/infer/presets/amqplib.ts)                                 | RABBITMQ_URL                                                                                                                                                                    |
+| [aws-sdk](../../src/infer/presets/aws-sdk.ts)                                 | AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION                                                                                                                            |
+| [@aws-sdk/client-s3](../../src/infer/presets/aws-sdk_client-s3.ts)            | AWS_S3_BUCKET                                                                                                                                                                   |
+| [bcrypt](../../src/infer/presets/bcrypt.ts)                                   | BCRYPT_SALT_ROUNDS                                                                                                                                                              |
+| [bull](../../src/infer/presets/bull.ts)                                       | REDIS_URL, REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, REDIS_USERNAME, REDIS_DB, REDIS_TLS, REDIS_CA_CERT, REDIS_CLIENT_CERT, REDIS_CLIENT_KEY, REDIS_PREFIX, REDIS_CONNECT_TIMEOUT |
+| [cookie-parser](../../src/infer/presets/cookie-parser.ts)                     | COOKIE_SECRET                                                                                                                                                                   |
+| [cron](../../src/infer/presets/cron.ts)                                       | CRON_ENABLED, CRON_TZ                                                                                                                                                           |
+| [dotenv](../../src/infer/presets/dotenv.ts)                                   | DOTENV_CONFIG_PATH                                                                                                                                                              |
+| [express-session](../../src/infer/presets/express-session.ts)                 | SESSION_SECRET, SESSION_NAME, SESSION_COOKIE_SECURE, SESSION_COOKIE_DOMAIN                                                                                                      |
+| [@google-cloud/storage](../../src/infer/presets/google-cloud_storage.ts)      | GOOGLE_APPLICATION_CREDENTIALS                                                                                                                                                  |
+| [google-maps](../../src/infer/presets/google-maps.ts)                         | GOOGLE_MAPS_API_KEY                                                                                                                                                             |
+| [ioredis](../../src/infer/presets/ioredis.ts)                                 | REDIS_URL                                                                                                                                                                       |
+| [jsonwebtoken](../../src/infer/presets/jsonwebtoken.ts)                       | JWT_SECRET, JWT_EXPIRES_IN, JWT_ISSUER, JWT_AUDIENCE                                                                                                                            |
+| [mongoose](../../src/infer/presets/mongoose.ts)                               | MONGODB_URI                                                                                                                                                                     |
+| [multer](../../src/infer/presets/multer.ts)                                   | UPLOAD_DIR                                                                                                                                                                      |
+| [mysql2](../../src/infer/presets/mysql2.ts)                                   | MYSQL_DATABASE_URL                                                                                                                                                              |
+| [newrelic](../../src/infer/presets/newrelic.ts)                               | NEW_RELIC_LICENSE_KEY                                                                                                                                                           |
+| [node](../../src/infer/presets/node.ts)                                       | NODE_ENV, PORT, NODE_PORT, HOST, TZ                                                                                                                                             |
+| [nodemailer](../../src/infer/presets/nodemailer.ts)                           | SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_SECURE                                                                                                                         |
+| [passport](../../src/infer/presets/passport.ts)                               | SESSION_SECRET                                                                                                                                                                  |
+| [passport-github2](../../src/infer/presets/passport-github2.ts)               | GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET                                                                                                                                          |
+| [passport-google-oauth20](../../src/infer/presets/passport-google-oauth20.ts) | GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET                                                                                                                                          |
+| [passport-jwt](../../src/infer/presets/passport-jwt.ts)                       | JWT_SECRET                                                                                                                                                                      |
+| [pg](../../src/infer/presets/pg.ts)                                           | DATABASE_URL                                                                                                                                                                    |
+| [pino](../../src/infer/presets/pino.ts)                                       | LOG_LEVEL                                                                                                                                                                       |
+| [prisma](../../src/infer/presets/prisma.ts)                                   | DATABASE_URL, SHADOW_DATABASE_URL                                                                                                                                               |
+| [@sentry/node](../../src/infer/presets/sentry.ts)                             | SENTRY_DSN                                                                                                                                                                      |
+| [stripe](../../src/infer/presets/stripe.ts)                                   | STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_TAX_RATE_20_EXCL_ID                                                                                                            |
+| [typeorm](../../src/infer/presets/typeorm.ts)                                 | DATABASE_URL, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME                                                                                                                   |
+| [vitest](../../src/infer/presets/vitest.ts)                                   | VITEST                                                                                                                                                                          |
+| [winston](../../src/infer/presets/winston.ts)                                 | LOG_LEVEL                                                                                                                                                                       |

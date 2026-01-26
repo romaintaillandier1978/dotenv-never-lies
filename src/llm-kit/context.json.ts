@@ -11,7 +11,7 @@ const context = {
 };
 
 // injecter directement dans cursor context :
-const contextInjection = `This project uses dotenv-never-lies.
+export const contextInjection = `This project uses dotenv-never-lies.
 The environment schema is defined in ${context.schemaFile}.
 Types are generated in ${context.generatedTypes}.
 Runtime import is ${context.runtimeImport}.

@@ -10,7 +10,7 @@ export const pgPreset: InferPreset = {
             secret: true,
             examples: ["postgres://user:password@localhost:5432/db"],
             kind: "url",
-            code: "databaseUrlSchema(\"DATABASE_URL\")",
+            code: 'databaseUrlSchema("DATABASE_URL")',
             imports: [{ name: "databaseUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
     },

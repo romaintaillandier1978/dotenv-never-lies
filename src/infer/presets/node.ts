@@ -10,7 +10,7 @@ export const nodePreset: InferPreset = {
             schema: z.enum(["test", "development", "staging", "production"]).default("test"),
             examples: ["development"],
             kind: "enum",
-            code: "z.enum([\"test\", \"development\", \"staging\", \"production\"]).default(\"test\")",
+            code: 'z.enum(["test", "development", "staging", "production"]).default("test")',
             imports: [{ name: "z", from: "zod" }],
         },
         PORT: {
@@ -18,7 +18,7 @@ export const nodePreset: InferPreset = {
             schema: portSchema("PORT").default(3000),
             examples: ["3000"],
             kind: "port",
-            code: "portSchema(\"PORT\").default(3000)",
+            code: 'portSchema("PORT").default(3000)',
             imports: [{ name: "portSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
         NODE_PORT: {
@@ -26,7 +26,7 @@ export const nodePreset: InferPreset = {
             schema: portSchema("NODE_PORT").default(3000),
             examples: ["3000"],
             kind: "port",
-            code: "portSchema(\"NODE_PORT\").default(3000)",
+            code: 'portSchema("NODE_PORT").default(3000)',
             imports: [{ name: "portSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
         HOST: {
@@ -42,8 +42,8 @@ export const nodePreset: InferPreset = {
             schema: z.string().default("UTC"),
             examples: ["UTC"],
             kind: "string",
-            code: "z.string().default(\"UTC\")",
+            code: 'z.string().default("UTC")',
             imports: [{ name: "z", from: "zod" }],
-        }
+        },
     },
 };

@@ -17,6 +17,7 @@ export const explainCommand = async (options?: ExplainCliOptions): Promise<{ for
     }
 
     const schemaPath = resolveSchemaPath(options?.schema);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<any>;
 
     const keysToSerialize = new Array<string>();
@@ -30,6 +31,7 @@ export const explainCommand = async (options?: ExplainCliOptions): Promise<{ for
         if (keysToSerialize.length > 0 && !keysToSerialize.includes(key)) {
             continue;
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         result.push(toExplanation(key, value as dnl.EnvVarDefinition<any>));
     }
 

@@ -10,7 +10,7 @@ export const sentryPreset: InferPreset = {
             secret: true,
             examples: ["https://key@o123.ingest.sentry.io/456"],
             kind: "url",
-            code: "httpUrlSchema(\"SENTRY_DSN\")",
+            code: 'httpUrlSchema("SENTRY_DSN")',
             imports: [{ name: "httpUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
     },

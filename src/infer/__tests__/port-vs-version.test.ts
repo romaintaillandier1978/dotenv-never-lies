@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { portRule } from "../rules/port.js";
 import { versionRule } from "../rules/version.js";
-import { versionGenSchema, versionGenSchemaNoName } from "../generated/version.js";
+import { versionGenSchemaNoName } from "../generated/version.js";
 
 describe("Inference rules – port vs version", () => {
     it("portRule should NOT match API_VERSION=2.0", () => {

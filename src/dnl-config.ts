@@ -1,9 +1,11 @@
 import { z } from "zod";
 import type { PackageJson, Simplify } from "type-fest";
 
-export const dnlConfigSchema = z.object({
-    schema: z.string(),
-}).strict();
+export const dnlConfigSchema = z
+    .object({
+        schema: z.string(),
+    })
+    .strict();
 
 export type DnlConfig = z.infer<typeof dnlConfigSchema>;
 

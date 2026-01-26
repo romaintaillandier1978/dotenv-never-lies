@@ -2,8 +2,6 @@
 
 ## CLI
 
-
-
 ### dnl schema init
 
 créer un schema from scratch, sans .env initial, juste les preset
@@ -54,8 +52,6 @@ existant :Un registry officiel, généré au build-time (official-preset-registr
 Lors de l’inférence, les deux registres seraient fusionnés dans un pool disponible contrôlé, sans qu’un preset tiers puisse écraser un preset officiel. Les presets réellement activés dépendent du mode (discover ou --presets).
 
 Cette séparation garantit une architecture extensible, prévisible et sûre, tout en ouvrant DNL à un écosystème de presets externes.
-
-
 
 ## Extensibilité exporters / preset
 

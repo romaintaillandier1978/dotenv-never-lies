@@ -29,7 +29,6 @@ export const resolveSchemaPath = (cliPath?: string): string => {
     for (const file of CANDIDATES) {
         const resolved = resolveIfExists(file);
         if (resolved) return resolved;
-
     }
 
     throw new SchemaNotFoundError("No env schema found. Use --schema, define dotenv-never-lies.schema in package.json, or add env.dnl.ts");

@@ -26,9 +26,10 @@ Then, during inference, it scans the user’s `package.json` to discover **third
 Presets do **not** inject variables or modify values.  
 They only provide **additional inference rules** that help recognize known variable names and formats.
 
-Related options:  
-- `--presets <presets...>`  
-- `--no-discover-presets`  
+Related options:
+
+- `--presets <presets...>`
+- `--no-discover-presets`
 
 Examples of presets: `DATABASE_URL` from `prisma`, or `JWT_TOKEN` from `jsonwebtoken`.
 
@@ -145,6 +146,7 @@ OR
 This mode is particularly useful to understand or challenge an inference.
 
 output excerpt for
+
 ```env
 NODE_ENV=test
 DATABASE_URL=postgres://rom:pwd@localhost:5432/db
@@ -152,9 +154,9 @@ CONFS_JSON=[{"firstname":"Romain", "lastname":"Taillandier"}]
 ```
 
 ```bash
-  Infer NODE_ENV : 
+  Infer NODE_ENV :
     -> inferred from preset node
-  Infer DATABASE_URL : 
+  Infer DATABASE_URL :
     -> inferred from preset prisma
   Infer CONFS_JSON :
     [jsonSchema]  confidence: 8 / threshold: 5
@@ -175,7 +177,7 @@ Allows overwriting the output file, to be used with --output.
 
 ---
 
-### Manually Specify presets  
+### Manually Specify presets
 
 ```bash
 dnl infer --output my-env.dnl.ts --force
@@ -185,7 +187,7 @@ dnl infer --output my-env.dnl.ts --force
 
 Prevent infer process to scan your package.json, and use specified presets.
 
-### without presets  
+### without presets
 
 ```bash
 dnl infer --no-discover-presets
@@ -203,6 +205,7 @@ A preset does not define variables by itself.
 It only provides **additional heuristics** that help `infer` recognize known environment variable names and value formats more reliably.
 
 Presets can be:
+
 - **official**, maintained and versioned by DNL
 - **third-party**, exposed by user dependencies and discovered at runtime (upcoming)
 
@@ -216,8 +219,6 @@ When multiple preset rules apply, inference always remains deterministic:
 
 - If the proposed results are identical (same kind, same inferred type, same generated code), they are **merged** (and their origins can be aggregated).
 - If the proposed results differ, the conflict is **not resolved** by presets, and inference continues with the next rules in the pipeline.
-
-
 
 [Official preset list](official-preset-registry.md)
 

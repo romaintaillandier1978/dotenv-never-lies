@@ -17,6 +17,7 @@ yarn add /path/to/dotenv-never-lies-v1.0.0.tgz
 ## publier sur npmjs.org
 
 checklist :
+
 - yarn gen:preset
 - incrémetner la version sinon : crash
 - fichiers sont corrects

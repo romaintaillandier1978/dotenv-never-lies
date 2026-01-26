@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { keyValueRule } from "../../rules/key-value.js";
-import { listRule } from "../../rules/list.js";
 
 describe("Inference rules – list", () => {
     it("keyValueRule should  match valid key=value pair", () => {

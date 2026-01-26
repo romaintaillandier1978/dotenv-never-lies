@@ -12,7 +12,7 @@ export const bullPreset: InferPreset = {
             secret: true,
             examples: ["redis://localhost:6379"],
             kind: "url",
-            code: "queueUrlSchema(\"REDIS_URL\")",
+            code: 'queueUrlSchema("REDIS_URL")',
             imports: [{ name: "queueUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
 
@@ -32,7 +32,7 @@ export const bullPreset: InferPreset = {
             secret: false,
             examples: ["6379"],
             kind: "port",
-            code: "portSchema(\"REDIS_PORT\")",
+            code: 'portSchema("REDIS_PORT")',
             imports: [{ name: "portSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
 

@@ -10,7 +10,7 @@ export const mongoosePreset: InferPreset = {
             secret: true,
             examples: ["mongodb://user:password@localhost:27017/db"],
             kind: "url",
-            code: "databaseUrlSchema(\"MONGODB_URI\")",
+            code: 'databaseUrlSchema("MONGODB_URI")',
             imports: [{ name: "databaseUrlSchema", from: "@romaintaillandier1978/dotenv-never-lies" }],
         },
     },

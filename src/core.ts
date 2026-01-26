@@ -42,7 +42,7 @@ export type EnvVarDefinition<T extends z.ZodType = z.ZodType> = Simplify<{
 // TODO : Vérifier si ca marche toujours avec z.ZodType vs any
 /**
  * An object containing the defined environment variables.
-*/
+ */
 export type EnvDefinition = Record<string, EnvVarDefinition<z.ZodType>>;
 
 /**
