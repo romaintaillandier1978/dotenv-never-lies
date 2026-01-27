@@ -1,11 +1,12 @@
-import { InferPreset, PresetEntry } from "./presets.types.js";
+import { PressetDef, PresetEntry } from "./presets.types.js";
 import { officialPresetRegistry } from "./official-preset-registry.js";
 import { nodePreset } from "./presets/node.js";
 import { readUserPackageJson } from "../utils/read-user-package-json.js";
 import { areAllSameGenSchemas } from "./helpers.js";
+import { EvaluatedRule } from "./report.types.js";
 
 /** Search in package.json for present presets and help infer specific schema entries */
-export const discoverPresets = (warnings: Array<string>): Array<InferPreset> => {
+export const discoverPresets = (warnings: Array<string>): Array<PressetDef> => {
     const pkg = readUserPackageJson();
     if (!pkg) return [];
 
@@ -19,7 +20,7 @@ export const discoverPresets = (warnings: Array<string>): Array<InferPreset> => 
         return [];
     }
 
-    const discovered: InferPreset[] = [
+    const discovered: PressetDef[] = [
         nodePreset, // core preset, always enabled
     ];
 
@@ -37,11 +38,11 @@ export const discoverPresets = (warnings: Array<string>): Array<InferPreset> => 
     return discovered;
 };
 
-export const getPresetsFromNames = (names: Array<string> | undefined): Array<InferPreset> => {
+export const getPresetsFromNames = (names: Array<string> | undefined): Array<PressetDef> => {
     if (!names) {
         return [];
     }
-    const presets: Array<InferPreset> = [];
+    const presets: Array<PressetDef> = [];
     for (const name of names) {
         const preset = officialPresetRegistry.get(name);
         if (preset) {
@@ -51,15 +52,13 @@ export const getPresetsFromNames = (names: Array<string> | undefined): Array<Inf
     return presets;
 };
 
-export const findPresetEntry = (
-    presets: Array<InferPreset> | undefined,
-    name: string,
-    warnings: Array<string>
-): [origin: string, entry: PresetEntry] | null => {
+export const findPresetEntry = (presets: Array<PressetDef> | undefined, name: string): Array<EvaluatedRule<"preset">> | null => {
     if (!presets || presets.length === 0) {
         return null;
     }
-    const results = Array<[origin: string, entry: PresetEntry]>();
+
+    const results: Array<[origin: string, entry: PresetEntry]> = [];
+
     for (const preset of presets) {
         const entry = preset.presets[name];
         if (entry) {
@@ -69,8 +68,15 @@ export const findPresetEntry = (
     if (results.length === 0) {
         return null;
     }
+    const evaluatedRules: Array<EvaluatedRule<"preset">> = [];
     if (results.length === 1) {
-        return results[0];
+        const [origin, entry] = results[0];
+        evaluatedRules.push({
+            ruleMethod: "preset",
+            presetResult: { origin: [origin], entry, reasons: [], codeWarnings: [] },
+            outcome: "accepted",
+        });
+        return evaluatedRules;
     }
 
     const areAllSame = areAllSameGenSchemas(results.map((r) => r[1]));
@@ -80,7 +86,7 @@ export const findPresetEntry = (
         // Concatenate descriptions.
         const description = Array.from(new Set(results.map((r) => r[1].description + " (" + r[0] + ")"))).join(" - OR - ");
         // Concatenate origins, they are only used for display.
-        const allOrigins = Array.from(new Set(results.map((r) => r[0]))).join(", ");
+        const allOrigins = Array.from(new Set(results.map((r) => r[0])));
         // Concatenate examples.
         const examples = results.flatMap((r) => r[1].examples ?? []).filter((e): e is string => e !== undefined);
         // Collect all imports and merge them, though in theory they should all be the same.
@@ -94,9 +100,31 @@ export const findPresetEntry = (
             code: results[0][1].code,
             imports: imports,
         };
-        return [allOrigins, gentleMergeEntry];
+        evaluatedRules.push({
+            ruleMethod: "preset",
+            presetResult: {
+                origin: [...allOrigins],
+                entry: gentleMergeEntry,
+                reasons: ["Preset conflict, compatible definitions merged"],
+                codeWarnings: [],
+            },
+            outcome: "accepted",
+        });
+        return evaluatedRules;
     }
 
-    warnings.push(`Preset conflict on ${name}: multiple incompatible definitions found (${results.map((r) => r[0]).join(", ")}). Preset ignored.`);
-    return null;
+    // Else, we have multiple incompatible definitions. (!areAllSame)
+    for (const [origin, entry] of results) {
+        evaluatedRules.push({
+            ruleMethod: "preset",
+            presetResult: {
+                origin: [origin],
+                entry,
+                reasons: ["Preset conflict, multiple incompatible definitions found."],
+                codeWarnings: [],
+            },
+            outcome: "rejected",
+        });
+    }
+    return evaluatedRules;
 };

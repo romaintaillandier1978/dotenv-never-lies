@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const bcryptPreset: InferPreset = {
+export const bcryptPreset: PressetDef = {
     origin: "bcrypt",
     presets: {
         BCRYPT_SALT_ROUNDS: {

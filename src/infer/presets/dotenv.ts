@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const dotenvPreset: InferPreset = {
+export const dotenvPreset: PressetDef = {
     origin: "dotenv",
     presets: {
         DOTENV_CONFIG_PATH: {

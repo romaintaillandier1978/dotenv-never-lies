@@ -31,7 +31,7 @@ export const RULES: ReadonlyDeep<InferRule[]> = [
     numberRule, // 3
 
     stringRule, // 0 = fallback
-].sort((a, b) => b.priority - a.priority);
+].sort((a, b) => b.meta.priority - a.meta.priority);
 
 // WARNING see additionnal rules list in rules/list.ts and rules/key-value.ts
 

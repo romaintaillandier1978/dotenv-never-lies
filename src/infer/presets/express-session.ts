@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { booleanSchema } from "../../schemas/boolean.js";
 
-export const expressSessionPreset: InferPreset = {
+export const expressSessionPreset: PressetDef = {
     origin: "express-session",
     presets: {
         SESSION_SECRET: {

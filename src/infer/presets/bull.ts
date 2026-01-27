@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { portSchema } from "../../schemas/port.js";
 import { queueUrlSchema } from "../../schemas/urls.js";
 
-export const bullPreset: InferPreset = {
+export const bullPreset: PressetDef = {
     origin: "bull",
     presets: {
         REDIS_URL: {

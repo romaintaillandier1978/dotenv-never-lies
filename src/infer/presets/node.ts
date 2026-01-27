@@ -1,8 +1,8 @@
 import { portSchema } from "../../schemas/port.js";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { z } from "zod";
 
-export const nodePreset: InferPreset = {
+export const nodePreset: PressetDef = {
     origin: "node",
     presets: {
         NODE_ENV: {

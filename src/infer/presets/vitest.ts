@@ -1,7 +1,7 @@
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { booleanSchema } from "../../schemas/boolean.js";
 
-export const vitestPreset: InferPreset = {
+export const vitestPreset: PressetDef = {
     origin: "vitest",
     presets: {
         VITEST: {

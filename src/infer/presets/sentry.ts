@@ -1,7 +1,7 @@
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { httpUrlSchema } from "../../schemas/urls.js";
 
-export const sentryPreset: InferPreset = {
+export const sentryPreset: PressetDef = {
     origin: "@sentry/node",
     presets: {
         SENTRY_DSN: {

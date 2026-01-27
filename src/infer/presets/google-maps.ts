@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const googleMapsPreset: InferPreset = {
+export const googleMapsPreset: PressetDef = {
     origin: "google-maps",
     presets: {
         GOOGLE_MAPS_API_KEY: {

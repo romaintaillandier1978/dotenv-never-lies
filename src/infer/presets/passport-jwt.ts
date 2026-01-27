@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const passportJwtPreset: InferPreset = {
+export const passportJwtPreset: PressetDef = {
     origin: "passport-jwt",
     presets: {
         JWT_SECRET: {

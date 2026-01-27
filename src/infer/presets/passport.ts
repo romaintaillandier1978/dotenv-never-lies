@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const passportPreset: InferPreset = {
+export const passportPreset: PressetDef = {
     origin: "passport",
     presets: {
         SESSION_SECRET: {

@@ -1,8 +1,8 @@
 import { databaseUrlSchema, portSchema } from "../../schemas/index.js";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { z } from "zod";
 
-export const typeormPreset: InferPreset = {
+export const typeormPreset: PressetDef = {
     origin: "typeorm",
     presets: {
         DATABASE_URL: {

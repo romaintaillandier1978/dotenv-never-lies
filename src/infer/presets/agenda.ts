@@ -1,7 +1,7 @@
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { databaseUrlSchema } from "../../schemas/urls.js";
 
-export const agendaPreset: InferPreset = {
+export const agendaPreset: PressetDef = {
     origin: "agenda",
     presets: {
         MONGODB_URI: {

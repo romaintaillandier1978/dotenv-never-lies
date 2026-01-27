@@ -5,9 +5,11 @@ import { portGenSchema } from "../generated/port.js";
 const PORT_KEYS = ["PORT"];
 
 export const portRule: InferRule<"port"> = {
-    kind: "port",
-    priority: 7,
-    threshold: 5,
+    meta: {
+        kind: "port",
+        priority: 7,
+        threshold: 5,
+    },
     tryInfer({ name, rawValue }) {
         // reject floats, versions (2.0), weird numbers
         if (!/^\d+$/.test(rawValue)) {

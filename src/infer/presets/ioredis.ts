@@ -1,7 +1,7 @@
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { queueUrlSchema } from "../../schemas/urls.js";
 
-export const ioredisPreset: InferPreset = {
+export const ioredisPreset: PressetDef = {
     origin: "ioredis",
     presets: {
         REDIS_URL: {

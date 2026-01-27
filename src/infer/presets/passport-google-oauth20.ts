@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const passportGooglePreset: InferPreset = {
+export const passportGooglePreset: PressetDef = {
     origin: "passport-google-oauth20",
     presets: {
         GOOGLE_CLIENT_ID: {

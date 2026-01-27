@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const newrelicPreset: InferPreset = {
+export const newrelicPreset: PressetDef = {
     origin: "newrelic",
     presets: {
         NEW_RELIC_LICENSE_KEY: {

@@ -1,8 +1,8 @@
 import { booleanSchema } from "../../schemas/boolean.js";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { z } from "zod";
 
-export const cronPreset: InferPreset = {
+export const cronPreset: PressetDef = {
     origin: "cron",
     presets: {
         CRON_ENABLED: {

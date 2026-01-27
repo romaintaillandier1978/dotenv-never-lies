@@ -33,6 +33,6 @@ describe("Inference rules – port vs version", () => {
         // rule recognizes a version pattern
         expect(result).not.toBeNull();
         expect(result?.generated.code).toContain(versionGenSchemaNoName.imports[0].name);
-        expect(result!.confidence).toBeGreaterThanOrEqual(versionRule.threshold);
+        expect(result!.confidence).toBeGreaterThanOrEqual(versionRule.meta.threshold);
     });
 });

@@ -15,7 +15,7 @@ const KEY_VALUE_RULES: InferRule[] = [
     booleanRule, // 6
     numberRule, //3
     stringRule, //0
-].sort((a, b) => b.priority - a.priority);
+].sort((a, b) => b.meta.priority - a.meta.priority);
 
 const inferSimpleSchemaForKeyPart = (rawValue: string): GeneratedSchema => {
     for (const rule of KEY_VALUE_RULES) {
@@ -23,7 +23,7 @@ const inferSimpleSchemaForKeyPart = (rawValue: string): GeneratedSchema => {
 
         if (!result) continue;
 
-        if (result.confidence >= rule.threshold) {
+        if (result.confidence >= rule.meta.threshold) {
             return result.generated;
         }
     }
@@ -32,10 +32,11 @@ const inferSimpleSchemaForKeyPart = (rawValue: string): GeneratedSchema => {
 };
 
 export const keyValueRule: InferRule<"keyValue"> = {
-    kind: "keyValue",
-    priority: 3.5,
-    threshold: 5,
-
+    meta: {
+        kind: "keyValue",
+        priority: 3.5,
+        threshold: 5,
+    },
     tryInfer({ name, rawValue }) {
         // we assume that we can infer that the splitter is "=" !
         // even if the schema supports more possibilities.

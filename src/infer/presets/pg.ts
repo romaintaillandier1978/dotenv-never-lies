@@ -1,7 +1,7 @@
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { databaseUrlSchema } from "../../schemas/urls.js";
 
-export const pgPreset: InferPreset = {
+export const pgPreset: PressetDef = {
     origin: "pg",
     presets: {
         DATABASE_URL: {

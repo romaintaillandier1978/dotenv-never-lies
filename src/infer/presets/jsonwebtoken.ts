@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { durationSchema } from "../../schemas/duration.js";
 
-export const jsonwebtokenPreset: InferPreset = {
+export const jsonwebtokenPreset: PressetDef = {
     origin: "jsonwebtoken",
     presets: {
         JWT_SECRET: {

@@ -1,7 +1,7 @@
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { queueUrlSchema } from "../../schemas/urls.js";
 
-export const amqplibPreset: InferPreset = {
+export const amqplibPreset: PressetDef = {
     origin: "amqplib",
     presets: {
         RABBITMQ_URL: {

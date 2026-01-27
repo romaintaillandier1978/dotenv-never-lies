@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const passportGithubPreset: InferPreset = {
+export const passportGithubPreset: PressetDef = {
     origin: "passport-github2",
     presets: {
         GITHUB_CLIENT_ID: {

@@ -6,9 +6,11 @@ const JSON_KEYS_HIGH = ["JSON"];
 const JSON_KEYS_LOW = ["PAYLOAD", "CONFIG", "DATA", "META"];
 
 export const jsonRule: InferRule<"json"> = {
-    kind: "json",
-    priority: 10,
-    threshold: 5,
+    meta: {
+        kind: "json",
+        priority: 10,
+        threshold: 5,
+    },
     tryInfer({ name, rawValue }) {
         // trim the raw value to avoid issues with leading or trailing spaces
         // never happen via dotenv, but migth happen via process.env

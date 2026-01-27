@@ -6,20 +6,30 @@ import { durationGenSchema } from "../generated/duration.js";
 const DURATION_KEYS = ["TIMEOUT", "TTL", "DELAY", "DURATION", "INTERVAL"];
 
 export const durationRule: InferRule<"duration"> = {
-    kind: "duration",
-    priority: 6,
-    threshold: 5,
+    meta: {
+        kind: "duration",
+        priority: 6,
+        threshold: 5,
+    },
     tryInfer({ name, rawValue }) {
-        if (!looksLikeValidDuration(rawValue)) return null;
+        let confidence = 0;
+        const reasons: string[] = [];
 
-        let confidence = 6;
-        const reasons: string[] = ["Value matches strict duration format"];
-
+        // Signal faible : le nom
         const { matched, reason } = matchesEnvKey(name, DURATION_KEYS);
         if (matched) {
-            confidence += 1;
-            reasons.push(`${reason} (+1)`);
+            confidence += 2;
+            reasons.push(`${reason} (+2)`);
         }
+
+        // Signal fort : le format
+        if (looksLikeValidDuration(rawValue)) {
+            confidence += 5;
+            reasons.push("Value matches strict duration format (+5)");
+        }
+
+        // Aucun signal → pas applicable
+        if (confidence === 0) return null;
 
         return {
             generated: durationGenSchema(name),

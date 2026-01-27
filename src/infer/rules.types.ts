@@ -1,4 +1,4 @@
-import { InferPreset } from "./presets.types.js";
+import { PressetDef } from "./presets.types.js";
 
 export const exportKindNames = [
     "unknown",
@@ -96,9 +96,9 @@ export type InferInput = {
 };
 
 /**
- * A reliable rule for an inference.
+ * Meta data for an inference rule
  */
-export type InferRule<K extends InferKind = InferKind> = {
+export type InferRuleMeta<K extends InferKind = InferKind> = {
     /**
      * Logical identifier (json, boolean, duration, etc.)
      */
@@ -113,7 +113,15 @@ export type InferRule<K extends InferKind = InferKind> = {
      * Minimum threshold to accept this inference
      */
     threshold: number;
-
+};
+/**
+ * A reliable rule for an inference.
+ */
+export type InferRule<K extends InferKind = InferKind> = {
+    /**
+     * Meta data for an inference rule
+     */
+    meta: InferRuleMeta<K>;
     /**
      * Tries to infer a schema for the input.
      * Returns null if the rule does not apply at all.
@@ -140,7 +148,7 @@ export type InferContext = {
     /**
      * [IN] : Presets that are used to infer the schema
      */
-    presets?: Array<InferPreset>;
+    presets?: Array<PressetDef>;
     /**
      * [OUT] : Imports to be added to the generated schema
      */

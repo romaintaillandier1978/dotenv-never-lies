@@ -1,7 +1,7 @@
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { databaseUrlSchema } from "../../schemas/urls.js";
 
-export const mongoosePreset: InferPreset = {
+export const mongoosePreset: PressetDef = {
     origin: "mongoose",
     presets: {
         MONGODB_URI: {

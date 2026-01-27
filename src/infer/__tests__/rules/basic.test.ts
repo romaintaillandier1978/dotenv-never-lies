@@ -13,7 +13,7 @@ describe("Inference rules – basic", () => {
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zNumberGenSchema.code);
-        expect(result!.confidence).toBeGreaterThanOrEqual(numberRule.threshold);
+        expect(result!.confidence).toBeGreaterThanOrEqual(numberRule.meta.threshold);
     });
     it("numberRule should match a valid number wrapped in quotes", () => {
         const input: InferInput = {
@@ -24,7 +24,7 @@ describe("Inference rules – basic", () => {
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zNumberGenSchema.code);
-        expect(result!.confidence).toBeGreaterThanOrEqual(numberRule.threshold);
+        expect(result!.confidence).toBeGreaterThanOrEqual(numberRule.meta.threshold);
     });
 
     it("numberRule should match float values", () => {
@@ -36,7 +36,7 @@ describe("Inference rules – basic", () => {
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zNumberGenSchema.code);
-        expect(result!.confidence).toBeGreaterThanOrEqual(numberRule.threshold);
+        expect(result!.confidence).toBeGreaterThanOrEqual(numberRule.meta.threshold);
     });
 
     it("numberRule should match integers outside port range", () => {
@@ -48,7 +48,7 @@ describe("Inference rules – basic", () => {
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zNumberGenSchema.code);
-        expect(result!.confidence).toBeGreaterThanOrEqual(numberRule.threshold);
+        expect(result!.confidence).toBeGreaterThanOrEqual(numberRule.meta.threshold);
     });
 });
 
@@ -62,7 +62,7 @@ describe("Inference rules – email", () => {
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zEmailGenSchema.code);
-        expect(result!.confidence).toBeGreaterThanOrEqual(emailRule.threshold);
+        expect(result!.confidence).toBeGreaterThanOrEqual(emailRule.meta.threshold);
     });
 
     it("emailRule should ignore non-email values", () => {
@@ -96,6 +96,6 @@ describe("Inference rules – string", () => {
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zStringGenSchema.code);
-        expect(result!.confidence).toBeGreaterThanOrEqual(stringRule.threshold);
+        expect(result!.confidence).toBeGreaterThanOrEqual(stringRule.meta.threshold);
     });
 });

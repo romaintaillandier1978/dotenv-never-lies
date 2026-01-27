@@ -1,7 +1,7 @@
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { databaseUrlSchema } from "../../schemas/urls.js";
 
-export const mysql2Preset: InferPreset = {
+export const mysql2Preset: PressetDef = {
     origin: "mysql2",
     presets: {
         MYSQL_DATABASE_URL: {

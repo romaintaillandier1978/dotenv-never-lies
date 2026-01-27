@@ -12,7 +12,7 @@ describe("Inference rules – version", () => {
             });
             expect(result).not.toBeNull();
             expect(result?.generated.imports[0].name).toBe(versionGenSchema(rawValue).imports[0].name);
-            expect(result!.confidence).toBeGreaterThanOrEqual(versionRule.threshold);
+            expect(result!.confidence).toBeGreaterThanOrEqual(versionRule.meta.threshold);
         }
     });
 

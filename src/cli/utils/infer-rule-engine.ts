@@ -1,30 +1,39 @@
-import { zStringGenSchema } from "../../infer/generated/basic.js";
 import { CROSS_RULES, RULES } from "../../infer/rules.js";
-import { CrossInferContext, GeneratedSchema, InferContext } from "../../infer/rules.types.js";
+import { CrossInferContext, InferContext } from "../../infer/rules.types.js";
+import { EvaluatedRule, fallbackEvaluatedRule } from "../../infer/report.types.js";
 
-export const infer = (context: InferContext): GeneratedSchema => {
+export const infer = (context: InferContext): Array<EvaluatedRule<"heuristic">> => {
+    const evaluatedRules: Array<EvaluatedRule<"heuristic">> = [];
     // for each rules,
     for (const rule of RULES) {
         // try to infer a schema for the current context
-        const result = rule.tryInfer({ name: context.name, rawValue: context.rawValue });
+        const inferResult = rule.tryInfer({ name: context.name, rawValue: context.rawValue });
 
-        if (!result) continue;
+        if (!inferResult) continue;
 
-        if (result.confidence >= rule.threshold) {
-            const importedNames = result.generated.imports.map((entry) => entry.name);
-            context.reasons.push(`    [${importedNames.join(", ")}]  confidence: ${result.confidence} / threshold: ${rule.threshold}`);
-            context.imports.push(...result.generated.imports);
-            if (result.reasons) {
-                context.reasons.push(...result.reasons.map((reason) => `    ${reason}`));
+        const outcome = inferResult.confidence >= rule.meta.threshold ? "accepted" : "rejected";
+
+        const ruleReport: EvaluatedRule<"heuristic"> = {
+            ruleMethod: "heuristic",
+            meta: rule.meta,
+            inferResult: inferResult,
+            outcome,
+        };
+        evaluatedRules.push(ruleReport);
+
+        if (outcome === "accepted") {
+            context.imports.push(...inferResult.generated.imports);
+
+            if (inferResult.codeWarnings) {
+                context.codeWarnings.push(...inferResult.codeWarnings);
             }
-            context.reasons.push(`    -> selected schema: ${result.generated.code}`);
-            if (result.codeWarnings) {
-                context.codeWarnings.push(...result.codeWarnings);
-            }
-            return result.generated;
+            return evaluatedRules;
         }
     }
-    return zStringGenSchema;
+
+    // here, no rule was applyable, so we fallback to string
+    evaluatedRules.push(fallbackEvaluatedRule);
+    return evaluatedRules;
 };
 
 export const crossInfer = (context: CrossInferContext): void => {

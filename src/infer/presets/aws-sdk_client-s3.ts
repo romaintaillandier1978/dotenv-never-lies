@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const awsSdkS3Preset: InferPreset = {
+export const awsSdkS3Preset: PressetDef = {
     origin: "@aws-sdk/client-s3",
     presets: {
         AWS_S3_BUCKET: {

@@ -17,7 +17,7 @@ const LIST_RULES: InferRule[] = [
     keyValueRule, // 3.5
     numberRule, //3
     stringRule, //0
-].sort((a, b) => b.priority - a.priority);
+].sort((a, b) => b.meta.priority - a.meta.priority);
 
 const inferSimpleSchemaForListItem = (rawValue: string): GeneratedSchema => {
     for (const rule of LIST_RULES) {
@@ -25,7 +25,7 @@ const inferSimpleSchemaForListItem = (rawValue: string): GeneratedSchema => {
 
         if (!result) continue;
 
-        if (result.confidence >= rule.threshold) return result.generated;
+        if (result.confidence >= rule.meta.threshold) return result.generated;
     }
 
     return zStringGenSchema;
@@ -41,9 +41,11 @@ const LIST_KEYS = ["LIST", "ITEMS", "ARRAY", "VALUES"];
  * @returns The inferred list schema.
  */
 export const listRule: InferRule<"list"> = {
-    kind: "list",
-    priority: 7,
-    threshold: 5,
+    meta: {
+        kind: "list",
+        priority: 7,
+        threshold: 5,
+    },
     tryInfer({ name, rawValue }) {
         const semicolonItems = rawValue.split(";");
         const commaItems = rawValue.split(",");

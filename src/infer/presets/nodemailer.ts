@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 import { portSchema } from "../../schemas/port.js";
 import { booleanSchema } from "../../schemas/boolean.js";
 
-export const nodemailerPreset: InferPreset = {
+export const nodemailerPreset: PressetDef = {
     origin: "nodemailer",
     presets: {
         SMTP_HOST: {

@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const multerPreset: InferPreset = {
+export const multerPreset: PressetDef = {
     origin: "multer",
     presets: {
         UPLOAD_DIR: {

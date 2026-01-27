@@ -36,16 +36,16 @@ type SubUrlRuleInput = SubUrlConst & SubUrlContext;
 
 const subUrlRule = (input: SubUrlRuleInput): InferResult<"url"> | null => {
     input.confidence += 2;
-    const reasons: string[] = [`Valid ${input.message} URL (+2)`];
+    input.reasons.push(`Valid ${input.message} URL (+2)`);
     const { matched, reason } = matchesEnvKey(input.name, input.keys);
     if (matched) {
         input.confidence += 2;
-        reasons.push(`${reason} (+2)`);
+        input.reasons.push(`${reason} (+2)`);
     }
     return {
         generated: input.schema,
         confidence: input.confidence,
-        reasons,
+        reasons: input.reasons,
     };
 };
 
@@ -94,10 +94,11 @@ const subUrlRules: Record<string, (name: string) => SubUrlConst> = {
     },
 };
 export const urlRule: InferRule<"url"> = {
-    kind: "url",
-    priority: 5,
-    threshold: 5,
-
+    meta: {
+        kind: "url",
+        priority: 5,
+        threshold: 5,
+    },
     tryInfer({ name, rawValue }) {
         if (!looksLikeUrl(rawValue)) return null;
 

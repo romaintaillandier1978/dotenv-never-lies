@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const cookieParserPreset: InferPreset = {
+export const cookieParserPreset: PressetDef = {
     origin: "cookie-parser",
     presets: {
         COOKIE_SECRET: {

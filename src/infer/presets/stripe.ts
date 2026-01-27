@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const stripePreset: InferPreset = {
+export const stripePreset: PressetDef = {
     origin: "stripe",
     presets: {
         STRIPE_SECRET_KEY: {

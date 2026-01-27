@@ -7,9 +7,11 @@ const VERSION_KEYS = ["VERSION", "SEMVER", "TAG", "RELEASE"];
 // Note : NEVER add 2 parts version (2.0), it will conflict with numberRules (numberSchema)
 
 export const versionRule: InferRule<"version"> = {
-    kind: "version",
-    priority: 5.3,
-    threshold: 5,
+    meta: {
+        kind: "version",
+        priority: 5.3,
+        threshold: 5,
+    },
     tryInfer({ name, rawValue }) {
         if (!looksLikeVersion(rawValue)) return null;
 

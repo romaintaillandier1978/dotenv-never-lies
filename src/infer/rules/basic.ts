@@ -1,4 +1,4 @@
-import { InferRule } from "../rules.types.js";
+import { InferResult, InferRule } from "../rules.types.js";
 import { zEmailGenSchema, zNumberGenSchema, zStringGenSchema } from "../generated/basic.js";
 import { matchesEnvKey } from "../helpers.js";
 
@@ -11,10 +11,11 @@ const NUMBER_KEYS = ["NUMBER", "NUM", "NB", "COUNT", "SIZE", "LENGTH", "RATE", "
  * @returns The inferred number schema.
  */
 export const numberRule: InferRule<"number"> = {
-    kind: "number",
-    priority: 4,
-    threshold: 5,
-
+    meta: {
+        kind: "number",
+        priority: 4,
+        threshold: 5,
+    },
     tryInfer({ name, rawValue }) {
         let candidate = rawValue;
         // We decided that number schema is coercive (z.coerce.number()),
@@ -50,9 +51,11 @@ export const numberRule: InferRule<"number"> = {
 const EMAIL_KEYS = ["EMAIL", "MAIL"];
 
 export const emailRule: InferRule = {
-    kind: "email",
-    priority: 4,
-    threshold: 5,
+    meta: {
+        kind: "email",
+        priority: 4,
+        threshold: 5,
+    },
 
     tryInfer({ name, rawValue }) {
         if (!/^[^@]+@[^@]+\.[^@]+$/.test(rawValue)) return null;
@@ -74,12 +77,13 @@ export const emailRule: InferRule = {
 };
 
 export const stringRule: InferRule = {
-    kind: "string",
-    priority: 0,
-    threshold: 0,
+    meta: {
+        kind: "string",
+        priority: 0,
+        threshold: 0,
+    },
 
     tryInfer({ rawValue }) {
-        const reasons: string[] = [];
         const codeWarnings: string[] = [];
 
         // never happen via dotenv, but migth happen via process.env
@@ -93,10 +97,17 @@ export const stringRule: InferRule = {
         }
 
         return {
-            generated: zStringGenSchema,
-            confidence: 0,
-            reasons: [...reasons, "Fallback to string"],
-            codeWarnings,
+            generated: fallbackInferResult.generated,
+            confidence: fallbackInferResult.confidence,
+            reasons: [...fallbackInferResult.reasons],
+            codeWarnings: [...(fallbackInferResult.codeWarnings ?? []), ...codeWarnings],
         };
     },
 };
+
+export const fallbackInferResult: Readonly<InferResult<"string">> = {
+    generated: zStringGenSchema,
+    confidence: 0,
+    reasons: ["Fallback to string (no rule other matched)"],
+    codeWarnings: [],
+} satisfies Readonly<InferResult<"string">>;

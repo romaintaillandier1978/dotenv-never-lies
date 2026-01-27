@@ -12,7 +12,7 @@ describe("Inference rules – url", () => {
             });
             expect(result).not.toBeNull();
             expect(result?.generated.imports[0].name).toBe(httpUrlGenSchema(rawValue).imports[0].name);
-            expect(result!.confidence).toBeGreaterThanOrEqual(urlRule.threshold);
+            expect(result!.confidence).toBeGreaterThanOrEqual(urlRule.meta.threshold);
         }
     });
 
@@ -25,7 +25,7 @@ describe("Inference rules – url", () => {
             });
             expect(result).not.toBeNull();
             expect(result?.generated.imports[0].name).toBe(databaseUrlGenSchema(rawValue).imports[0].name);
-            expect(result!.confidence).toBeGreaterThanOrEqual(urlRule.threshold);
+            expect(result!.confidence).toBeGreaterThanOrEqual(urlRule.meta.threshold);
         }
     });
 

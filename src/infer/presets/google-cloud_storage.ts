@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const googleCloudStoragePreset: InferPreset = {
+export const googleCloudStoragePreset: PressetDef = {
     origin: "@google-cloud/storage",
     presets: {
         GOOGLE_APPLICATION_CREDENTIALS: {

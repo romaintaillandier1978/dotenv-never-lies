@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const winstonPreset: InferPreset = {
+export const winstonPreset: PressetDef = {
     origin: "winston",
     presets: {
         LOG_LEVEL: {

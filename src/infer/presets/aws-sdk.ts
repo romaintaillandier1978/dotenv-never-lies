@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { InferPreset } from "../presets.types.js";
+import { PressetDef } from "../presets.types.js";
 
-export const awsSdkPreset: InferPreset = {
+export const awsSdkPreset: PressetDef = {
     origin: "aws-sdk",
     presets: {
         AWS_ACCESS_KEY_ID: {
