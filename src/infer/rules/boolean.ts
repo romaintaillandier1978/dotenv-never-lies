@@ -1,11 +1,11 @@
 import { looksLikeValidBoolean } from "../../schemas/boolean.js";
-import { InferRule } from "../rules.types.js";
+import { HeuristicRule } from "../heuristic.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { boolGenSchema } from "../generated/boolean.js";
 
 const BOOLEAN_KEYS = ["IS", "HAS", "ENABLE", "DISABLE", "ENABLED", "DISABLED", "ALLOW", "DENY"];
 
-export const booleanRule: InferRule<"boolean"> = {
+export const booleanRule: HeuristicRule<"boolean"> = {
     meta: {
         kind: "boolean",
         priority: 6,

@@ -1,5 +1,6 @@
 import { Simplify } from "type-fest";
-import { GeneratedSchema, InferResult, InferRuleMeta } from "./rules.types.js";
+import { GeneratedSchema } from "./infer.types.js";
+import { HeuristicResult, HeuristicRuleMeta } from "./heuristic.types.js";
 import { fallbackInferResult, stringRule } from "./rules/basic.js";
 import { PresetResult } from "./presets.types.js";
 
@@ -12,8 +13,8 @@ export type EvaluatedRuleTable = {
         presetResult: PresetResult;
     };
     heuristic: {
-        meta: InferRuleMeta;
-        inferResult: InferResult;
+        meta: HeuristicRuleMeta;
+        inferResult: HeuristicResult;
     };
     isSecret: {
         secret: boolean;

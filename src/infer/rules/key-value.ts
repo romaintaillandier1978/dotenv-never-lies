@@ -1,4 +1,5 @@
-import { GeneratedSchema, InferRule } from "../rules.types.js";
+import { HeuristicRule } from "../heuristic.types.js";
+import { GeneratedSchema } from "../infer.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { keyValueSchemaGen } from "../generated/key-value.js";
 import { zStringGenSchema } from "../generated/basic.js";
@@ -11,7 +12,7 @@ const looksLikeValidKeyValuePair = (value: string): boolean => {
     return /^([_a-zA-Z][a-zA-Z0-9_]*)=([^=]+)$/.test(value);
 };
 
-const KEY_VALUE_RULES: InferRule[] = [
+const KEY_VALUE_RULES: HeuristicRule[] = [
     booleanRule, // 6
     numberRule, //3
     stringRule, //0
@@ -31,7 +32,7 @@ const inferSimpleSchemaForKeyPart = (rawValue: string): GeneratedSchema => {
     return zStringGenSchema;
 };
 
-export const keyValueRule: InferRule<"keyValue"> = {
+export const keyValueRule: HeuristicRule<"keyValue"> = {
     meta: {
         kind: "keyValue",
         priority: 3.5,

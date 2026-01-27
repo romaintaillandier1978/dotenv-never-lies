@@ -24,7 +24,7 @@ describe("Inference rules – json", () => {
             expect(result3).not.toBeNull();
             expect(result3?.generated.imports[0].name).toBe(jsonGenSchemaNoName.imports[0].name);
             expect(result3!.confidence).toBeLessThan(jsonRule.meta.threshold);
-            expect(result3?.reasons?.some((r) => r.includes("primitive"))).toBe(true);
+            expect(result3?.reasons?.some((r: string) => r.includes("primitive"))).toBe(true);
         }
     });
 

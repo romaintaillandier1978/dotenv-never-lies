@@ -7,7 +7,8 @@ import {
     looksLikeStorageUrl,
     looksLikeOtherUrl,
 } from "../../schemas/urls.js";
-import { GeneratedSchema, InferResult, InferRule } from "../rules.types.js";
+import { GeneratedSchema } from "../infer.types.js";
+import { HeuristicResult, HeuristicRule } from "../heuristic.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { databaseUrlGenSchema, httpUrlGenSchema, otherUrlGenSchema, queueUrlGenSchema, storageUrlGenSchema, wsUrlSchemaGen } from "../generated/url.js";
 import { zUrlGenSchema } from "../generated/basic.js";
@@ -34,7 +35,7 @@ type SubUrlContext = {
 
 type SubUrlRuleInput = SubUrlConst & SubUrlContext;
 
-const subUrlRule = (input: SubUrlRuleInput): InferResult<"url"> | null => {
+const subUrlRule = (input: SubUrlRuleInput): HeuristicResult<"url"> | null => {
     input.confidence += 2;
     input.reasons.push(`Valid ${input.message} URL (+2)`);
     const { matched, reason } = matchesEnvKey(input.name, input.keys);
@@ -93,7 +94,7 @@ const subUrlRules: Record<string, (name: string) => SubUrlConst> = {
         };
     },
 };
-export const urlRule: InferRule<"url"> = {
+export const urlRule: HeuristicRule<"url"> = {
     meta: {
         kind: "url",
         priority: 5,

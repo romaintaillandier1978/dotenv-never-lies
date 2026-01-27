@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { numberRule, emailRule, stringRule } from "../../rules/basic.js";
 import { zEmailGenSchema, zNumberGenSchema, zStringGenSchema } from "../../generated/basic.js";
-import type { InferInput, InferResult } from "../../rules.types.js";
+import type { InferInput } from "../../infer.types.js";
+import type { HeuristicResult } from "../../heuristic.types.js";
 
 describe("Inference rules – basic", () => {
     it("numberRule should match a valid number", () => {
@@ -9,7 +10,7 @@ describe("Inference rules – basic", () => {
             name: "NUMBER",
             rawValue: "123",
         };
-        const result: InferResult | null = numberRule.tryInfer(input);
+        const result: HeuristicResult | null = numberRule.tryInfer(input);
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zNumberGenSchema.code);
@@ -20,7 +21,7 @@ describe("Inference rules – basic", () => {
             name: "NUMBER",
             rawValue: '"123"',
         };
-        const result: InferResult | null = numberRule.tryInfer(input);
+        const result: HeuristicResult | null = numberRule.tryInfer(input);
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zNumberGenSchema.code);
@@ -32,7 +33,7 @@ describe("Inference rules – basic", () => {
             name: "RATE",
             rawValue: "-12.5",
         };
-        const result: InferResult | null = numberRule.tryInfer(input);
+        const result: HeuristicResult | null = numberRule.tryInfer(input);
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zNumberGenSchema.code);
@@ -44,7 +45,7 @@ describe("Inference rules – basic", () => {
             name: "BIG_NUMBER",
             rawValue: "+7e6",
         };
-        const result: InferResult | null = numberRule.tryInfer(input);
+        const result: HeuristicResult | null = numberRule.tryInfer(input);
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zNumberGenSchema.code);
@@ -58,7 +59,7 @@ describe("Inference rules – email", () => {
             name: "CONTACT_EMAIL",
             rawValue: "dev@example.com",
         };
-        const result: InferResult | null = emailRule.tryInfer(input);
+        const result: HeuristicResult | null = emailRule.tryInfer(input);
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zEmailGenSchema.code);
@@ -70,7 +71,7 @@ describe("Inference rules – email", () => {
             name: "NOT_EMAIL",
             rawValue: "dev@example",
         };
-        const result: InferResult | null = emailRule.tryInfer(input);
+        const result: HeuristicResult | null = emailRule.tryInfer(input);
 
         expect(result).toBeNull();
     });
@@ -80,7 +81,7 @@ describe("Inference rules – email", () => {
             name: "DATABASE_URL",
             rawValue: "postgres://user:pass@localhost:5432/app",
         };
-        const result: InferResult | null = emailRule.tryInfer(input);
+        const result: HeuristicResult | null = emailRule.tryInfer(input);
 
         expect(result).toBeNull();
     });
@@ -92,7 +93,7 @@ describe("Inference rules – string", () => {
             name: "ANY_VALUE",
             rawValue: "whatever",
         };
-        const result: InferResult | null = stringRule.tryInfer(input);
+        const result: HeuristicResult | null = stringRule.tryInfer(input);
 
         expect(result).not.toBeNull();
         expect(result?.generated.code).toBe(zStringGenSchema.code);

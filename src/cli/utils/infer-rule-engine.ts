@@ -1,11 +1,11 @@
-import { CROSS_RULES, RULES } from "../../infer/rules.js";
-import { CrossInferContext, InferContext } from "../../infer/rules.types.js";
+import { CROSS_RULES, HEURISTIC_RULES } from "../../infer/heuristicRules.js";
+import { CrossInferContext, InferContext } from "../../infer/infer.types.js";
 import { EvaluatedRule, fallbackEvaluatedRule } from "../../infer/report.types.js";
 
 export const infer = (context: InferContext): Array<EvaluatedRule<"heuristic">> => {
     const evaluatedRules: Array<EvaluatedRule<"heuristic">> = [];
     // for each rules,
-    for (const rule of RULES) {
+    for (const rule of HEURISTIC_RULES) {
         // try to infer a schema for the current context
         const inferResult = rule.tryInfer({ name: context.name, rawValue: context.rawValue });
 

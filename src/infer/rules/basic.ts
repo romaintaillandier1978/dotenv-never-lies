@@ -1,4 +1,5 @@
-import { InferResult, InferRule } from "../rules.types.js";
+import { HeuristicRule } from "../heuristic.types.js";
+import { HeuristicResult } from "../heuristic.types.js";
 import { zEmailGenSchema, zNumberGenSchema, zStringGenSchema } from "../generated/basic.js";
 import { matchesEnvKey } from "../helpers.js";
 
@@ -10,7 +11,7 @@ const NUMBER_KEYS = ["NUMBER", "NUM", "NB", "COUNT", "SIZE", "LENGTH", "RATE", "
  * @param rawValue - The raw value of the environment variable.
  * @returns The inferred number schema.
  */
-export const numberRule: InferRule<"number"> = {
+export const numberRule: HeuristicRule<"number"> = {
     meta: {
         kind: "number",
         priority: 4,
@@ -50,7 +51,7 @@ export const numberRule: InferRule<"number"> = {
 
 const EMAIL_KEYS = ["EMAIL", "MAIL"];
 
-export const emailRule: InferRule = {
+export const emailRule: HeuristicRule = {
     meta: {
         kind: "email",
         priority: 4,
@@ -76,7 +77,7 @@ export const emailRule: InferRule = {
     },
 };
 
-export const stringRule: InferRule = {
+export const stringRule: HeuristicRule = {
     meta: {
         kind: "string",
         priority: 0,
@@ -105,9 +106,9 @@ export const stringRule: InferRule = {
     },
 };
 
-export const fallbackInferResult: Readonly<InferResult<"string">> = {
+export const fallbackInferResult: Readonly<HeuristicResult<"string">> = {
     generated: zStringGenSchema,
     confidence: 0,
     reasons: ["Fallback to string (no rule other matched)"],
     codeWarnings: [],
-} satisfies Readonly<InferResult<"string">>;
+} satisfies Readonly<HeuristicResult<"string">>;

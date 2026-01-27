@@ -20,7 +20,8 @@ describe("Inference rules – duration", () => {
                 name: "REQUEST_TIMEOUT",
                 rawValue,
             });
-            expect(result).toBeNull();
+            expect(result).not.toBeNull();
+            expect(result?.confidence).toBeLessThan(durationRule.meta.threshold);
         }
     });
 });

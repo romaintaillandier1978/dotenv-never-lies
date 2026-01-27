@@ -1,10 +1,10 @@
-import { InferRule } from "../rules.types.js";
+import { HeuristicRule } from "../heuristic.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { portGenSchema } from "../generated/port.js";
 
 const PORT_KEYS = ["PORT"];
 
-export const portRule: InferRule<"port"> = {
+export const portRule: HeuristicRule<"port"> = {
     meta: {
         kind: "port",
         priority: 7,

@@ -1,11 +1,11 @@
 import { looksLikeIp } from "../../schemas/dotted.js";
 import { ipGenSchema } from "../generated/ip.js";
 import { matchesEnvKey } from "../helpers.js";
-import { InferRule } from "../rules.types.js";
+import { HeuristicRule } from "../heuristic.types.js";
 
 const IP_KEYS = ["IP", "ADDRESS", "HOST", "HOSTNAME"];
 
-export const ipRule: InferRule<"ip"> = {
+export const ipRule: HeuristicRule<"ip"> = {
     meta: {
         kind: "ip",
         priority: 5.5,

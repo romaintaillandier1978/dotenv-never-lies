@@ -4,7 +4,7 @@ import { guessSecret } from "../../infer/helpers.js";
 import { crossInfer, infer } from "../utils/infer-rule-engine.js";
 import fs from "node:fs";
 import { ExportError } from "../../errors.js";
-import { Import, InferContext } from "../../infer/rules.types.js";
+import { Import, InferContext } from "../../infer/infer.types.js";
 import { discoverPresets, findPresetEntry, getPresetsFromNames } from "../../infer/presets.js";
 import { PressetDef } from "../../infer/presets.types.js";
 import { InferReportEntry, InferReport, EvaluatedRule, RuleMethod } from "../../infer/report.types.js";

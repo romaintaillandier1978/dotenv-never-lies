@@ -1,11 +1,11 @@
-import { InferRule } from "../rules.types.js";
+import { HeuristicRule } from "../heuristic.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { jsonGenSchema } from "../generated/json.js";
 import { zArrayOfUnknownGenSchema, zUnknownGenSchema } from "../generated/basic.js";
 const JSON_KEYS_HIGH = ["JSON"];
 const JSON_KEYS_LOW = ["PAYLOAD", "CONFIG", "DATA", "META"];
 
-export const jsonRule: InferRule<"json"> = {
+export const jsonRule: HeuristicRule<"json"> = {
     meta: {
         kind: "json",
         priority: 10,

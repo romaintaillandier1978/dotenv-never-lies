@@ -1,4 +1,4 @@
-import { GeneratedSchema } from "../rules.types.js";
+import { GeneratedSchema } from "../infer.types.js";
 
 export const zUnknownGenSchema: GeneratedSchema<"unknown"> = {
     kind: "unknown",

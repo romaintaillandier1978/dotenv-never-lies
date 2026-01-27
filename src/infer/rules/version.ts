@@ -1,12 +1,12 @@
 import { looksLikeVersion } from "../../schemas/dotted.js";
-import { InferRule } from "../rules.types.js";
+import { HeuristicRule } from "../heuristic.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { versionGenSchema } from "../generated/version.js";
 
 const VERSION_KEYS = ["VERSION", "SEMVER", "TAG", "RELEASE"];
 // Note : NEVER add 2 parts version (2.0), it will conflict with numberRules (numberSchema)
 
-export const versionRule: InferRule<"version"> = {
+export const versionRule: HeuristicRule<"version"> = {
     meta: {
         kind: "version",
         priority: 5.3,

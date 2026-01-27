@@ -7,7 +7,8 @@ import { emailRule, numberRule, stringRule } from "./rules/basic.js";
 import { urlRule } from "./rules/url.js";
 import { ipRule } from "./rules/ip.js";
 import { versionRule } from "./rules/version.js";
-import { CrossRule, InferRule } from "./rules.types.js";
+import { CrossRule } from "./infer.types.js";
+import { HeuristicRule } from "./heuristic.types.js";
 import { keyValueRule } from "./rules/key-value.js";
 import { secretVsNonStringRule } from "./cross-rules/secret-non-string.js";
 import { ReadonlyDeep } from "type-fest";
@@ -17,7 +18,7 @@ import { ReadonlyDeep } from "type-fest";
 // port avant number
 // duration avant number,
 
-export const RULES: ReadonlyDeep<InferRule[]> = [
+export const HEURISTIC_RULES: ReadonlyDeep<HeuristicRule[]> = [
     jsonRule, // 10
     listRule, // 7
     portRule, //7

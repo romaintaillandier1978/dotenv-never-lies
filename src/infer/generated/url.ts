@@ -1,4 +1,4 @@
-import { GeneratedSchema } from "../rules.types.js";
+import { GeneratedSchema } from "../infer.types.js";
 
 export const httpUrlGenSchema = (name: string): GeneratedSchema<"url"> => ({
     kind: "url",

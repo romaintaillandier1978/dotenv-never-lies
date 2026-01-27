@@ -1,4 +1,4 @@
-import { GeneratedSchema } from "../rules.types.js";
+import { GeneratedSchema } from "../infer.types.js";
 
 export const versionGenSchema = (name: string): GeneratedSchema<"version"> => ({
     kind: "version",

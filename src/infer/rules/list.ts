@@ -1,5 +1,6 @@
 import { areAllSameGenSchemas } from "../helpers.js";
-import { GeneratedSchema, InferRule } from "../rules.types.js";
+import { HeuristicRule } from "../heuristic.types.js";
+import { GeneratedSchema } from "../infer.types.js";
 import { matchesEnvKey } from "../helpers.js";
 import { listSchemaGen } from "../generated/list.js";
 import { zStringGenSchema } from "../generated/basic.js";
@@ -9,7 +10,7 @@ import { emailRule, numberRule, stringRule } from "./basic.js";
 import { keyValueRule } from "./key-value.js";
 import { booleanRule } from "./boolean.js";
 
-const LIST_RULES: InferRule[] = [
+const LIST_RULES: HeuristicRule[] = [
     portRule, //7
     booleanRule, // 6
     urlRule, //5
@@ -40,7 +41,7 @@ const LIST_KEYS = ["LIST", "ITEMS", "ARRAY", "VALUES"];
  * @param rawValue - The raw value of the list.
  * @returns The inferred list schema.
  */
-export const listRule: InferRule<"list"> = {
+export const listRule: HeuristicRule<"list"> = {
     meta: {
         kind: "list",
         priority: 7,
