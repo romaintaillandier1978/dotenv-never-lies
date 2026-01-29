@@ -1,26 +1,27 @@
 import { Simplify } from "type-fest";
-import { GeneratedSchema } from "./infer.types.js";
 import { HeuristicResult, HeuristicRuleMeta } from "./heuristic.types.js";
 import { fallbackInferResult, stringRule } from "./rules/basic.js";
 import { PresetResult } from "./presets.types.js";
+import { SecretResult } from "./secret.types.js";
+import { CrossResult } from "./cross.types.js";
 
-export type RuleOutcome = "accepted" | "rejected";
-export type RuleMethod = "preset" | "heuristic" | "isSecret" | "cross";
+export type RuleOutcome = "accepted" | "rejected" | "applied";
+export type RuleMethod = "preset" | "heuristic" | "secret" | "cross";
 // export type EvaluatedRule<T extends RuleType> ;
 
 export type EvaluatedRuleTable = {
     preset: {
-        presetResult: PresetResult;
+        result: PresetResult;
     };
     heuristic: {
         meta: HeuristicRuleMeta;
-        inferResult: HeuristicResult;
+        result: HeuristicResult;
     };
-    isSecret: {
-        secret: boolean;
+    secret: {
+        result: SecretResult;
     };
     cross: {
-        crossResult: { generated: GeneratedSchema };
+        result: CrossResult;
     };
 };
 
@@ -31,7 +32,7 @@ export type RuleType<T extends RuleMethod> = EvaluatedRule<T>["ruleMethod"];
 export const fallbackEvaluatedRule: EvaluatedRule<"heuristic"> = {
     ruleMethod: "heuristic",
     meta: { ...stringRule.meta },
-    inferResult: fallbackInferResult,
+    result: fallbackInferResult,
     outcome: "accepted",
 };
 
@@ -48,4 +49,5 @@ export type InferReport = {
         discoverPresets: boolean;
     };
     envVars: Array<InferReportEntry>;
+    warnings: Array<string>;
 };

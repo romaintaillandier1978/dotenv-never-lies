@@ -17,12 +17,6 @@ export const matchesEnvKey = (name: string, keys: string[]): MatchesEnvKeyResult
     return { matched: false, reason: "No hint in the Env name" };
 };
 
-const SECRET_KEYS = ["SECRET", "KEY", "TOKEN", "PASSWORD", "PASS", "AUTH"];
-
-export const guessSecret = (name: string): boolean => {
-    return matchesEnvKey(name, SECRET_KEYS).matched;
-};
-
 export const areAllSameGenSchemas = (elements: GeneratedSchema[]): boolean => {
     const e0 = elements[0];
     return elements.every((e) => areSameGenSchemas(e, e0));

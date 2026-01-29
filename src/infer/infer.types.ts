@@ -102,23 +102,3 @@ export type InferContext = {
      */
     codeWarnings: Array<string>;
 };
-
-/**
- * Context for a cross-rule inference
- */
-export type CrossInferContext = InferContext & {
-    /**
-     * inferred schema of the .env entry
-     */
-    inferredSchema: GeneratedSchema;
-    /**
-     * Whether the .env entry is a secret
-     * (used by cross-rules)
-     */
-    isSecret: boolean;
-};
-
-/**
- * A cross-rule for an inference.
- */
-export type CrossRule = (context: CrossInferContext) => void;

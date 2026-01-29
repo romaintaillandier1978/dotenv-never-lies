@@ -15,5 +15,5 @@ export type PresetResult = {
     // TODO, dans le report, trouver un moyen de ne pas sérialiser l'immonde shcéma zod.
     entry: PresetEntry;
     reasons: Array<string>;
-    codeWarnings: Array<string>;
+    codeWarnings?: Array<string>;
 };

@@ -194,5 +194,5 @@ const checkForDuplicates = (content: Buffer, onDuplicate: "warn" | "error"): str
             ExitCodes.validationError
         );
     }
-    return Array.from(duplicates).map((key) => `⚠️ Duplicate env key detected in .env: ${key} (dotenv keeps the last value)`);
+    return Array.from(duplicates).map((key) => `Duplicate env key detected in .env: ${key} (dotenv keeps the last value)`);
 };

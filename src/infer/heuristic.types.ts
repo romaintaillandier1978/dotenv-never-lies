@@ -15,11 +15,11 @@ export type HeuristicResult<K extends InferKind = InferKind> = {
     /**
      * for verbose mode
      */
-    reasons: string[];
+    reasons: Array<string>;
     /**
      * for warnings, to inject in dnl schema. (not too much)
      */
-    codeWarnings?: string[];
+    codeWarnings?: Array<string>;
 };
 
 /**

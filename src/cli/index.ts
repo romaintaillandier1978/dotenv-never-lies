@@ -14,6 +14,7 @@ import { Except, PackageJson } from "type-fest";
 
 import pkg from "../../package.json" with { type: "json" };
 import { TypesCliOptions, typesCommand } from "./commands/types.js";
+import { verboseReport } from "./utils/report.js";
 export const dnlPackageJson: PackageJson = pkg as PackageJson;
 
 const exitCodeHelp: { [key in ExitCodes]: string } = {
@@ -103,9 +104,10 @@ program
     .option("--presets <presets...>", "Presets to use for inference (no discovery of presets in package.json)")
     .option("--no-discover-presets", "Do not discover presets in package.json")
     .action(async (opts: InferCliOptions) => {
-        const { content, out, warnings, verbose } = await inferCommand(opts);
+        const { content, out, report } = await inferCommand(opts);
+
         if (opts.verbose) {
-            for (const v of verbose ?? []) {
+            for (const v of verboseReport(report)) {
                 console.log(v);
             }
         }
@@ -115,9 +117,9 @@ program
         } else {
             console.log(content);
         }
-        for (const warning of warnings) {
-            console.error(`${warning}`);
-        }
+        // for (const warning of warnings) {
+        //     console.error(`${warning}`);
+        // }
     })
     .addHelpText(
         "after",

@@ -73,7 +73,7 @@ export const findPresetEntry = (presets: Array<PressetDef> | undefined, name: st
         const [origin, entry] = results[0];
         evaluatedRules.push({
             ruleMethod: "preset",
-            presetResult: { origin: [origin], entry, reasons: [], codeWarnings: [] },
+            result: { origin: [origin], entry, reasons: [], codeWarnings: [] },
             outcome: "accepted",
         });
         return evaluatedRules;
@@ -102,7 +102,7 @@ export const findPresetEntry = (presets: Array<PressetDef> | undefined, name: st
         };
         evaluatedRules.push({
             ruleMethod: "preset",
-            presetResult: {
+            result: {
                 origin: [...allOrigins],
                 entry: gentleMergeEntry,
                 reasons: ["Preset conflict, compatible definitions merged"],
@@ -117,7 +117,7 @@ export const findPresetEntry = (presets: Array<PressetDef> | undefined, name: st
     for (const [origin, entry] of results) {
         evaluatedRules.push({
             ruleMethod: "preset",
-            presetResult: {
+            result: {
                 origin: [origin],
                 entry,
                 reasons: ["Preset conflict, multiple incompatible definitions found."],
