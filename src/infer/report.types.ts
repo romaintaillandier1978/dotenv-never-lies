@@ -1,40 +1,24 @@
-import { Simplify } from "type-fest";
 import { HeuristicResult, HeuristicRuleMeta } from "./heuristic.types.js";
-import { fallbackInferResult, stringRule } from "./rules/basic.js";
 import { PresetResult } from "./presets.types.js";
 import { SecretResult } from "./secret.types.js";
 import { CrossResult } from "./cross.types.js";
 
+type EmptyObject = Record<never, never>;
+
 export type RuleOutcome = "accepted" | "rejected" | "applied";
 export type RuleMethod = "preset" | "heuristic" | "secret" | "cross";
-// export type EvaluatedRule<T extends RuleType> ;
 
-export type EvaluatedRuleTable = {
-    preset: {
-        result: PresetResult;
-    };
-    heuristic: {
-        meta: HeuristicRuleMeta;
-        result: HeuristicResult;
-    };
-    secret: {
-        result: SecretResult;
-    };
-    cross: {
-        result: CrossResult;
-    };
-};
+type RuleResultTable = { preset: PresetResult; heuristic: HeuristicResult; secret: SecretResult; cross: CrossResult };
 
-export type EvaluatedRule<T extends RuleMethod> = Simplify<EvaluatedRuleTable[T] & { ruleMethod: T; outcome: RuleOutcome }>;
+export type RuleResult<T extends RuleMethod> = RuleResultTable[T];
 
-export type RuleType<T extends RuleMethod> = EvaluatedRule<T>["ruleMethod"];
+type _EvaluatedRule<T extends RuleMethod> = {
+    ruleMethod: T;
+    outcome: RuleOutcome;
+    result: RuleResult<T>;
+} & (T extends "heuristic" ? { meta: HeuristicRuleMeta } : EmptyObject);
 
-export const fallbackEvaluatedRule: EvaluatedRule<"heuristic"> = {
-    ruleMethod: "heuristic",
-    meta: { ...stringRule.meta },
-    result: fallbackInferResult,
-    outcome: "accepted",
-};
+export type EvaluatedRule<T extends RuleMethod> = { [key in RuleMethod]: _EvaluatedRule<key> }[T];
 
 export type InferReportEntry = {
     envVarName: string;

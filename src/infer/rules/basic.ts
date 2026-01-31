@@ -1,7 +1,8 @@
-import { HeuristicRule } from "../heuristic.types.js";
+import { HeuristicRule, HeuristicRuleMeta } from "../heuristic.types.js";
 import { HeuristicResult } from "../heuristic.types.js";
 import { zEmailGenSchema, zNumberGenSchema, zStringGenSchema } from "../generated/basic.js";
 import { matchesEnvKey } from "../helpers.js";
+import { EvaluatedRule } from "../report.types.js";
 
 const NUMBER_KEYS = ["NUMBER", "NUM", "NB", "COUNT", "SIZE", "LENGTH", "RATE", "PRICE", "COST", "TOTAL", "SUM", "AVG", "MIN", "MAX"];
 
@@ -77,12 +78,10 @@ export const emailRule: HeuristicRule = {
     },
 };
 
-export const stringRule: HeuristicRule = {
-    meta: {
-        kind: "string",
-        priority: 0,
-        threshold: 0,
-    },
+export const stringRuleMeta: HeuristicRuleMeta<"string"> = { kind: "string", priority: 0, threshold: 0 };
+
+export const stringRule: HeuristicRule<"string"> = {
+    meta: stringRuleMeta,
 
     tryInfer({ rawValue }) {
         const codeWarnings: string[] = [];
@@ -112,3 +111,10 @@ export const fallbackInferResult: Readonly<HeuristicResult<"string">> = {
     reasons: ["Fallback to string (no rule other matched)"],
     codeWarnings: [],
 } satisfies Readonly<HeuristicResult<"string">>;
+
+export const fallbackEvaluatedRule: EvaluatedRule<"heuristic"> = {
+    ruleMethod: "heuristic",
+    outcome: "accepted",
+    result: fallbackInferResult,
+    meta: stringRuleMeta,
+};

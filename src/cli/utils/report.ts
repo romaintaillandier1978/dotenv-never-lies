@@ -1,5 +1,5 @@
 import path from "node:path";
-import { EvaluatedRule, InferReport } from "../../infer/report.types.js";
+import { InferReport } from "../../infer/report.types.js";
 import fs from "node:fs";
 import { cwd } from "node:process";
 
@@ -38,23 +38,21 @@ export const verboseReport = (report: InferReport, options?: VerboseReportOption
         for (const rule of envVar.evaluatedRules) {
             if (rule.outcome === "accepted" || (opts.showRejectedRules && rule.outcome === "rejected") || rule.outcome === "applied") {
                 if (rule.ruleMethod === "heuristic") {
-                    const heuristicRule = rule as EvaluatedRule<"heuristic">;
                     verbose.push(
-                        `  [${rule.ruleMethod} : ${heuristicRule.result.generated?.kind}] with confidence ${heuristicRule.result.confidence} / ${heuristicRule.meta.threshold} => ${rule.outcome.toUpperCase()}`
+                        `  [${rule.ruleMethod} : ${rule.result.generated?.kind}] with confidence ${rule.result.confidence} / ${rule.meta.threshold} => ${rule.outcome.toUpperCase()}`
                     );
                 } else if (rule.ruleMethod === "preset") {
-                    const presetRule = rule as EvaluatedRule<"preset">;
-                    verbose.push(`  [${rule.ruleMethod} : origin ${presetRule.result.origin.join(", ")}] => ${rule.outcome.toUpperCase()}`);
+                    verbose.push(`  [${rule.ruleMethod} : origin ${rule.result.origin.join(", ")}] => ${rule.outcome.toUpperCase()}`);
                 } else if (rule.ruleMethod === "cross") {
                     verbose.push(`  [${rule.ruleMethod}] => ${rule.outcome.toUpperCase()}`);
                 } else if (rule.ruleMethod === "secret") {
-                    const secretRule = rule as EvaluatedRule<"secret">;
-                    if (secretRule.result) {
-                        verbose.push(`  [${rule.ruleMethod} : ${secretRule.result.isSecret ? "true" : "false"}] annotation ${rule.outcome}`);
+                    if (rule.result) {
+                        verbose.push(`  [${rule.ruleMethod} : ${rule.result.isSecret ? "true" : "false"}] annotation ${rule.outcome}`);
                     }
-                } else {
-                    verbose.push(`  [${rule.ruleMethod}] => ${rule.outcome.toUpperCase()}`);
                 }
+                // else {
+                //     verbose.push(`  [${rule.ruleMethod}] => ${rule.outcome.toUpperCase()}`);
+                // }
                 for (const reason of rule.result.reasons) {
                     verbose.push(`    -> ${reason}`);
                 }

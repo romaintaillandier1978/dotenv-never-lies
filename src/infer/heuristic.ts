@@ -1,11 +1,11 @@
 import { InferContext } from "./infer.types.js";
-import { EvaluatedRule, fallbackEvaluatedRule } from "./report.types.js";
+import { EvaluatedRule } from "./report.types.js";
 import { booleanRule } from "./rules/boolean.js";
 import { durationRule } from "./rules/duration.js";
 import { jsonRule } from "./rules/json.js";
 import { listRule } from "./rules/list.js";
 import { portRule } from "./rules/port.js";
-import { emailRule, numberRule, stringRule } from "./rules/basic.js";
+import { emailRule, fallbackEvaluatedRule, numberRule, stringRule } from "./rules/basic.js";
 import { urlRule } from "./rules/url.js";
 import { ipRule } from "./rules/ip.js";
 import { versionRule } from "./rules/version.js";
