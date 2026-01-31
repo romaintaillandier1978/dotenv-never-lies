@@ -1,6 +1,6 @@
 {
     "name": "@romaintaillandier1978/dotenv-never-lies",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "description": "Typed, validated, and explicit environment variables — powered by Zod.",
     "license": "MIT",
     "author": "Romain TAILLANDIER",
