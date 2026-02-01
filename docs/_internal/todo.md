@@ -17,6 +17,12 @@
 
 - tester le refacto des variables d'env ! => C'est merdeux !
 
+- cli completion
+
+- doc de infer, parler du rapport.
+
+- dnl process check : et dnl process fix sont ils des sous commandes de process. peut être qu'une option suffirait. dnl process --fix; dnl process --check; dnl process --fix --dry-run; ?
+
 ### readme inférence :
 
 2. No path schéma (and probably never)
