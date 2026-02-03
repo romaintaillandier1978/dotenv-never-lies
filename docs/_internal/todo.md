@@ -21,7 +21,16 @@
 
 - doc de infer, parler du rapport.
 
-- dnl process check : et dnl process fix sont ils des sous commandes de process. peut être qu'une option suffirait. dnl process --fix; dnl process --check; dnl process --fix --dry-run; ?
+- lors de l'inférence, rechercher les variables process.env.VAR. les injecter en commentaire dans le schéma DNL.
+
+- annotate : chemin complet, cliquable mais pas portable entre dévs.
+- annotate : multiplie les annotations en cas d'appel successifs.
+- annotate --remove ?!
+- process check pour le githook
+- annotate : collectProcessEnvNodes chercher les process.env (sans .X) ?
+- annotate : process.env.a ?? process.env.b (b ignoré)
+
+- enregistrer les fichiers d'entrées/sorties dans une conf de dnl.
 
 ### readme inférence :
 

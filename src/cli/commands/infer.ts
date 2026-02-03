@@ -10,6 +10,7 @@ import { InferReportEntry, InferReport, EvaluatedRule, RuleMethod } from "../../
 import { saveReport } from "../utils/report.js";
 import { guessSecretRule } from "../../infer/secret.js";
 import { crossEngine } from "../../infer/cross.js";
+import { toValidIdentifier } from "../utils/valid-identifier.js";
 
 export type InferCliOptions = {
     source?: string;
@@ -96,11 +97,7 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
         };
 
         // check if the variable name is a valid identifier
-        const isValidIdentifier = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name);
-        const safeKey = isValidIdentifier ? name : JSON.stringify(name);
-        if (!isValidIdentifier) {
-            reportEntry.warnings.push(`Key ${name} is not a valid identifier. It has been escaped to ${safeKey}.`);
-        }
+        const safeKey = toValidIdentifier(name, reportEntry);
         // write the variable declaration to the code lines
         codeLines.push(`    ${safeKey}: {`);
 

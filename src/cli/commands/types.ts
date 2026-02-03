@@ -4,6 +4,7 @@ import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { isRequired } from "../utils/printer.js";
 import { ProgramCliOptions } from "./program.js";
 import path from "node:path";
+import { toValidIdentifier } from "../utils/valid-identifier.js";
 
 export type TypesCliOptions = ProgramCliOptions & {
     out?: string | undefined;
@@ -66,7 +67,8 @@ export const exportDts = (envDef: dnl.EnvDefinitionHelper<any>, options: TypesCl
         if (required) comment += `     * @required\n`;
         comment += `     */`;
         middle.push(comment);
-        middle.push(`    ${key}${optional}: ${type};`);
+        const safeKey = toValidIdentifier(key);
+        middle.push(`    ${safeKey}${optional}: ${type};`);
     }
 
     return `${top}${middle.join("\n")}\n}\n`;

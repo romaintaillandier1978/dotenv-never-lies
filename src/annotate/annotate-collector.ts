@@ -6,7 +6,7 @@ export const collectProcessEnvNodes = (sourceFile: SourceFile): Node[] => {
         if (Node.isPropertyAccessExpression(node)) {
             const expr = node.getExpression();
             const hasProcessEnv = expr.getText() === "process.env";
-            if (hasProcessEnv) console.log("process.env.X detected", hasProcessEnv);
+            // if (hasProcessEnv) console.log("process.env.X detected", hasProcessEnv);
             return hasProcessEnv;
         }
 
@@ -14,7 +14,7 @@ export const collectProcessEnvNodes = (sourceFile: SourceFile): Node[] => {
         if (Node.isElementAccessExpression(node)) {
             const expr = node.getExpression();
             const hasProcessEnv = expr.getText() === "process.env";
-            if (hasProcessEnv) console.log("process.env['X'] detected", hasProcessEnv);
+            //if (hasProcessEnv) console.log("process.env['X'] detected", hasProcessEnv);
             return hasProcessEnv;
         }
 

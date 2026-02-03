@@ -15,8 +15,7 @@ import { Except, PackageJson } from "type-fest";
 import pkg from "../../package.json" with { type: "json" };
 import { TypesCliOptions, typesCommand } from "./commands/types.js";
 import { verboseReport } from "./utils/report.js";
-import { ProcessFixCliOptions, processFixCommand } from "./commands/process-fix.js";
-import { ProcessCheckCliOptions, processCheckCommand } from "./commands/process-check.js";
+import { AnnotateCliOptions, annotateCommand } from "./commands/annotate.js";
 
 export const dnlPackageJson: PackageJson = pkg as PackageJson;
 
@@ -202,25 +201,11 @@ program
 const processCmd = program.command("process").description("Analyze and refactor process.env usages in the codebase");
 
 processCmd
-    .command("check")
-    .description("Check process.env usages against DNL known variables")
-    .option("--fixable-only", "Only report issues that can be automatically fixed")
-    .action(async (opts: ProcessCheckCliOptions) => {
+    .command("annotate")
+    .description("Annotate process.env to help migrate to dnl")
+    .action(async (opts: AnnotateCliOptions) => {
         const globalOpts = program.opts<ProgramCliOptions>();
-        const { warnings } = await processCheckCommand({ ...opts, schema: globalOpts.schema });
-        for (const warning of warnings) {
-            console.error(`${warning}`);
-        }
-        console.log("✅ Environment is valid");
-    });
-
-processCmd
-    .command("fix")
-    .description("Replace process.env usages with DNL typed env access")
-    .option("--dry-run", "Show what would be changed without modifying files")
-    .action(async (opts: ProcessFixCliOptions) => {
-        const globalOpts = program.opts<ProgramCliOptions>();
-        const { warnings } = await processFixCommand({ ...opts, schema: globalOpts.schema });
+        const { warnings } = await annotateCommand({ ...opts, schema: globalOpts.schema });
         for (const warning of warnings) {
             console.error(`${warning}`);
         }
