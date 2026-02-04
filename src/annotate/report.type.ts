@@ -1,12 +1,19 @@
+export const DNL_ANNOTATION = {
+    recommendation: "@dnl-recommendation",
+    ignore: "@dnl-ignore",
+} as const;
+
+export type DNLAnnotationType = (typeof DNL_ANNOTATION)[keyof typeof DNL_ANNOTATION];
+
 export type AnnotateEnvRuleIssue = {
     message: string;
+    annotation: DNLAnnotationType;
 };
 
 export type AnnotateIssue = AnnotateEnvRuleIssue & {
     filePath: string;
     line: number;
     column: number;
-    ruleName: string;
 };
 
 export type AnnotateSummary = {

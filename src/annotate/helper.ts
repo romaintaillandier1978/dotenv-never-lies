@@ -1,5 +1,6 @@
 import { Node, Project } from "ts-morph";
 import type { ObjectLiteralElementLike, ObjectLiteralExpression } from "ts-morph";
+import { DNL_ANNOTATION, DNLAnnotationType } from "./report.type.js";
 
 // Warning, this function is not agnostique to DNL shcema.
 // It might not work if shema is splitted into multiple part
@@ -49,3 +50,22 @@ function propertyNameMatches(p: ObjectLiteralElementLike, varName: string): bool
     const normalized = text.startsWith('"') || text.startsWith("'") ? text.slice(1, -1) : text;
     return normalized === varName;
 }
+
+export const getAnchor = (node: Node): Node | null => {
+    return node.getFirstAncestor((n) => Node.isStatement(n)) ?? null;
+};
+/**
+ * Check if the statement has a DNL annotation
+ * @param statement : the statement to check
+ * @param annotation : the annotation to check (optional). If undefined, check for any DNL annotation.
+ * @returns true if the statement has a DNL annotation, false otherwise
+ */
+export const hasDnlAnnotation = (statement: Node, annotation: DNLAnnotationType | undefined = undefined): boolean => {
+    const ranges = statement.getLeadingCommentRanges();
+    if (!ranges || ranges.length < 1) return false;
+
+    if (annotation) {
+        return ranges.some((c) => c.getText().includes(annotation));
+    }
+    return ranges.some((c) => Object.values(DNL_ANNOTATION).some((a) => c.getText().includes(a)));
+};

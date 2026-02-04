@@ -71,7 +71,7 @@ export const annotateCommand = async (_opts?: AnnotateCliOptions | undefined): P
         }
     }
 
-    console.log("report : ", report);
+    //console.log("report : ", report);
     // TODO : save the report.
     // TODO : verbose
     return { warnings: [] };

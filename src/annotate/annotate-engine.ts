@@ -1,9 +1,8 @@
-import { fallbackRule } from "./rules/recommandation.js";
-import { warnUnknownVarRule } from "./rules/ignore.js";
 import { AnnotateRule, AnnotateRuleContext } from "./types.js";
 import { Node } from "ts-morph";
+import { simpleAnnotationRule } from "./rules/simple-annotation.js";
 
-const RULES: AnnotateRule[] = [warnUnknownVarRule, fallbackRule];
+const RULES: AnnotateRule[] = [simpleAnnotationRule];
 
 export const annotateEngine = async (node: Node, ctx: AnnotateRuleContext): Promise<void> => {
     for (const rule of RULES) {
@@ -20,7 +19,6 @@ export const annotateEngine = async (node: Node, ctx: AnnotateRuleContext): Prom
             filePath,
             line: pos.line,
             column: pos.column,
-            ruleName: rule.name,
             ...result,
         });
 
