@@ -74,7 +74,7 @@ export const hasDnlAnnotation = (statement: Node, annotation: DNLAnnotationType 
  * @param statement : the statement to check
  * @returns the DNL annotation of the statement, or null if no annotation is found
  */
-export const getDnlAnnotation = (statement: Node): { ranges: CommentRange[]; annotationType: DNLAnnotationType } | null => {
+export const getDnlAnnotation = (statement: Node): { ranges: CommentRange[]; annotationType: DNLAnnotationType | null } | null => {
     const ranges = statement.getLeadingCommentRanges();
 
     // if there are other comments above the dnl annotation, we ignore them (to not delete them, they are not ours)
@@ -84,7 +84,7 @@ export const getDnlAnnotation = (statement: Node): { ranges: CommentRange[]; ann
     if (ranges.length < 1) return null;
 
     // This double loop is only to get the annotation type,
-    let annotationType: DNLAnnotationType = DNL_ANNOTATION.recommendation;
+    let annotationType: DNLAnnotationType | null = null;
     for (const range of ranges) {
         const text = range.getText();
         let found = false;
@@ -103,4 +103,29 @@ export const getDnlAnnotation = (statement: Node): { ranges: CommentRange[]; ann
     // because passed throw match of a rule.
     // So lets set a default in fallback, but should not happen.
     return { ranges, annotationType };
+};
+
+/**
+ * Get the DNL annotation of the statement
+ * @param statement : the statement to check
+ * @returns the DNL annotation of the statement, or null if no annotation is found
+ */
+export const getDnlAnnotationType = (statement: Node): DNLAnnotationType | null => {
+    const ranges = statement.getLeadingCommentRanges();
+
+    // if there are other comments above the dnl annotation, we ignore them (to not delete them, they are not ours)
+    while (ranges.length > 0 && !ranges[0].getText().includes("@dnl-")) {
+        ranges.shift();
+    }
+    if (ranges.length < 1) return null;
+
+    for (const range of ranges) {
+        const text = range.getText();
+        for (const annotation of Object.values(DNL_ANNOTATION)) {
+            if (text.includes(annotation)) {
+                return annotation;
+            }
+        }
+    }
+    return null;
 };

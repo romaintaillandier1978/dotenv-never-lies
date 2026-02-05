@@ -1,13 +1,15 @@
 import { AnnotateRule, AnnotateRuleContext } from "./types.js";
 import { Node } from "ts-morph";
-import { simpleAnnotationRule } from "./rules/simple-annotation.js";
-import { removeAnnotationRule } from "./rules/remove-annotation.js";
+import { addAnnotationRule } from "./rules/add.js";
+import { removeAnnotationRule } from "./rules/remove.js";
+import { checkAnnotationRule } from "./rules/check.js";
 
-const RULES: AnnotateRule[] = [simpleAnnotationRule];
+const RULES_ANNOTATE: AnnotateRule[] = [addAnnotationRule];
 const RULES_REMOVE: AnnotateRule[] = [removeAnnotationRule];
+const RULES_CHECK: AnnotateRule[] = [checkAnnotationRule];
 
-export const annotateEngine = async (node: Node, remove: boolean, ctx: AnnotateRuleContext): Promise<void> => {
-    const rules = remove ? RULES_REMOVE : RULES;
+export const annotateEngine = async (node: Node, ctx: AnnotateRuleContext): Promise<void> => {
+    const rules = ctx.mode === "remove" ? RULES_REMOVE : ctx.mode === "check" ? RULES_CHECK : RULES_ANNOTATE;
     for (const rule of rules) {
         if (!rule.match(node, ctx)) continue;
         // Capture position and filePath before apply(): apply() may modify the AST
@@ -25,14 +27,26 @@ export const annotateEngine = async (node: Node, remove: boolean, ctx: AnnotateR
             ...result,
         });
 
-        if (remove) {
-            ctx.report.summary.commentsRemoved++;
-        } else {
-            ctx.report.summary.commentsAdded++;
+        switch (ctx.mode) {
+            case "remove":
+                ctx.report.summary.commentsRemoved++;
+                break;
+            case "check":
+                if (result.checkLevel === "error") {
+                    ctx.report.summary.checkErrors++;
+                } else if (result.checkLevel === "warning") {
+                    if (ctx.warnAsError) {
+                        ctx.report.summary.checkErrors++;
+                    } else {
+                        ctx.report.summary.checkWarnings++;
+                    }
+                }
+                break;
+            case "annotate":
+                ctx.report.summary.commentsAdded++;
+                break;
         }
 
         return;
     }
-
-    console.warn(`No rule found for node: ${node.getText()}`);
 };

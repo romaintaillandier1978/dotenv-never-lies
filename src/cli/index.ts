@@ -203,6 +203,9 @@ const processCmd = program.command("process").description("Analyze and refactor 
 processCmd
     .command("annotate")
     .option("-r, --remove", "Remove all dnl annotations from the codebase")
+    .option("-c, --check", "Check the codebase for process.env not annotated")
+    .option("--warn-as-error", "With check mode, warnings are considered as errors")
+    .option("--verbose", "Verbose mode")
     .description("Annotate process.env to help migrate to dnl")
     .action(async (opts: AnnotateCliOptions) => {
         const globalOpts = program.opts<ProgramCliOptions>();

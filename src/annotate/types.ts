@@ -1,8 +1,10 @@
 import type { Node, Project, SourceFile } from "ts-morph";
-import type { AnnotateEnvRuleIssue, AnnotateReport, DNLAnnotationType } from "./report.type.js";
+import type { AnnotateEnvRuleIssue, AnnotateMode, AnnotateReport, DNLAnnotationType } from "./report.type.js";
 import { EnvDefinition, EnvDefinitionHelper } from "../index.js";
 
 export type AnnotateRuleContext = {
+    mode: AnnotateMode;
+    warnAsError: boolean;
     project: Project;
     sourceFile: SourceFile;
     schemaPath: string;

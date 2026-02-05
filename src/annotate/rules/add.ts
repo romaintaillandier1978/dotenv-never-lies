@@ -4,7 +4,7 @@ import { Node, PropertyAccessExpression } from "ts-morph";
 import { getAnchor, getLinkToVar, hasDnlAnnotation } from "../helper.js";
 import { getDefaultEnvValue } from "../../cli/utils/printer.js";
 
-export const simpleAnnotationRule: AnnotateRule = {
+export const addAnnotationRule: AnnotateRule = {
     match(node) {
         if (!Node.isPropertyAccessExpression(node)) return false;
         if (node.getExpression().getText() !== "process.env") return false;
