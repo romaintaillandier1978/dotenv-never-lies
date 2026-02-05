@@ -1,3 +1,4 @@
+import path from "node:path";
 import { Node, Project } from "ts-morph";
 import type { CommentRange, ObjectLiteralElementLike, ObjectLiteralExpression } from "ts-morph";
 import { DNL_ANNOTATION, DNLAnnotationType } from "./report.type.js";
@@ -39,7 +40,12 @@ export const getLinkToVar = (project: Project, schemaPath: string, varName: stri
     // get the node for the line
     const nodeForLine = Node.isPropertyNamed(prop) ? prop.getNameNode() : prop;
     const pos = nodeForLine.getSourceFile().getLineAndColumnAtPos(nodeForLine.getStart());
-    return "file://" + schemaFile.getFilePath() + "#L" + pos.line;
+    const projectRoot = process.cwd();
+    const absoluteSchemaPath = schemaFile.getFilePath();
+    const relativePath = path.relative(projectRoot, absoluteSchemaPath);
+    // Normaliser en slash pour un chemin portable dans le commentaire (tous environnements)
+    const portablePath = relativePath.split(path.sep).join("/");
+    return portablePath + "#L" + pos.line;
 };
 
 function propertyNameMatches(p: ObjectLiteralElementLike, varName: string): boolean {

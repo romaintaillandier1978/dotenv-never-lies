@@ -23,7 +23,6 @@
 
 - lors de l'inférence, rechercher les variables process.env.VAR. les injecter en commentaire dans le schéma DNL.
 
-- annotate : chemin complet, cliquable mais pas portable entre dévs.
 - process check pour le githook
 - annotate : collectProcessEnvNodes chercher les process.env (sans .X) ?
 - annotate : process.env.a ?? process.env.b (b ignoré)
