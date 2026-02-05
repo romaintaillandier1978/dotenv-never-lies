@@ -1,5 +1,5 @@
 import { Node, Project } from "ts-morph";
-import type { ObjectLiteralElementLike, ObjectLiteralExpression } from "ts-morph";
+import type { CommentRange, ObjectLiteralElementLike, ObjectLiteralExpression } from "ts-morph";
 import { DNL_ANNOTATION, DNLAnnotationType } from "./report.type.js";
 
 // Warning, this function is not agnostique to DNL shcema.
@@ -39,7 +39,6 @@ export const getLinkToVar = (project: Project, schemaPath: string, varName: stri
     // get the node for the line
     const nodeForLine = Node.isPropertyNamed(prop) ? prop.getNameNode() : prop;
     const pos = nodeForLine.getSourceFile().getLineAndColumnAtPos(nodeForLine.getStart());
-    console.log("schemaFile.getFilePath() : ", schemaFile.getFilePath());
     return "file://" + schemaFile.getFilePath() + "#L" + pos.line;
 };
 
@@ -68,4 +67,40 @@ export const hasDnlAnnotation = (statement: Node, annotation: DNLAnnotationType 
         return ranges.some((c) => c.getText().includes(annotation));
     }
     return ranges.some((c) => Object.values(DNL_ANNOTATION).some((a) => c.getText().includes(a)));
+};
+
+/**
+ * Get the DNL annotation of the statement
+ * @param statement : the statement to check
+ * @returns the DNL annotation of the statement, or null if no annotation is found
+ */
+export const getDnlAnnotation = (statement: Node): { ranges: CommentRange[]; annotationType: DNLAnnotationType } | null => {
+    const ranges = statement.getLeadingCommentRanges();
+
+    // if there are other comments above the dnl annotation, we ignore them (to not delete them, they are not ours)
+    while (ranges.length > 0 && !ranges[0].getText().includes("@dnl-")) {
+        ranges.shift();
+    }
+    if (ranges.length < 1) return null;
+
+    // This double loop is only to get the annotation type,
+    let annotationType: DNLAnnotationType = DNL_ANNOTATION.recommendation;
+    for (const range of ranges) {
+        const text = range.getText();
+        let found = false;
+        for (const annotation of Object.values(DNL_ANNOTATION)) {
+            if (text.includes(annotation)) {
+                annotationType = annotation;
+                found = true; // to break the for above.
+                break;
+            }
+        }
+        if (found) {
+            break;
+        }
+    }
+    // here i know that annotationType is not null,
+    // because passed throw match of a rule.
+    // So lets set a default in fallback, but should not happen.
+    return { ranges, annotationType };
 };

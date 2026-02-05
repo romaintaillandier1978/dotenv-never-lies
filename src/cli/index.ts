@@ -195,13 +195,14 @@ program
     .addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/master/docs/commands/types.md\n`);
 //#endregion types
 
-// #region process.env
+// #region annotation
 
 // dnl process check | dnl process fix
 const processCmd = program.command("process").description("Analyze and refactor process.env usages in the codebase");
 
 processCmd
     .command("annotate")
+    .option("-r, --remove", "Remove all dnl annotations from the codebase")
     .description("Annotate process.env to help migrate to dnl")
     .action(async (opts: AnnotateCliOptions) => {
         const globalOpts = program.opts<ProgramCliOptions>();
@@ -209,7 +210,13 @@ processCmd
         for (const warning of warnings) {
             console.error(`${warning}`);
         }
-        console.log("✅ Environment is valid");
+        if (opts.remove) {
+            console.log("✅ All dnl annotations removed");
+        } else {
+            console.log("✅ Environment is annotated");
+        }
+
+        // TODO Verbose mode
     });
 
 // #endregion process.env

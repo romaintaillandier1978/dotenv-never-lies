@@ -7,28 +7,35 @@ import { collectProcessEnvNodes } from "../../annotate/annotate-collector.js";
 import { annotateEngine } from "../../annotate/annotate-engine.js";
 import { Project } from "ts-morph";
 import { groupNodesByStatement } from "../../annotate/annotate-collector.js";
-import { AnnotateReport } from "../../annotate/report.type.js";
+import { AnnotateReport, type AnnotateIssue } from "../../annotate/report.type.js";
 import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { EnvDefinition } from "../../index.js";
 
-export type AnnotateCliOptions = ProgramCliOptions;
+export type AnnotateCliOptions = ProgramCliOptions & {
+    remove?: boolean;
+};
+
 export type AnnotateResult = {
     warnings: string[];
 };
 
-export const annotateCommand = async (_opts?: AnnotateCliOptions | undefined): Promise<AnnotateResult> => {
-    const opts = _opts ?? {};
+const defaultAnnotateOptions: AnnotateCliOptions = {
+    remove: false,
+};
+
+export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<AnnotateResult> => {
+    const opts = { ...defaultAnnotateOptions, ..._opts };
 
     const schemaPath = resolveSchemaPath(opts?.schema);
     const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<EnvDefinition>;
-
     const report: AnnotateReport = {
         issues: [],
         summary: {
             filesScanned: 0,
             nodesProcessed: 0,
             commentsAdded: 0,
+            commentsRemoved: 0,
         },
     };
 
@@ -54,14 +61,27 @@ export const annotateCommand = async (_opts?: AnnotateCliOptions | undefined): P
         const before = sourceFile.getFullText();
         // annotate the file
         for (const node of nodePerStatement) {
-            await annotateEngine(node, {
+            await annotateEngine(node, opts.remove ?? false, {
                 project,
                 sourceFile,
-
                 schemaPath,
                 envDef,
                 report,
             });
+        }
+        // in remove mode  :
+        // we are no longer working with the AST which does not contain comments.
+        // we are working with text and therefore the offsets shift as we delete.
+        // we need to start from the end!
+        if (opts.remove) {
+            const filePath = sourceFile.getFilePath();
+            const withRemoval = report.issues.filter(
+                (issue): issue is AnnotateIssue & { removalRange: { start: number; end: number } } => issue.filePath === filePath && issue.removalRange != null
+            );
+            const sorted = [...withRemoval].sort((a, b) => b.removalRange.start - a.removalRange.start);
+            for (const issue of sorted) {
+                sourceFile.replaceText([issue.removalRange.start, issue.removalRange.end], "");
+            }
         }
         // file content after annotation
         const after = sourceFile.getFullText();
@@ -71,7 +91,7 @@ export const annotateCommand = async (_opts?: AnnotateCliOptions | undefined): P
         }
     }
 
-    //console.log("report : ", report);
+    //console.log("report : ", JSON.stringify(report, null, 2));
     // TODO : save the report.
     // TODO : verbose
     return { warnings: [] };
