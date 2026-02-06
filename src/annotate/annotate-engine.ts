@@ -8,16 +8,21 @@ const RULES_ANNOTATE: AnnotateRule[] = [addAnnotationRule];
 const RULES_REMOVE: AnnotateRule[] = [removeAnnotationRule];
 const RULES_CHECK: AnnotateRule[] = [checkAnnotationRule];
 
-export const annotateEngine = async (node: Node, ctx: AnnotateRuleContext): Promise<void> => {
+/**
+ * Traite un statement : tous les nodes sont des usages process.env du même statement.
+ * Une seule issue est produite par statement.
+ */
+export const annotateEngine = async (nodes: Node[], ctx: AnnotateRuleContext): Promise<void> => {
+    if (nodes.length === 0) return;
+    const firstNode = nodes[0];
     const rules = ctx.mode === "remove" ? RULES_REMOVE : ctx.mode === "check" ? RULES_CHECK : RULES_ANNOTATE;
     for (const rule of rules) {
-        if (!rule.match(node, ctx)) continue;
+        if (!rule.match(firstNode, ctx)) continue;
         // Capture position and filePath before apply(): apply() may modify the AST
-        // (e.g. replace the statement) and invalidate the node.
-        const pos = node.getSourceFile().getLineAndColumnAtPos(node.getStart());
+        const pos = firstNode.getSourceFile().getLineAndColumnAtPos(firstNode.getStart());
         const filePath = ctx.sourceFile.getFilePath();
 
-        const result = await rule.apply(node, ctx);
+        const result = await rule.apply(nodes, ctx);
 
         ctx.report.summary.nodesProcessed++;
         ctx.report.issues.push({
@@ -42,7 +47,7 @@ export const annotateEngine = async (node: Node, ctx: AnnotateRuleContext): Prom
                     }
                 }
                 break;
-            case "annotate":
+            case "add":
                 ctx.report.summary.commentsAdded++;
                 break;
         }

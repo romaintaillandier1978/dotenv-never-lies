@@ -30,7 +30,7 @@ export type AnnotateSummary = {
     checkErrors: number;
     checkWarnings: number;
 };
-export type AnnotateMode = "check" | "remove" | "annotate";
+export type AnnotateMode = "check" | "remove" | "add";
 export type AnnotateReport = {
     mode: AnnotateMode;
     issues: AnnotateIssue[];

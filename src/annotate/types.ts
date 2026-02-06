@@ -24,9 +24,9 @@ export interface AnnotateRule {
     match(node: Node, ctx: AnnotateRuleContext): boolean;
 
     /**
-     * Apply the rule.
+     * Apply the rule. Reçoit tous les nodes process.env du même statement.
      * - In check mode: must NOT mutate the AST
      * - In fix mode: MAY mutate the AST
      */
-    apply(node: Node, ctx: AnnotateRuleContext): Promise<AnnotateEnvRuleIssue>;
+    apply(nodes: Node[], ctx: AnnotateRuleContext): Promise<AnnotateEnvRuleIssue>;
 }

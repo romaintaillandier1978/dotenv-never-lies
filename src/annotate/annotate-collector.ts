@@ -22,17 +22,37 @@ export const collectProcessEnvNodes = (sourceFile: SourceFile): Node[] => {
     });
 };
 
-/** Un node par statement pour éviter d'invalider des nodes lors des remplacements. */
-export const groupNodesByStatement = (nodes: Node[]): Node[] => {
-    const byStatement = new Map<number, Node>();
+/** Tous les nodes process.env groupés par statement (clé = statement.getStart()). */
+export const groupNodesByStatementMap = (nodes: Node[]): Map<number, Node[]> => {
+    const byStatement = new Map<number, Node[]>();
     for (const node of nodes) {
         const statement = node.getFirstAncestor((n) => Node.isStatement(n));
         if (statement) {
             const key = statement.getStart();
-            if (!byStatement.has(key)) {
-                byStatement.set(key, node);
-            }
+            const list = byStatement.get(key) ?? [];
+            list.push(node);
+            byStatement.set(key, list);
         }
     }
-    return Array.from(byStatement.values());
+    return byStatement;
+};
+
+/**
+ * Retourne le nom de la variable d'environnement pour un node process.env.X ou process.env["X"].
+ */
+export const getProcessEnvVarName = (node: Node): string | null => {
+    if (Node.isPropertyAccessExpression(node)) {
+        return node.getName();
+    }
+    if (Node.isElementAccessExpression(node)) {
+        const arg = node.getArgumentExpression();
+        if (!arg) return null;
+        const text = arg.getText();
+        // Enlever les guillemets simples ou doubles
+        if ((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))) {
+            return text.slice(1, -1);
+        }
+        return text;
+    }
+    return null;
 };

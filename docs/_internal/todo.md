@@ -25,7 +25,6 @@
 
 - process check pour le githook
 - annotate : collectProcessEnvNodes chercher les process.env (sans .X) ?
-- annotate : process.env.a ?? process.env.b (b ignoré)
 
 - enregistrer les fichiers d'entrées/sorties dans une conf de dnl. (env.dnl.ts, env.dnl.d.ts, asserter)
 

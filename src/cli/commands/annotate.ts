@@ -1,12 +1,8 @@
 import dnl from "../../index.js";
-// import { loadDef as loadDef } from "../utils/load-schema.js";
-// import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { ProgramCliOptions } from "./program.js";
-
-import { collectProcessEnvNodes } from "../../annotate/annotate-collector.js";
+import { collectProcessEnvNodes, groupNodesByStatementMap } from "../../annotate/annotate-collector.js";
 import { annotateEngine } from "../../annotate/annotate-engine.js";
 import { Project } from "ts-morph";
-import { groupNodesByStatement } from "../../annotate/annotate-collector.js";
 import { AnnotateMode, AnnotateReport, type AnnotateIssue } from "../../annotate/report.type.js";
 import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
@@ -38,7 +34,7 @@ export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<Annota
     if (!_opts.check && _opts.warnAsError) {
         throw new UsageError("--warn-as-error can only be used with --check");
     }
-    const mode: AnnotateMode = _opts.check ? "check" : _opts.remove ? "remove" : "annotate";
+    const mode: AnnotateMode = _opts.check ? "check" : _opts.remove ? "remove" : "add";
     const opts = { ...defaultAnnotateOptions, ..._opts };
 
     const schemaPath = resolveSchemaPath(opts?.schema);
@@ -70,15 +66,13 @@ export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<Annota
             continue;
         }
 
-        // Group by statement: a single statement may contain multiple process.env
-        // (e.g. process.env.A ?? process.env.B). Modifying the statement invalidates all
-        // child nodes, so we must only process one node per statement.
-        const nodePerStatement = groupNodesByStatement(nodes);
-        // file content before annotation
+        // Grouper par statement : un statement peut contenir plusieurs process.env
+        // (ex. process.env.A ?? process.env["B"]). On traite tous les nodes du statement ensemble
+        // pour produire une seule issue et un commentaire avec tous les @see.
+        const nodesByStatement = groupNodesByStatementMap(nodes);
         const before = sourceFile.getFullText();
-        // annotate the file
-        for (const node of nodePerStatement) {
-            await annotateEngine(node, {
+        for (const statementNodes of nodesByStatement.values()) {
+            await annotateEngine(statementNodes, {
                 mode,
                 warnAsError: opts.warnAsError ?? false,
                 project,
