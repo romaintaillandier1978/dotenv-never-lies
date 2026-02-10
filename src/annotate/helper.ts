@@ -80,7 +80,7 @@ export const hasDnlAnnotation = (statement: Node, annotation: DNLAnnotationType 
  * @param statement : the statement to check
  * @returns the DNL annotation of the statement, or null if no annotation is found
  */
-export const getDnlAnnotation = (statement: Node): { ranges: CommentRange[]; annotationType: DNLAnnotationType | null } | null => {
+export const getDnlAnnotation = (statement: Node): { ranges: CommentRange[]; annotationTypes: DNLAnnotationType[] | null } | null => {
     const ranges = statement.getLeadingCommentRanges();
 
     // if there are other comments above the dnl annotation, we ignore them (to not delete them, they are not ours)
@@ -89,26 +89,26 @@ export const getDnlAnnotation = (statement: Node): { ranges: CommentRange[]; ann
     }
     if (ranges.length < 1) return null;
 
-    // This double loop is only to get the annotation type,
-    let annotationType: DNLAnnotationType | null = null;
+    // Collecte des annotations dans l'ordre de leur première occurrence dans le texte
+    const annotationTypes: DNLAnnotationType[] = [];
     for (const range of ranges) {
         const text = range.getText();
-        let found = false;
+        const withPosition: { annotation: DNLAnnotationType; index: number }[] = [];
         for (const annotation of Object.values(DNL_ANNOTATION)) {
-            if (text.includes(annotation)) {
-                annotationType = annotation;
-                found = true; // to break the for above.
-                break;
+            const index = text.indexOf(annotation);
+            if (index !== -1) {
+                withPosition.push({ annotation, index });
             }
         }
-        if (found) {
-            break;
+        withPosition.sort((a, b) => a.index - b.index);
+        for (const { annotation } of withPosition) {
+            annotationTypes.push(annotation);
         }
     }
     // here i know that annotationType is not null,
     // because passed throw match of a rule.
     // So lets set a default in fallback, but should not happen.
-    return { ranges, annotationType };
+    return { ranges, annotationTypes };
 };
 
 /**
@@ -127,11 +127,14 @@ export const getDnlAnnotationType = (statement: Node): DNLAnnotationType | null 
 
     for (const range of ranges) {
         const text = range.getText();
+        let earliest: { annotation: DNLAnnotationType; index: number } | null = null;
         for (const annotation of Object.values(DNL_ANNOTATION)) {
-            if (text.includes(annotation)) {
-                return annotation;
+            const index = text.indexOf(annotation);
+            if (index !== -1 && (earliest === null || index < earliest.index)) {
+                earliest = { annotation, index };
             }
         }
+        if (earliest !== null) return earliest.annotation;
     }
     return null;
 };

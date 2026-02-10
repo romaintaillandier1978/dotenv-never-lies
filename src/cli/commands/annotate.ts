@@ -1,6 +1,6 @@
 import dnl from "../../index.js";
 import { ProgramCliOptions } from "./program.js";
-import { collectProcessEnvNodes, groupNodesByStatementMap } from "../../annotate/annotate-collector.js";
+import { collectProcessEnvAccesses, groupProcessEnvAccessesByStatementMap } from "../../annotate/annotate-collector.js";
 import { annotateEngine } from "../../annotate/annotate-engine.js";
 import { Project } from "ts-morph";
 import { AnnotateMode, AnnotateReport, type AnnotateIssue } from "../../annotate/report.type.js";
@@ -44,7 +44,7 @@ export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<Annota
         issues: [],
         summary: {
             filesScanned: 0,
-            nodesProcessed: 0,
+            accessesProcessed: 0,
             commentsAdded: 0,
             commentsRemoved: 0,
             checkErrors: 0,
@@ -60,19 +60,19 @@ export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<Annota
 
     for (const sourceFile of sourceFiles) {
         report.summary.filesScanned++;
-        const nodes = collectProcessEnvNodes(sourceFile);
+        const accesses = collectProcessEnvAccesses(sourceFile);
 
-        if (nodes.length < 1) {
+        if (accesses.length < 1) {
             continue;
         }
 
         // Grouper par statement : un statement peut contenir plusieurs process.env
-        // (ex. process.env.A ?? process.env["B"]). On traite tous les nodes du statement ensemble
+        // (ex. process.env.A ?? process.env["B"]). On traite tous les accès du statement ensemble
         // pour produire une seule issue et un commentaire avec tous les @see.
-        const nodesByStatement = groupNodesByStatementMap(nodes);
+        const accessesByStatement = groupProcessEnvAccessesByStatementMap(accesses);
         const before = sourceFile.getFullText();
-        for (const statementNodes of nodesByStatement.values()) {
-            await annotateEngine(statementNodes, {
+        for (const statementAccesses of accessesByStatement.values()) {
+            await annotateEngine(statementAccesses, {
                 mode,
                 warnAsError: opts.warnAsError ?? false,
                 project,

@@ -23,6 +23,21 @@ export function loadConfig() {
         throw new Error("JWT_SECRET is required");
     }
 
+    const allEnv = process.env;
+    if (allEnv.NODE_ENV === "test") {
+        console.log("Running in test mode");
+    }
+
+    const key = "NODE_CORS_ORIGIN_SECRET";
+    const value = process.env[key];
+    if (value) {
+        console.log(`${key}: ${value}`);
+    }
+    const value2 = process.env[key] && process.env.JWT_SECRET;
+    if (value2) {
+        console.log(`${key}: ${value}`);
+    }
+
     const vitestMode = process.env.VITEST === "true";
 
     const corsOriginsRaw = process.env.NODE_CORS_ORIGIN_SECRET;

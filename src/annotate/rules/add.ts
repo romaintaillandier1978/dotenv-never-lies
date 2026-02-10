@@ -1,69 +1,66 @@
 import { AnnotateRule } from "../types.js";
-import { AnnotateEnvRuleIssue, DNL_ANNOTATION, DNLAnnotationType } from "../report.type.js";
-import { Node } from "ts-morph";
-import { getAnchor, getLinkToVar, hasDnlAnnotation } from "../helper.js";
+import { AnnotateEnvRuleIssue, DNL_ANNOTATION } from "../report.type.js";
+import { getLinkToVar, hasDnlAnnotation } from "../helper.js";
 import { getDefaultEnvValue } from "../../cli/utils/printer.js";
-import { getProcessEnvVarName } from "../annotate-collector.js";
-
-function isProcessEnvNode(node: Node): boolean {
-    if (!Node.isPropertyAccessExpression(node) && !Node.isElementAccessExpression(node)) return false;
-    return node.getExpression().getText() === "process.env";
-}
 
 export const addAnnotationRule: AnnotateRule = {
-    match(node) {
-        if (!isProcessEnvNode(node)) return false;
-        const anchor = getAnchor(node);
-        if (!anchor) return false;
-        if (hasDnlAnnotation(anchor, undefined)) {
-            return false;
-        }
-        return true;
+    match(processEnvAccesses) {
+        // si un seul n'a pas d'annotation, on devra ajouter l'annotation
+        return processEnvAccesses.some((pea) => !hasDnlAnnotation(pea.anchor, undefined));
     },
 
-    async apply(nodes, ctx): Promise<AnnotateEnvRuleIssue> {
-        const statement = getAnchor(nodes[0]);
-        if (!statement) throw new Error("No statement found");
-        const old = statement.getText();
+    async apply(processEnvAccess, ctx): Promise<AnnotateEnvRuleIssue[]> {
+        const issues: AnnotateEnvRuleIssue[] = [];
+        const anchor = processEnvAccess[0].anchor;
+        const old = anchor.getText();
 
-        const refs: { varName: string; known: boolean; link: string | null; defaultValue?: string }[] = [];
-        for (const node of nodes) {
-            const varName = getProcessEnvVarName(node);
-            if (varName === null) continue;
-            const isKnown = varName in ctx.envDef.def;
-            const link = getLinkToVar(ctx.project, ctx.schemaPath, varName);
-            const defaultValue = isKnown ? getDefaultEnvValue(ctx.envDef.def[varName].schema.def) : undefined;
-            refs.push({ varName, known: isKnown, link: link ?? null, defaultValue });
-        }
+        console.log("old\n", old);
 
-        // Un seul type d'annotation par statement : recommendation si au moins une var connue, sinon ignore
-        const hasKnown = refs.some((r) => r.known);
-        const annotation: DNLAnnotationType = hasKnown ? DNL_ANNOTATION.recommendation : DNL_ANNOTATION.ignore;
+        // construit un objet pour connaitre les caractéristiques des commentaire
+        for (const pea of processEnvAccess) {
+            const issue: AnnotateEnvRuleIssue = {
+                nodeText: pea.node.getText(),
+                annotation: null,
+                messages: [],
+                pos: pea.pos,
+            };
 
-        let comment = `// ${annotation}`;
-        for (const r of refs) {
-            if (r.link) {
-                const displayName = r.varName.includes("-") || r.varName.includes(".") ? `"${r.varName}"` : r.varName;
-                comment += `\n// @see ${displayName} in your DNL schema : ${r.link}`;
+            switch (pea.kind) {
+                case "static":
+                    if (pea.varName in ctx.envDef.def) {
+                        issue.annotation = DNL_ANNOTATION.recommendation;
+                        const link = getLinkToVar(ctx.project, ctx.schemaPath, pea.varName);
+                        const defaultValue = getDefaultEnvValue(ctx.envDef.def[pea.varName].schema.def);
+                        issue.messages.push(`// @see ${pea.varName} in your DNL schema : ${link}`);
+                        if (defaultValue) {
+                            issue.messages.push(`// default value: ${defaultValue}`);
+                        }
+                    } else {
+                        issue.annotation = DNL_ANNOTATION.ignore;
+                        issue.messages.push(`// process.env.${pea.varName} not in your DNL schema`);
+                    }
+                    break;
+                case "dynamic":
+                    issue.annotation = DNL_ANNOTATION.dynamic;
+                    issue.messages.push(`// Dynamic access to process.env prevents variable-level analysis`);
+                    break;
+                case "global":
+                    issue.annotation = DNL_ANNOTATION.global;
+                    issue.messages.push(`// Global access to process.env prevents variable-level analysis`);
+                    break;
             }
-        }
-        if (refs.length === 1 && refs[0].defaultValue) {
-            comment += `\n// default value: ${refs[0].defaultValue}`;
-        }
-        if (!hasKnown) {
-            comment += " reason : TODO";
+            issues.push(issue);
         }
 
-        const message =
-            refs.length === 1
-                ? hasKnown
-                    ? `DNL recommend usage of env.${refs[0].varName}, instead of process.env.${refs[0].varName}`
-                    : `DNL ignore process.env.${refs[0].varName}`
-                : hasKnown
-                  ? `DNL recommend usage of ${refs.map((r) => `env.${r.varName}`).join(", ")}, instead of ${refs.map((r) => `process.env.${r.varName}`).join(", ")}`
-                  : `DNL ${hasKnown ? "recommend" : "ignore"} process.env usages: ${refs.map((r) => r.varName).join(", ")}`;
+        // Concat all issues to one unique comment (for one statement).
+        let comment = `// ${issues.map((issue) => issue.annotation).join(" ")}`;
+        // dédoublonage éventuel
+        const messages = [...new Set(issues.flatMap((issue) => issue.messages))];
+        for (const message of messages) {
+            comment += `\n${message}`;
+        }
+        anchor.replaceWithText(`${comment}\n${old}`);
 
-        statement.replaceWithText(`${comment}\n${old}`);
-        return { annotation, message };
+        return issues;
     },
 };
