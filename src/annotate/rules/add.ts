@@ -14,8 +14,6 @@ export const addAnnotationRule: AnnotateRule = {
         const anchor = processEnvAccess[0].anchor;
         const old = anchor.getText();
 
-        console.log("old\n", old);
-
         // construit un objet pour connaitre les caractéristiques des commentaire
         for (const pea of processEnvAccess) {
             const issue: AnnotateEnvRuleIssue = {

@@ -7,14 +7,14 @@ import { InferCliOptions, inferCommand } from "./commands/infer.js";
 import { ExplainCliOptions, explainCommand, printHuman } from "./commands/explain.js";
 import { ExportCliOptions, exportCommand, ExportFormat } from "./commands/export.js";
 import { toFile } from "./utils/toFile.js";
-import { DnlError, ExitCodes, ValidationError } from "../errors.js";
+import { DnlError, ExitCodes, ProcessEnvError, ValidationError } from "../errors.js";
 
 import { ProgramCliOptions } from "./commands/program.js";
 import { Except, PackageJson } from "type-fest";
 
 import pkg from "../../package.json" with { type: "json" };
 import { TypesCliOptions, typesCommand } from "./commands/types.js";
-import { verboseReport } from "./utils/report.js";
+import { verboseReport, printWarnings, printErrors } from "./utils/report.js";
 import { AnnotateCliOptions, annotateCommand } from "./commands/annotate.js";
 
 export const dnlPackageJson: PackageJson = pkg as PackageJson;
@@ -25,6 +25,7 @@ const exitCodeHelp: { [key in ExitCodes]: string } = {
     [ExitCodes.schemaNotFound]: "DNL schema not found or not resolved",
     [ExitCodes.validationError]: "Validation failed (invalid environment)",
     [ExitCodes.exportError]: "Export error (format, file writing, secret, etc.)",
+    [ExitCodes.processEnvError]: "Process.env usageerrors (invalid or missing variables)",
 } as const;
 
 // #region Program
@@ -198,29 +199,70 @@ program
 // #region annotation
 
 // dnl process check | dnl process fix
-const processCmd = program.command("process").description("Analyze and refactor process.env usages in the codebase");
 
-processCmd
+program
     .command("annotate")
+    .description(
+        "Annotate process.env usages in the codebase.\n\n" +
+            "This command scans your project and adds contextual annotations to help migrate from process.env to DNL-validated variables."
+    )
     .option("-r, --remove", "Remove all dnl annotations from the codebase")
-    .option("-c, --check", "Check the codebase for process.env not annotated")
-    .option("--warn-as-error", "With check mode, warnings are considered as errors")
+    .option("-c, --check", "Check process.env usages (CI / git hooks)")
+    .option("--warn-as-error", "Treat warnings as errors (check mode only)")
+    .option("--silent-warn", "Do not display warnings (check mode only)")
     .option("--verbose", "Verbose mode")
-    .description("Annotate process.env to help migrate to dnl")
     .action(async (opts: AnnotateCliOptions) => {
         const globalOpts = program.opts<ProgramCliOptions>();
-        const { warnings } = await annotateCommand({ ...opts, schema: globalOpts.schema });
-        for (const warning of warnings) {
-            console.error(`${warning}`);
+        const report = await annotateCommand({ ...opts, schema: globalOpts.schema });
+
+        if (opts.verbose) {
+            for (const v of verboseReport(report)) {
+                console.log(v);
+            }
         }
-        if (opts.remove) {
-            console.log("✅ All dnl annotations removed");
-        } else {
-            console.log("✅ Environment is annotated");
+        // if not in check mode, return
+        if (report.mode !== "check") return;
+        // if there are errors, throw an error
+        // Or there is warning and warnAsError, throw an error
+        if (report.summary.checkErrors > 0) {
+            if (!opts.verbose)
+                for (const v of printErrors(report)) {
+                    console.log(v);
+                }
+            throw new ProcessEnvError("Process.env errors");
         }
 
-        // TODO Verbose mode
-    });
+        if (report.summary.checkWarnings > 0) {
+            if (!opts.silentWarn && !opts.verbose)
+                for (const v of printWarnings(report)) {
+                    console.log(v);
+                }
+            if (opts.warnAsError) {
+                throw new ProcessEnvError("Process.env warnings");
+            }
+        }
+        // if there are no warnings and no errors, return
+        return;
+    })
+    .addHelpText(
+        "after",
+        `\nExamples:
+        
+  # Annotate process.env usages in the codebase (local development)
+  dnl annotate
+  dnl --schema my-dnl.ts annotate
+  
+  # Remove all dnl annotations from the codebase
+  # Recommended locally (schema preparation, onboarding)
+  dnl annotate --remove
+        
+  # Check process.env usages (CI / pre-commit hook)
+  dnl annotate --check
+  dnl annotate --check --warn-as-error
+  dnl --schema my-dnl.ts annotate --check
+      `
+    )
+    .addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/annotate.md\n`);
 
 // #endregion process.env
 
@@ -507,6 +549,9 @@ try {
             console.error(`  → ${issue.message}`);
         }
 
+        process.exit(err.exitCode);
+    }
+    if (err instanceof ProcessEnvError) {
         process.exit(err.exitCode);
     }
     if (err instanceof DnlError) {

@@ -78,6 +78,7 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
 
     // prepare the report output
     const report: InferReport = {
+        type: "infer",
         inputs: {
             source,
             presets: presets.map((p) => p.origin),

@@ -1,3 +1,4 @@
+import path from "node:path";
 import { AnnotateRule, AnnotateRuleContext } from "./types.js";
 import { addAnnotationRule } from "./rules/add.js";
 import { removeAnnotationRule } from "./rules/remove.js";
@@ -18,9 +19,10 @@ export const annotateEngine = async (accesses: ProcessEnvAccess[], ctx: Annotate
     for (const rule of rules) {
         if (!rule.match(accesses, ctx)) continue;
         // Capture position and filePath before apply(): apply() may modify the AST
-        const filePath = ctx.sourceFile.getFilePath();
+        const filePath = path.relative(process.cwd(), ctx.sourceFile.getFilePath());
 
         const issues = await rule.apply(accesses, ctx);
+
         for (const issue of issues) {
             ctx.report.issues.push({
                 filePath,

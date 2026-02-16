@@ -2,12 +2,15 @@ import path from "node:path";
 import { InferReport } from "../../infer/report.types.js";
 import fs from "node:fs";
 import { cwd } from "node:process";
+import { AnnotateReport } from "../../annotate/report.type.js";
 
-export const saveReport = (report: InferReport) => {
+export type DnlReport = InferReport | AnnotateReport;
+
+export const saveReport = (report: DnlReport) => {
     const dir = path.resolve(cwd(), ".dnl");
     fs.mkdirSync(dir, { recursive: true });
 
-    const reportPath = path.join(dir, "infer.report.json");
+    const reportPath = path.join(dir, `${report.type}.report.json`);
     fs.writeFileSync(reportPath, JSON.stringify(report, replacer, 2), "utf8");
 };
 
@@ -28,7 +31,16 @@ const defaultVerboseReportOptions: VerboseReportOptions = {
     showRejectedRules: false,
 };
 
-export const verboseReport = (report: InferReport, options?: VerboseReportOptions): string[] => {
+export const verboseReport = (report: DnlReport, options?: VerboseReportOptions): string[] => {
+    if (report.type === "infer") {
+        return verboseInferReport(report as InferReport, options);
+    } else if (report.type === "annotate") {
+        return verboseAnnotateReport(report as AnnotateReport);
+    }
+    return [];
+};
+
+export const verboseInferReport = (report: InferReport, options?: VerboseReportOptions): string[] => {
     const opts = { ...defaultVerboseReportOptions, ...options };
     const verbose: string[] = [];
     verbose.push(`Infer report (verbose):`);
@@ -71,4 +83,91 @@ export const verboseReport = (report: InferReport, options?: VerboseReportOption
         verbose.push(`----------------------`);
     }
     return verbose;
+};
+
+export const verboseAnnotateReport = (report: AnnotateReport): string[] => {
+    const verbose: string[] = [];
+    verbose.push(`Annotate report (verbose):`);
+    verbose.push(`--------------------------`);
+
+    const action = report.mode === "add" ? "added" : report.mode === "remove" ? "removed" : "checked";
+
+    const issuesPerFile: Map<string, string[]> = new Map();
+    for (const issue of report.issues) {
+        const len = issue.nodeText.length;
+        const checkLevel = issue.checkLevel ? `[${issue.checkLevel}]` : "";
+
+        const issueText = `  - ${issue.nodeText} ${" ".repeat(Math.max(0, 40 - len))} => ${action} ${checkLevel} ${issue.annotation ?? ""}`;
+        issuesPerFile.set(issue.filePath, [...(issuesPerFile.get(issue.filePath) || []), issueText]);
+    }
+    for (const [filePath, issues] of issuesPerFile) {
+        verbose.push(`\n${filePath} : `);
+        verbose.push(...issues);
+    }
+
+    const what = report.mode === "check" ? "accesses" : "annotations";
+
+    verbose.push(`\nSummary: ${action} ${report.issues.length} ${what}`);
+    if (report.summary.filesScanned) verbose.push(`  - ${report.summary.filesScanned} files scanned`);
+    if (report.summary.accessesProcessed) verbose.push(`  - ${report.summary.accessesProcessed} accesses processed`);
+    if (report.summary.commentsAdded) verbose.push(`  - ${report.summary.commentsAdded} comments added`);
+    if (report.summary.commentsRemoved) verbose.push(`  - ${report.summary.commentsRemoved} comments removed`);
+    if (report.summary.checkErrors) verbose.push(`  - ${report.summary.checkErrors} check errors`);
+    if (report.summary.checkWarnings) verbose.push(`  - ${report.summary.checkWarnings} check warnings`);
+    return verbose;
+};
+
+export const printWarnings = (report: DnlReport): string[] => {
+    if (report.type === "annotate") {
+        return printWarningsAnnotateReport(report as AnnotateReport);
+    }
+    return [];
+};
+
+export const printWarningsAnnotateReport = (report: AnnotateReport): string[] => {
+    if (report.mode !== "check" || report.summary.checkWarnings === 0) return [];
+    const verbose: string[] = [];
+    verbose.push(`Warnings report :`);
+    verbose.push(`----------------------`);
+
+    commonPrintAnnotateIssues(report, verbose);
+    return verbose;
+};
+
+export const printErrors = (report: DnlReport): string[] => {
+    if (report.type === "annotate") {
+        return printErrorsAnnotateReport(report as AnnotateReport);
+    }
+    return [];
+};
+
+export const printErrorsAnnotateReport = (report: AnnotateReport): string[] => {
+    if (report.mode !== "check") return [];
+    const verbose: string[] = [];
+    verbose.push(`Errors report :`);
+    verbose.push(`----------------------`);
+    commonPrintAnnotateIssues(report, verbose);
+    return verbose;
+};
+
+const commonPrintAnnotateIssues = (report: AnnotateReport, verbose: string[]): void => {
+    const issuesPerFile: Map<string, string[]> = new Map();
+    for (const issue of report.issues) {
+        const len = issue.nodeText.length;
+        const checkLevel = issue.checkLevel ? `[${issue.checkLevel}]` : "";
+        if (checkLevel === "info") continue;
+
+        const issueText = `  - ${issue.nodeText} ${" ".repeat(Math.max(0, 40 - len))} =>  ${checkLevel} ${issue.annotation ?? ""}`;
+        issuesPerFile.set(issue.filePath, [...(issuesPerFile.get(issue.filePath) || []), issueText]);
+    }
+    for (const [filePath, issues] of issuesPerFile) {
+        verbose.push(`\n${filePath} : `);
+        verbose.push(...issues);
+    }
+
+    verbose.push(`\nSummary: ${report.issues.length} "accesses"`);
+    if (report.summary.filesScanned) verbose.push(`  - ${report.summary.filesScanned} files scanned`);
+    if (report.summary.accessesProcessed) verbose.push(`  - ${report.summary.accessesProcessed} accesses processed`);
+    if (report.summary.checkErrors) verbose.push(`  - ${report.summary.checkErrors} check errors`);
+    if (report.summary.checkWarnings) verbose.push(`  - ${report.summary.checkWarnings} check warnings`);
 };

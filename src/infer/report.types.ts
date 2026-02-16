@@ -27,6 +27,7 @@ export type InferReportEntry = {
 };
 
 export type InferReport = {
+    type: "infer";
     inputs: {
         source: string;
         presets: Array<string>;

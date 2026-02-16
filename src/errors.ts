@@ -4,6 +4,7 @@ export enum ExitCodes {
     schemaNotFound = 2,
     validationError = 3,
     exportError = 4,
+    processEnvError = 5,
 }
 
 export class DnlError extends Error {
@@ -40,5 +41,11 @@ export class ValidationError extends DnlError {
 export class ExportError extends DnlError {
     constructor(message: string) {
         super(message, ExitCodes.exportError);
+    }
+}
+
+export class ProcessEnvError extends DnlError {
+    constructor(message: string) {
+        super(message, ExitCodes.processEnvError);
     }
 }

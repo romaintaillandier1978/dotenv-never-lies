@@ -32,8 +32,10 @@ export type AnnotateSummary = {
     checkErrors: number;
     checkWarnings: number;
 };
+
 export type AnnotateMode = "check" | "remove" | "add";
 export type AnnotateReport = {
+    type: "annotate";
     mode: AnnotateMode;
     issues: AnnotateIssue[];
     summary: AnnotateSummary;

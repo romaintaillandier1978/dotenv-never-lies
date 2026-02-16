@@ -25,7 +25,7 @@
         "sample:assert": "yarn build && dnl --schema src/sample/env.dnl.ts  assert --source src/sample/.env ",
         "sample:init": "yarn build && dnl --schema src/sample/env.dnl.ts  init --out src/sample/.env.out -f ",
         "sample:types": "yarn build && dnl --schema src/sample/env.dnl.ts types -fo src/sample/types/env.dnl.d.ts",
-        "sample:annotate": "yarn build && dnl  --schema src/sample/env.dnl.ts  process annotate ",
+        "sample:annotate": "yarn build && dnl  --schema src/sample/env.dnl.ts  annotate ",
         "sample:main": "yarn build && tsx src/sample/main.ts",
         "gen:presets": "tsx src/infer/scripts/official-preset-registry.gen.ts"
     },

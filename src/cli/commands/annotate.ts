@@ -8,16 +8,14 @@ import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { EnvDefinition } from "../../index.js";
 import { UsageError } from "../../errors.js";
+import { saveReport } from "../utils/report.js";
 
 export type AnnotateCliOptions = ProgramCliOptions & {
     remove?: boolean;
     check?: boolean;
     warnAsError?: boolean;
+    silentWarn?: boolean;
     verbose?: boolean;
-};
-
-export type AnnotateResult = {
-    warnings: string[];
 };
 
 const defaultAnnotateOptions: AnnotateCliOptions = {
@@ -27,7 +25,7 @@ const defaultAnnotateOptions: AnnotateCliOptions = {
     verbose: false,
 };
 
-export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<AnnotateResult> => {
+export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<AnnotateReport> => {
     if (_opts.check && _opts.remove) {
         throw new UsageError("--check and --remove options cannot be used together");
     }
@@ -40,6 +38,7 @@ export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<Annota
     const schemaPath = resolveSchemaPath(opts?.schema);
     const envDef = (await loadDef(schemaPath)) as dnl.EnvDefinitionHelper<EnvDefinition>;
     const report: AnnotateReport = {
+        type: "annotate",
         mode,
         issues: [],
         summary: {
@@ -87,10 +86,13 @@ export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<Annota
         // we are working with text and therefore the offsets shift as we delete.
         // we need to start from the end!
         if (mode === "remove") {
+            // ici, ca ne supprime plus le texte !
             const filePath = sourceFile.getFilePath();
             const withRemoval = report.issues.filter(
-                (issue): issue is AnnotateIssue & { removalRange: { start: number; end: number } } => issue.filePath === filePath && issue.removalRange != null
+                (issue): issue is AnnotateIssue & { removalRange: { start: number; end: number } } =>
+                    filePath.endsWith(issue.filePath) && issue.removalRange != null
             );
+
             const sorted = [...withRemoval].sort((a, b) => b.removalRange.start - a.removalRange.start);
             for (const issue of sorted) {
                 sourceFile.replaceText([issue.removalRange.start, issue.removalRange.end], "");
@@ -104,10 +106,8 @@ export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<Annota
         }
     }
 
-    console.log("report : ", JSON.stringify(report, null, 2));
-    // TODO : save the report.
-    // TODO : verbose
-    return { warnings: [] };
+    saveReport(report);
+    return report;
 };
 
 export type AnnotateCheckCliOptions = ProgramCliOptions & {

@@ -291,6 +291,19 @@ Useful for getting IntelliSense _after_ finalizing your DNL schema completion.
 
 → [Read infer documentation](docs/commands/types.md)
 
+### annotate: Identify and manage `process.env` usages
+
+Scans the codebase and adds contextual annotations to help migrate from `process.env` to DNL-validated variables.
+
+```bash
+dnl annotate
+```
+
+- Use locally to discover and progressively replace legacy `process.env` usages.
+- Use `dnl annotate --check` in CI or Git hooks (pre-commit, post-merge) to prevent introducing new unreviewed `process.env` accesses.
+
+→ [Read annotate documentation](docs/commands/annotate.md)
+
 ### assert: Validate environement variables (runtime, CI-friendly)
 
 Validates variables without injecting them into `process.env`.
