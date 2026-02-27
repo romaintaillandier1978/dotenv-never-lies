@@ -65,9 +65,9 @@ export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<Annota
             continue;
         }
 
-        // Grouper par statement : un statement peut contenir plusieurs process.env
-        // (ex. process.env.A ?? process.env["B"]). On traite tous les accès du statement ensemble
-        // pour produire une seule issue et un commentaire avec tous les @see.
+        // Group by statement: a statement may contain multiple process.env accesses
+        // (e.g. process.env.A ?? process.env["B"]). We process all accesses of the statement together
+        // to produce a single issue and a comment with all @see.
         const accessesByStatement = groupProcessEnvAccessesByStatementMap(accesses);
         const before = sourceFile.getFullText();
         for (const statementAccesses of accessesByStatement.values()) {
@@ -81,12 +81,12 @@ export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<Annota
                 report,
             });
         }
-        // in remove mode  :
+        // In remove mode:
         // we are no longer working with the AST which does not contain comments.
         // we are working with text and therefore the offsets shift as we delete.
         // we need to start from the end!
         if (mode === "remove") {
-            // ici, ca ne supprime plus le texte !
+            // Here we remove the text.
             const filePath = sourceFile.getFilePath();
             const withRemoval = report.issues.filter(
                 (issue): issue is AnnotateIssue & { removalRange: { start: number; end: number } } =>

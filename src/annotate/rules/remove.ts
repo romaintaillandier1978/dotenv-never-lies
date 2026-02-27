@@ -4,18 +4,18 @@ import { getDnlAnnotation, hasDnlAnnotation } from "../helper.js";
 
 export const removeAnnotationRule: AnnotateRule = {
     match(processEnvAccesses) {
-        // si un seul a une annotation, on devra la supprimer
+        // If at least one has an annotation, we need to remove it
         if (processEnvAccesses.some((pea) => hasDnlAnnotation(pea.anchor))) return true;
         return false;
     },
 
     async apply(processEnvAccesses): Promise<AnnotateEnvRuleIssue[]> {
-        // ici, on veut supprimer les commentaires ajoutés par la rule Add.
-        // add prend le même paramètre que remove.
-        // Add construit un seul commentaire pour toute les AnnotateEnvRuleIssue d'un groupe.
+        // We want to remove the comments added by the Add rule.
+        // Add takes the same parameter as remove.
+        // Add builds a single comment for all AnnotateEnvRuleIssue in a group.
 
-        // donc on a qu'un bloc a supprimer, le premier qu'on trouve !
-        // Mais on va quand même essayer de détecter toutes les annotation qu'on va supprimer.
+        // So we only have one block to remove, the first we find!
+        // But we still try to detect all annotations we are going to remove.
         const issues: AnnotateEnvRuleIssue[] = [];
         let detected = false;
         const hasAnnotation = hasDnlAnnotation(processEnvAccesses[0].anchor);
@@ -25,7 +25,7 @@ export const removeAnnotationRule: AnnotateRule = {
 
         for (let i = 0; i < processEnvAccesses.length; i++) {
             if (!hasAnnotation || !dnlAnnotation || dnlAnnotation.ranges.length < 1) {
-                // On devrait pas être la !
+                // We should not be here!
                 continue;
             }
 

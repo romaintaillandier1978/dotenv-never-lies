@@ -1,11 +1,10 @@
 import { z } from "zod";
 
-// Note to myself :
-// On est volontairement permissifs.
+// Note: we intentionally keep this permissive.
 //
-// On fait au plus simple : un path contient au moins un / ou un \
-// sinon on sait pas.
-// si oui, c'est presque certain que c'est un path, dans un .env
+// Simple heuristic: a path contains at least one / or \
+// otherwise we cannot tell.
+// If it does, it is very likely a path in a .env context.
 
 export const looksLikePath = (value: string) => value.includes("/") || value.includes("\\");
 
@@ -14,7 +13,7 @@ export const looksLikeFilename = (value: string) => !value.includes("/") && !val
 export const looksLikeFilePath = (value: string) => (value.includes("/") || value.includes("\\")) && value.split(/[\\/]/).pop()?.includes(".");
 
 //
-// Les schéma vont refléter ca
+// The schemas will reflect this.
 
 /**
  * Creates a Zod schema for a path.

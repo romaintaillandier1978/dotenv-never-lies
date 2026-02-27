@@ -25,7 +25,7 @@ const exitCodeHelp: { [key in ExitCodes]: string } = {
     [ExitCodes.schemaNotFound]: "DNL schema not found or not resolved",
     [ExitCodes.validationError]: "Validation failed (invalid environment)",
     [ExitCodes.exportError]: "Export error (format, file writing, secret, etc.)",
-    [ExitCodes.processEnvError]: "Process.env usageerrors (invalid or missing variables)",
+    [ExitCodes.processEnvError]: "Process.env usage errors (invalid or missing variables)",
 } as const;
 
 // #region Program

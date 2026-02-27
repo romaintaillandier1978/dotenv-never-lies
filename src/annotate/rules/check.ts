@@ -1,7 +1,7 @@
 import { AnnotateRule } from "../types.js";
 import { AnnotateEnvRuleIssue, DNL_ANNOTATION } from "../report.type.js";
 import { getDnlAnnotationType, hasDnlAnnotation } from "../helper.js";
-import { ProcessEnvAccess } from "../annotate-collector.js";
+import { ProcessEnvAccess } from "../../ast-tools/ast.types.js";
 
 export const checkAnnotationRule: AnnotateRule = {
     match(processEnvAccesses) {
@@ -27,13 +27,13 @@ export const checkAnnotationRule: AnnotateRule = {
             };
 
             const anchor = pea.anchor;
-            // Si aucune annotation => Erreur !
+            // No annotation => Error!
             if (!anchor || !hasDnlAnnotation(anchor)) {
                 issues.push(noAnnotationIssue);
                 continue;
             }
 
-            // Si ona a une annotation, on la récupère et on crée l'issue correspondante.
+            // If we have an annotation, retrieve it and create the corresponding issue.
             const annotation = getDnlAnnotationType(anchor);
             const issue: AnnotateEnvRuleIssue = {
                 nodeText: pea.node.getText(),
@@ -46,8 +46,8 @@ export const checkAnnotationRule: AnnotateRule = {
                     issues.push(noAnnotationIssue);
                     break;
                 case DNL_ANNOTATION.ignore:
-                    // normalement ce cas est écarté par match, avant d'arriver dans apply.
-                    // On laisse le case, pour faire créer de résultat vide, ou absurde, mais ca n'arrive pas.
+                    // Normally this case is filtered out by match before reaching apply.
+                    // We keep the case to produce an empty/absurd result, but it should not happen.
                     issue.checkLevel = "info";
                     issues.push(issue);
                     break;

@@ -16,7 +16,7 @@ export const saveReport = (report: DnlReport) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const replacer = function (this: any, key: string, value: any) {
-    // On supprime `schema` uniquement dans les entries de preset
+    // Remove `schema` only in preset entries
     if (key === "schema" && this && typeof this === "object" && "description" in this && "kind" in this && "code" in this) {
         return undefined;
     }

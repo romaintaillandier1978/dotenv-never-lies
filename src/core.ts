@@ -39,7 +39,7 @@ export type EnvVarDefinition<T extends z.ZodType = z.ZodType> = Simplify<{
 
 // any is required here to leverage TypeScript inference.
 //export type EnvDefinition = Record<string, EnvVarDefinition<any>>;
-// TODO : Vérifier si ca marche toujours avec z.ZodType vs any
+// TODO: Verify this still works with z.ZodType vs any
 /**
  * An object containing the defined environment variables.
  */

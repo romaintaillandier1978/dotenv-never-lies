@@ -18,6 +18,11 @@ export function loadConfig() {
         db: process.env.POSTGRES_DB || "default-db",
     };
 
+    const { POSTGRES_PORT = 3000 } = process.env;
+    console.log("POSTGRES_PORT:", POSTGRES_PORT);
+    const anotherPort = process.env["POSTGRES_PORT"] || "4000";
+    console.log("POSTGRES_PORT:", anotherPort);
+
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
         throw new Error("JWT_SECRET is required");

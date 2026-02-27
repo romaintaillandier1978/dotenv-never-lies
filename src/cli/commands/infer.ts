@@ -11,6 +11,7 @@ import { saveReport } from "../utils/report.js";
 import { guessSecretRule } from "../../infer/secret.js";
 import { crossEngine } from "../../infer/cross.js";
 import { toValidIdentifier } from "../utils/valid-identifier.js";
+import { collectProcessEnvAccessesByName } from "../../infer/process.env/infer-collector.js";
 
 export type InferCliOptions = {
     source?: string;
@@ -65,6 +66,8 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
     } else {
         presets = [];
     }
+    // Collect process.env accesses by name, to discover potential default values.
+    const processEnvAccessesByName = collectProcessEnvAccessesByName();
 
     // load source
     const env = dnl.readEnvFile(source, { onDuplicate: opts?.warnOnDuplicates ? "warn" : "error" }, warnings);
@@ -88,7 +91,7 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
         warnings,
     };
 
-    // Now for each environment variable, readed from source
+    // Now for each environment variable, read from source
     for (const [name, rawValue] of Object.entries(env)) {
         // prepare the report entry for the current environment variable
         const reportEntry: InferReportEntry = {
@@ -102,9 +105,17 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
         // write the variable declaration to the code lines
         codeLines.push(`    ${safeKey}: {`);
 
+        const defaultLines: string[] = [];
+        const accesses = processEnvAccessesByName.get(name);
+        if (accesses) {
+            for (const access of accesses) {
+                defaultLines.push(`        // Fallback value observed in code: ${access.defaultValue} (${access.relativeFilePath}:${access.pos.line})`);
+            }
+        }
+
         // ----------------------------------------------------------------------------------------------------------
-        // Step 1 : Apply preset rules.
-        // check if the variable is defined in any preset
+        // Step 1: Apply preset rules.
+        // Check if the variable is defined in any preset
         const pressetEvaluatedRules = findPresetEntry(presets, name);
         if (pressetEvaluatedRules) {
             reportEntry.evaluatedRules.push(...pressetEvaluatedRules);
@@ -119,6 +130,7 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
             if (entry.schema.safeParse(rawValue).success) {
                 codeLines.push(`        // from @preset ${origin.join(", ")}`);
                 codeLines.push(`        description: "${entry.description}",`);
+                codeLines.push(...defaultLines); // Might be empty
                 codeLines.push(`        schema: ${entry.code},`);
                 codeLines.push(`        secret: ${entry.secret ? "true" : "false"},`);
                 if (entry.examples) {
@@ -141,7 +153,7 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
         codeLines.push(`        description: "TODO",`);
 
         // ----------------------------------------------------------------------------------------------------------
-        // Step 2 : Apply secret rules.
+        // Step 2: Apply secret rules.
         let isSecret = false;
         if (opts?.guessSecret ?? true) {
             const secretResult = guessSecretRule(name);
@@ -164,21 +176,22 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
         if (rawValue === undefined) {
             // undefined means the variable is not set in the .env file
             codeLines.push(`        schema: z.string().optional(),`);
+            codeLines.push(...defaultLines); // Might be empty
         } else {
             const context: InferContext = { name, rawValue, imports: importedSchemas, reasons: [], codeWarnings: [] };
 
             // ----------------------------------------------------------------------------------------------------------
-            // Step 3 : Apply heuristic rules.
+            // Step 3: Apply heuristic rules.
             const evaluatedRules = heuristicEngine(context);
             reportEntry.evaluatedRules.push(...evaluatedRules);
 
-            // the process of checking rule, garanties that exactly one rule will be accepted.
+            // The rule-checking process guarantees that exactly one rule will be accepted.
             const generated = evaluatedRules.find((r) => r.outcome === "accepted")?.result.generated;
 
             if (generated) {
                 // ----------------------------------------------------------------------------------------------------------
-                // Step 4 : Apply cross inference rules.
-                // TODO : check this.
+                // Step 4: Apply cross inference rules.
+                // TODO: verify this.
                 const evaluatedCrossRules = crossEngine({ inferredSchema: generated, isSecret, ...context });
                 reportEntry.evaluatedRules.push(...evaluatedCrossRules);
 
@@ -189,6 +202,7 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
                         }
                     }
                 }
+                codeLines.push(...defaultLines); // Might be empty
                 codeLines.push(`        schema: ${generated.code},`);
             }
         }
@@ -241,7 +255,7 @@ const insertImports = (lines: string[], imports: Array<Import>): void => {
         byFrom.set(imp.from, current);
     }
     const importLines: string[] = [];
-    // tri par 'from' pour stabilité
+    // Sort by 'from' for stability
     const froms = Array.from(byFrom.keys()).sort();
     for (const from of froms) {
         const names = Array.from(byFrom.get(from) ?? new Set<string>()).sort();
