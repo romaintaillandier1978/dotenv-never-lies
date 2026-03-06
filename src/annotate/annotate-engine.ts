@@ -3,7 +3,7 @@ import { AnnotateRule, AnnotateRuleContext } from "./types.js";
 import { addAnnotationRule } from "./rules/add.js";
 import { removeAnnotationRule } from "./rules/remove.js";
 import { checkAnnotationRule } from "./rules/check.js";
-import { ProcessEnvAccess } from "../ast-tools/ast.types.js";
+import { ProcessEnvUsages } from "../ast-tools/ast.types.js";
 
 const RULES_ANNOTATE: AnnotateRule[] = [addAnnotationRule];
 const RULES_REMOVE: AnnotateRule[] = [removeAnnotationRule];
@@ -13,7 +13,7 @@ const RULES_CHECK: AnnotateRule[] = [checkAnnotationRule];
  * Processes a statement: all nodes are process.env usages from the same statement.
  * A single issue is produced per statement.
  */
-export const annotateEngine = async (accesses: ProcessEnvAccess[], ctx: AnnotateRuleContext): Promise<void> => {
+export const annotateEngine = async (accesses: ProcessEnvUsages[], ctx: AnnotateRuleContext): Promise<void> => {
     if (accesses.length === 0) return;
     const rules = ctx.mode === "remove" ? RULES_REMOVE : ctx.mode === "check" ? RULES_CHECK : RULES_ANNOTATE;
     for (const rule of rules) {

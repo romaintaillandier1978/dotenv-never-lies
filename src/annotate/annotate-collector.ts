@@ -1,9 +1,9 @@
 import { Node, SourceFile } from "ts-morph";
 import { getAnchor } from "../ast-tools/ast-helpers.js";
-import { ProcessEnvAccess } from "../ast-tools/ast.types.js";
+import { ProcessEnvUsages } from "../ast-tools/ast.types.js";
 
-export const collectProcessEnvAccesses = (sourceFile: SourceFile): ProcessEnvAccess[] => {
-    const accesses: ProcessEnvAccess[] = [];
+export const collectProcessEnvUsages = (sourceFile: SourceFile): ProcessEnvUsages[] => {
+    const accesses: ProcessEnvUsages[] = [];
     const relativeFilePath = sourceFile.getFilePath();
     for (const node of sourceFile.getDescendants()) {
         const pos = node.getSourceFile().getLineAndColumnAtPos(node.getStart());
@@ -53,38 +53,4 @@ export const collectProcessEnvAccesses = (sourceFile: SourceFile): ProcessEnvAcc
     }
 
     return accesses;
-};
-
-/** All process.env accesses grouped by statement (key = statement.getStart()). */
-export const groupProcessEnvAccessesByStatementMap = (accesses: ProcessEnvAccess[]): Map<number, ProcessEnvAccess[]> => {
-    const byStatement = new Map<number, ProcessEnvAccess[]>();
-    for (const access of accesses) {
-        if (access.anchor) {
-            const key = access.anchor.getStart();
-            const list = byStatement.get(key) ?? [];
-            list.push(access);
-            byStatement.set(key, list);
-        }
-    }
-    return byStatement;
-};
-
-/**
- * Returns the environment variable name for a process.env.X or process.env["X"] node.
- */
-export const getProcessEnvVarName = (node: Node): string | null => {
-    if (Node.isPropertyAccessExpression(node)) {
-        return node.getName();
-    }
-    if (Node.isElementAccessExpression(node)) {
-        const arg = node.getArgumentExpression();
-        if (!arg) return null;
-        const text = arg.getText();
-        // Strip single or double quotes
-        if ((text.startsWith('"') && text.endsWith('"')) || (text.startsWith("'") && text.endsWith("'"))) {
-            return text.slice(1, -1);
-        }
-        return text;
-    }
-    return null;
 };

@@ -1,6 +1,6 @@
 import dnl from "../../index.js";
 import { ProgramCliOptions } from "./program.js";
-import { collectProcessEnvAccesses, groupProcessEnvAccessesByStatementMap } from "../../annotate/annotate-collector.js";
+import { collectProcessEnvUsages } from "../../annotate/annotate-collector.js";
 import { annotateEngine } from "../../annotate/annotate-engine.js";
 import { Project } from "ts-morph";
 import { AnnotateMode, AnnotateReport, type AnnotateIssue } from "../../annotate/report.type.js";
@@ -9,6 +9,7 @@ import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { EnvDefinition } from "../../index.js";
 import { UsageError } from "../../errors.js";
 import { saveReport } from "../utils/report.js";
+import { groupProcessEnvUsagesByStatementMap } from "../../ast-tools/ast-helpers.js";
 
 export type AnnotateCliOptions = ProgramCliOptions & {
     remove?: boolean;
@@ -59,7 +60,7 @@ export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<Annota
 
     for (const sourceFile of sourceFiles) {
         report.summary.filesScanned++;
-        const accesses = collectProcessEnvAccesses(sourceFile);
+        const accesses = collectProcessEnvUsages(sourceFile);
 
         if (accesses.length < 1) {
             continue;
@@ -68,7 +69,7 @@ export const annotateCommand = async (_opts: AnnotateCliOptions): Promise<Annota
         // Group by statement: a statement may contain multiple process.env accesses
         // (e.g. process.env.A ?? process.env["B"]). We process all accesses of the statement together
         // to produce a single issue and a comment with all @see.
-        const accessesByStatement = groupProcessEnvAccessesByStatementMap(accesses);
+        const accessesByStatement = groupProcessEnvUsagesByStatementMap(accesses);
         const before = sourceFile.getFullText();
         for (const statementAccesses of accessesByStatement.values()) {
             await annotateEngine(statementAccesses, {

@@ -1,14 +1,14 @@
 import path from "node:path";
 import { Node, Project, type Statement, type ObjectLiteralElementLike, type ObjectLiteralExpression } from "ts-morph";
-import { ProcessEnvAccess } from "./ast.types.js";
+import { ProcessEnvUsages } from "./ast.types.js";
 
 export const getAnchor = (node: Node): Statement | null => {
     return node.getFirstAncestor((n) => Node.isStatement(n)) ?? null;
 };
 
 /** All process.env accesses grouped by statement (key = statement.getStart()). */
-export const groupProcessEnvAccessesByStatementMap = (accesses: ProcessEnvAccess[]): Map<number, ProcessEnvAccess[]> => {
-    const byStatement = new Map<number, ProcessEnvAccess[]>();
+export const groupProcessEnvUsagesByStatementMap = (accesses: ProcessEnvUsages[]): Map<number, ProcessEnvUsages[]> => {
+    const byStatement = new Map<number, ProcessEnvUsages[]>();
     for (const access of accesses) {
         const statement = access.node.getFirstAncestor((n) => Node.isStatement(n));
         if (statement) {

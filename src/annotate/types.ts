@@ -1,7 +1,7 @@
 import type { Project, SourceFile } from "ts-morph";
 import type { AnnotateEnvRuleIssue, AnnotateMode, AnnotateReport, DNLAnnotationType } from "./report.type.js";
 import { EnvDefinition, EnvDefinitionHelper } from "../index.js";
-import { ProcessEnvAccess } from "../ast-tools/ast.types.js";
+import { ProcessEnvUsages } from "../ast-tools/ast.types.js";
 
 export type AnnotateRuleContext = {
     mode: AnnotateMode;
@@ -22,12 +22,12 @@ export interface AnnotateRule {
     /**
      * Return true if this rule can handle the given AST node
      */
-    match(access: ProcessEnvAccess[], ctx: AnnotateRuleContext): boolean;
+    match(access: ProcessEnvUsages[], ctx: AnnotateRuleContext): boolean;
 
     /**
      * Apply the rule. Receives all process.env nodes from the same statement.
      * - In check mode: must NOT mutate the AST
      * - In fix mode: MAY mutate the AST
      */
-    apply(accesses: ProcessEnvAccess[], ctx: AnnotateRuleContext): Promise<AnnotateEnvRuleIssue[]>;
+    apply(accesses: ProcessEnvUsages[], ctx: AnnotateRuleContext): Promise<AnnotateEnvRuleIssue[]>;
 }

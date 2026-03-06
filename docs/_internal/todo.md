@@ -19,7 +19,8 @@
 
 - cli completion
 
-- doc de infer, parler du rapport.
+- utiliser ca annotate => src/ast-tools/process-env-usage-collector.ts :
+- doc de infer, parler du rapport, parler de l'inférence process.env fallback
 
 - lors de l'inférence, rechercher les variables process.env.VAR. les injecter en commentaire dans le schéma DNL.
 

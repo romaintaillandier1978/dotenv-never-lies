@@ -74,8 +74,17 @@ export const verboseInferReport = (report: InferReport, options?: VerboseReportO
             verbose.push(`  -> WARNING : ${warning}`);
         }
     }
+    verbose.push("\n");
+
+    if (report.unknownVars && report.unknownVars.length > 0) {
+        verbose.push(`----------------------`);
+        verbose.push(`⚠️  UNKNOWN VARIABLES (${report.unknownVars.length}) :`);
+        for (const unknownVar of report.unknownVars) {
+            verbose.push(`  -> ${unknownVar.envVarName} (${unknownVar.occurences.map((o) => `${o.file}:${o.line}`).join(", ")})`);
+        }
+    }
     if (report.warnings.length > 0) {
-        verbose.push(`\n----------------------`);
+        verbose.push(`----------------------`);
         verbose.push(`⚠️  WARNINGS (${report.warnings.length}) :`);
         for (const warning of report.warnings) {
             verbose.push(`  -> ${warning}`);

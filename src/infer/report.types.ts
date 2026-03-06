@@ -20,12 +20,27 @@ type _EvaluatedRule<T extends RuleMethod> = {
 
 export type EvaluatedRule<T extends RuleMethod> = { [key in RuleMethod]: _EvaluatedRule<key> }[T];
 
-export type InferReportEntry = {
+export type FallbackInfo = {
+    fallbackValue?: string | undefined;
+    file: string;
+    line: number;
+};
+export type InferReportVarEntry = {
     envVarName: string;
     evaluatedRules: Array<EvaluatedRule<RuleMethod>>;
     warnings: Array<string>;
+    fallbacks?: Array<FallbackInfo> | undefined;
 };
 
+export type InferReportUnknownVarEntry = {
+    envVarName: string;
+    warnings: Array<string>;
+    occurences: Array<{
+        file: string;
+        line: number;
+    }>;
+    fallbacks?: Array<FallbackInfo> | undefined;
+};
 export type InferReport = {
     type: "infer";
     inputs: {
@@ -33,6 +48,7 @@ export type InferReport = {
         presets: Array<string>;
         discoverPresets: boolean;
     };
-    envVars: Array<InferReportEntry>;
+    envVars: Array<InferReportVarEntry>;
+    unknownVars?: Array<InferReportUnknownVarEntry>;
     warnings: Array<string>;
 };

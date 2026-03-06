@@ -6,12 +6,12 @@ import { ExportError } from "../../errors.js";
 import { Import, InferContext } from "../../infer/infer.types.js";
 import { discoverPresets, findPresetEntry, getPresetsFromNames } from "../../infer/presets.js";
 import { PressetDef } from "../../infer/presets.types.js";
-import { InferReportEntry, InferReport, EvaluatedRule, RuleMethod } from "../../infer/report.types.js";
+import { InferReportVarEntry, InferReport, EvaluatedRule, RuleMethod, FallbackInfo, InferReportUnknownVarEntry } from "../../infer/report.types.js";
 import { saveReport } from "../utils/report.js";
 import { guessSecretRule } from "../../infer/secret.js";
 import { crossEngine } from "../../infer/cross.js";
 import { toValidIdentifier } from "../utils/valid-identifier.js";
-import { collectProcessEnvAccessesByName } from "../../infer/process.env/infer-collector.js";
+import { collectInferUsagesByName } from "../../infer/process.env/infer-collector.js";
 
 export type InferCliOptions = {
     source?: string;
@@ -66,8 +66,8 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
     } else {
         presets = [];
     }
-    // Collect process.env accesses by name, to discover potential default values.
-    const processEnvAccessesByName = collectProcessEnvAccessesByName();
+    // Collect process.env usages by name, to discover potential fallback values.
+    const usagesByName = collectInferUsagesByName();
 
     // load source
     const env = dnl.readEnvFile(source, { onDuplicate: opts?.warnOnDuplicates ? "warn" : "error" }, warnings);
@@ -94,7 +94,7 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
     // Now for each environment variable, read from source
     for (const [name, rawValue] of Object.entries(env)) {
         // prepare the report entry for the current environment variable
-        const reportEntry: InferReportEntry = {
+        const reportEntry: InferReportVarEntry = {
             envVarName: name,
             evaluatedRules: new Array<EvaluatedRule<RuleMethod>>(),
             warnings: new Array<string>(),
@@ -106,13 +106,20 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
         codeLines.push(`    ${safeKey}: {`);
 
         const defaultLines: string[] = [];
-        const accesses = processEnvAccessesByName.get(name);
-        if (accesses) {
-            for (const access of accesses) {
-                defaultLines.push(`        // Fallback value observed in code: ${access.defaultValue} (${access.relativeFilePath}:${access.pos.line})`);
+        const usages = usagesByName.get(name);
+        if (usages) {
+            reportEntry.fallbacks = new Array<FallbackInfo>();
+            for (const u of usages) {
+                if ("fallbackLiteral" in u && u.fallbackLiteral) {
+                    // create comment for env.dnl.ts
+                    defaultLines.push(`        // Fallback value observed in code: ${u.fallbackLiteral} (${u.relativeFilePath}:${u.pos.line})`);
+                    // create fallback for report.
+                    reportEntry.fallbacks.push({ fallbackValue: u.fallbackLiteral, file: u.relativeFilePath, line: u.pos.line });
+                }
             }
+            // Remove known variables from usage map to detect unknown variables at the end
+            usagesByName.delete(name);
         }
-
         // ----------------------------------------------------------------------------------------------------------
         // Step 1: Apply preset rules.
         // Check if the variable is defined in any preset
@@ -213,8 +220,38 @@ export const inferCommand = async (opts?: InferCliOptions | undefined): Promise<
         report.envVars.push(reportEntry);
     }
 
+    /// missing variables that exists in the source but not in the schema
+    // we have deleted existing entry for known variable when we processed them, ...
+    // ... so the remaining entries are unknown variables.
+    if (usagesByName.size > 0) {
+        report.unknownVars = new Array<InferReportUnknownVarEntry>();
+        for (const [name, usages] of usagesByName.entries()) {
+            const unknownVarEntry: InferReportUnknownVarEntry = {
+                envVarName: name,
+                occurences: usages.map((u) => ({ file: u.relativeFilePath, line: u.pos.line })),
+                warnings: new Array<string>(),
+            };
+            codeLines.push(`    // ⚠️ Unknown variable, discovered in code but absent from source file (${usages[0].relativeFilePath}:${usages[0].pos.line})`);
+            codeLines.push(`    // ${toValidIdentifier(name)}: {`);
+            codeLines.push(`    //    description: "TODO",`);
+            for (const u of usages) {
+                if ("fallbackLiteral" in u && u.fallbackLiteral) {
+                    codeLines.push(`    //    // Fallback value observed in code: ${u.fallbackLiteral} (${u.relativeFilePath}:${u.pos.line})`);
+                    if (!unknownVarEntry.fallbacks) {
+                        unknownVarEntry.fallbacks = new Array<FallbackInfo>();
+                    }
+                    unknownVarEntry.fallbacks!.push({ fallbackValue: u.fallbackLiteral, file: u.relativeFilePath, line: u.pos.line });
+                }
+            }
+            codeLines.push(`    //    schema: z.string(),`);
+            codeLines.push(`    //},`);
+            report.unknownVars!.push(unknownVarEntry);
+        }
+    }
+
     codeLines.push(`});`);
 
+    // Little tip to help the user to generate the d.ts file.
     codeLines.push("/**");
     codeLines.push(" * ----------------------------------------------------------------------------------------------------------");
     codeLines.push(" * ℹ️ DNL TIP");

@@ -1,6 +1,6 @@
-import { InferReportEntry } from "../../infer/report.types.js";
+import { InferReportVarEntry } from "../../infer/report.types.js";
 
-export const toValidIdentifier = (name: string, reportEntry: InferReportEntry | undefined = undefined): string => {
+export const toValidIdentifier = (name: string, reportEntry: InferReportVarEntry | undefined = undefined): string => {
     // check if the variable name is a valid identifier
     const isValidIdentifier = /^[A-Za-z_$][A-Za-z0-9_$]*$/.test(name);
     const safeKey = isValidIdentifier ? name : JSON.stringify(name);

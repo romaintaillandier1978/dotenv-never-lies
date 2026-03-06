@@ -1,17 +1,19 @@
 import { Node, type Statement } from "ts-morph";
 type EmptyObject = Record<never, never>;
 
-export type ProcessEnvAccessKind =
+export type ProcessEnvUsageKind =
     | "global" // process.env
     | "static" // process.env.X | process.env["X"]
-    | "dynamic"; // process.env[key]
+    | "dynamic" // process.env[key]
+    | "destructured"; // const { X = "default", Y } = process.env;
 
-export type _ProcessEnvAccess<T extends ProcessEnvAccessKind> = {
+export type _ProcessEnvUsage<T extends ProcessEnvUsageKind> = {
     kind: T;
     node: Node;
     anchor: Statement;
     relativeFilePath: string;
     pos: { line: number; column: number };
-} & (T extends "static" ? { varName: string; defaultValue?: string | undefined } : EmptyObject);
+} & (T extends "static" | "destructured" ? { varName: string } : EmptyObject) &
+    (T extends "static" | "destructured" | "dynamic" ? { fallbackLiteral?: string | undefined } : EmptyObject);
 
-export type ProcessEnvAccess<T extends ProcessEnvAccessKind = ProcessEnvAccessKind> = { [key in ProcessEnvAccessKind]: _ProcessEnvAccess<key> }[T];
+export type ProcessEnvUsages<T extends ProcessEnvUsageKind = ProcessEnvUsageKind> = { [key in ProcessEnvUsageKind]: _ProcessEnvUsage<key> }[T];

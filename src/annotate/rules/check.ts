@@ -1,11 +1,11 @@
 import { AnnotateRule } from "../types.js";
 import { AnnotateEnvRuleIssue, DNL_ANNOTATION } from "../report.type.js";
 import { getDnlAnnotationType, hasDnlAnnotation } from "../helper.js";
-import { ProcessEnvAccess } from "../../ast-tools/ast.types.js";
+import { ProcessEnvUsages } from "../../ast-tools/ast.types.js";
 
 export const checkAnnotationRule: AnnotateRule = {
     match(processEnvAccesses) {
-        function matchOne(pea: ProcessEnvAccess): boolean {
+        function matchOne(pea: ProcessEnvUsages): boolean {
             if (!hasDnlAnnotation(pea.anchor)) return true;
             if (getDnlAnnotationType(pea.anchor) === DNL_ANNOTATION.ignore) return false;
             return true;
