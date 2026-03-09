@@ -8,7 +8,9 @@
 **dotenv-never-lies** validates, types, and documents your environment variables from a TypeScript / Zod schema.  
 It fails fast, loud, and before production.
 
-## Why?
+## Introduction#
+
+### Why?
 
 ecause all of this happens all the time:
 
@@ -29,7 +31,7 @@ And because `.env` files are:
 
 ---
 
-## What the library does
+### What the library does
 
 - ✅ validates environment variables at startup  
   powered by Zod, enabling complex transformations (arrays, parsing, coercion…)
@@ -41,7 +43,7 @@ And because `.env` files are:
 
 ---
 
-## What dotenv-never-lies is not
+### What dotenv-never-lies is not
 
 This package has a deliberately limited scope.
 
@@ -71,7 +73,7 @@ that prefer to **fail cleanly at startup** rather than **silently break in produ
 
 ---
 
-## Installation
+### Installation
 
 ```bash
 npm install @romaintaillandier1978/dotenv-never-lies
@@ -79,7 +81,7 @@ npm install @romaintaillandier1978/dotenv-never-lies
 yarn add @romaintaillandier1978/dotenv-never-lies
 ```
 
-## Dependencies and compatibility
+### Dependencies and compatibility
 
 **[`zod`](https://www.npmjs.com/package/zod)** — dotenv-never-lies exposes Zod schemas in its public API.
 
@@ -127,6 +129,12 @@ Supported in this order for all CLI commands:
 
 3. one of `env.dnl.ts`, `env.dnl.js`, `dnl.config.ts`, `dnl.config.js`
 
+4. as you wish, using the `--schema` option
+
+```bash
+dnl infer --schema path/to/my-dnl.ts
+```
+
 ### define a schema
 
 ```typescript
@@ -157,11 +165,11 @@ export default define({
 });
 ```
 
-## Secrets handling
+### Secrets handling
 
 Reminder: dotenv-never-lies is not a secrets manager.
 
-### declaration in the DNL schema
+**declaration in the DNL schema**
 
 A variable is considered secret if and only if it is explicitly marked in the schema with `secret: true`.  
 (`secret: undefined` is equivalent to `secret: false`)  
@@ -199,6 +207,8 @@ This separation ensures that validation, runtime usage and configuration export 
 
 ## Runtime usage
 
+### assert: validate variables at runtime
+
 ```typescript
 import envDef from "./env.dnl";
 
@@ -226,10 +236,9 @@ Result:
 If a variable is missing or invalid → the process exits immediately.  
 This is intentional.
 
-## Avoid `process.env` in application code
+### Avoid `process.env` in application code
 
-Once the schema is loaded, environment variables  
-must be accessed exclusively via the `ENV` object.
+Once the schema is loaded, environment variables must be accessed exclusively via the `ENV` object.
 
 This guarantees:
 
@@ -237,11 +246,7 @@ This guarantees:
 - validated values
 - a single entry point for configuration
 
-To identify residual `process.env` usages in your codebase, a simple search tool is enough:
-
-```bash
-grep -R "process\.env" src
-```
+To identify residual `process.env` usages in your codebase, use the `dnl annotate` [annotate command](docs/commands/annotate.md) for more details.
 
 Choosing to refactor (or not) those usages depends on context and is intentionally left to the developer.
 
@@ -427,6 +432,7 @@ Add `.dnl/` to your `.gitignore`.
 Using **dotenv-never-lies** via Git hooks is strongly recommended:
 
 - **pre-commit**: prevents committing if the local configuration is not compliant with the schema
+- **pre-commit**: prevents committing if local process.env is used (without annotation)
 - **post-merge**: immediately detects schema changes impacting the local environment
 
 The goal is simple:  
@@ -449,11 +455,13 @@ mkdir -p .githooks
 cat > .githooks/pre-commit <<'EOF'
 #!/bin/sh
 yarn dnl assert --source .env
+yarn dnl annotate --check --warn-as-error
 EOF
 
 cat > .githooks/post-merge <<'EOF'
 #!/bin/sh
 yarn dnl assert --source .env || true
+yarn dnl annotate --check --warn-as-error || true
 EOF
 
 chmod +x .githooks/pre-commit .githooks/post-merge

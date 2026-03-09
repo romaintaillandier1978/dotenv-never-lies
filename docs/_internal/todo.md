@@ -3,25 +3,22 @@
 - supprimer sample
 - ajouter une remarque personnelle sur vrai vécu, gros projet avec 150 variables d'environnement
 
-- tests de non regression sur l'inférence.
-
 - doc : parler du preload dotenv :
   `node -r dotenv/config your_script.js`
 
 - liste de preset :
     - open ai / other LLM
+    - Jest -> NODE_ENV, CI
+    - Auth0 -> AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET
+    - Docker -> PORT, HOST, NODE_ENV
 
 - regarder mieux et utiliser type-fest !
 
-- dnl init : option --no-comment, option --compact
+- dnl init : option --no-comment
 
 - tester le refacto des variables d'env ! => C'est merdeux !
 
 - cli completion
-
-- process check pour le githook
-- annotate : --warn-as-error --silent-warn
-- --verbose + report
 
 - enregistrer les fichiers d'entrées/sorties dans une conf de dnl. (env.dnl.ts, env.dnl.d.ts, asserter)
 

@@ -2,11 +2,6 @@
 
 ## CLI
 
-### dnl schema init
-
-créer un schema from scratch, sans .env initial, juste les preset
-exemple : dnl schema init prisma, express
-
 ### dnl add
 
 ajouter un preset dans un env
@@ -16,7 +11,8 @@ exemple : dnl add prisma, express
 
 ### ajouter des TU plus haut pour l'inférence,
 
-qui testent de vraies entrées.
+- qui testent de vraies entrées.
+- tests de non regression sur l'inférence.
 
 ## LLM
 
@@ -32,20 +28,12 @@ qui testent de vraies entrées.
 
 - ne surtout pas faire : créer des prompts intégrés, dépendance a un llm
 
-## Schéma zod spécialisés intégrés : les preset
-
-preset exemples :
-
-- Jest -> NODE_ENV, CI
-- Auth0 -> AUTH0_DOMAIN, AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET
-- Docker -> PORT, HOST, NODE_ENV
-
 ### registry tiers
 
 Preset registry architecture
 DNL repose sur deux registres distincts.
 
-existant :Un registry officiel, généré au build-time (official-preset-registry.ts), référence l’ensemble des presets maintenus par DNL. Il est figé, versionné et importé statiquement pour garantir stabilité, typage et absence de surprises à l’exécution.
+existant : Un registry officiel, généré au build-time (official-preset-registry.ts), référence l’ensemble des presets maintenus par DNL. Il est figé, versionné et importé statiquement pour garantir stabilité, typage et absence de surprises à l’exécution.
 
 à faire : Un registry tiers, construit dynamiquement au runtime lors de dnl infer, découvre les presets exposés par les dépendances du projet utilisateur. Ce registre est éphémère, non persistant, et strictement isolé du registry officiel.
 
@@ -53,10 +41,9 @@ Lors de l’inférence, les deux registres seraient fusionnés dans un pool disp
 
 Cette séparation garantit une architecture extensible, prévisible et sûre, tout en ouvrant DNL à un écosystème de presets externes.
 
-## Extensibilité exporters / preset
+## Extensibilité exporters
 
 - exporters, avec un model, une interface
-- preset : dnl infer --preset prisma (inference de truc connu comme DATABASE_URL)
 
 plugin externe, avec résolution des noms de packages dynamiquement :
 dans le plugin tiers package.json
