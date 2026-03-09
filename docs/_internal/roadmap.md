@@ -112,8 +112,8 @@ interface DnlPluginMeta {
 interface DnlExporter {
   name: string;
   description?: string;
-   meta?: DnlPluginMeta;
- run(ctx: ExportContext): Promise<void>;
+  meta?: DnlPluginMeta;
+  run(ctx: ExportContext): Promise<void>;
 }
 
 interface ExportContext {

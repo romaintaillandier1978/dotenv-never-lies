@@ -21,13 +21,14 @@
         "test": "vitest",
         "test:run": "vitest run",
         "test:watch": "vitest",
+        "gen:presets": "tsx src/infer/scripts/official-preset-registry.gen.ts",
+        "sample:main": "yarn build && tsx src/sample/main.ts",
         "sample:infer": "yarn build && dnl infer --source src/sample/.env --out src/sample/env.dnl.ts -f ",
         "sample:assert": "yarn build && dnl --schema src/sample/env.dnl.ts  assert --source src/sample/.env ",
         "sample:init": "yarn build && dnl --schema src/sample/env.dnl.ts  init --out src/sample/.env.out -f ",
         "sample:types": "yarn build && dnl --schema src/sample/env.dnl.ts types -fo src/sample/types/env.dnl.d.ts",
         "sample:annotate": "yarn build && dnl  --schema src/sample/env.dnl.ts  annotate ",
-        "sample:main": "yarn build && tsx src/sample/main.ts",
-        "gen:presets": "tsx src/infer/scripts/official-preset-registry.gen.ts"
+        "sample:export": "yarn build && dnl --schema src/sample/env.dnl.ts export json --source src/sample/.env"
     },
     "scripts-descriptions": {
         "desc": "Displays the list of available scripts with their short descriptions.",
@@ -38,13 +39,16 @@
         "release:patch": "Publishes a new patch version.",
         "release:minor": "Publishes a new minor version.",
         "release:major": "Publishes a new major version.",
+        "gen:presets": "Generates the official presets registry.",
         "test": "Runs tests.",
         "test:run": "Runs tests.",
         "test:watch": "Runs tests in watch mode.",
         "sample:infer": "Runs sample inference.",
         "sample:assert": "Runs sample assertion.",
-        "sample:main": "Runs the sample main file.",
-        "gen:presets": "Generates the official presets registry."
+        "sample:init": "Runs sample initialization.",
+        "sample:types": "Runs sample types generation.",
+        "sample:annotate": "Runs sample annotation.",
+        "sample:main": "Runs the sample main file."
     },
     "keywords": [
         "env",
