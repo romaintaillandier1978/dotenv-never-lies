@@ -41,6 +41,19 @@ The most reliable proposal is selected according to rule priority and confidence
 
 Examples of inferred types (by priority order): json, list, port, version, url, email, string (fallback)
 
+**4) Fallback values**
+`infer` use `Process.env usage collector` ([see related documentation](../api/process-env-usage-collector.md)) to discover potential fallback values in the code.
+
+infer is able to detect fallback values in the following patterns:
+
+- process.env.PORT ?? "3000" or process.env.PORT || "3000"
+- process.env["PORT"] ?? "3000" or process.env["PORT"] || "3000"
+- const { PORT = 3000 } = process.env
+- const { PORT: MY_PORT = 3000 } = process.env
+
+**5) unknown variables**
+`infer` can detect unknown variables used in the code. It relies on the `Process.env usage collector` ([see related documentation](../api/process-env-usage-collector.md)), and the .env file to identify variables that are used in the code but not defined in the source .env file.
+
 ---
 
 ### What `infer` does NOT do
@@ -50,7 +63,7 @@ This is deliberate.
 `infer`:
 
 - ❌ does not understand business domain
-- ❌ does not read your application code
+- ❌ does not analyze application logic (except for detecting process.env usages)
 - ❌ does not deduce functional intent
 - ❌ does not perform contextual inference across variables
 - ❌ never silently modifies a value
@@ -318,17 +331,32 @@ In these cases:
 
 These warnings are a **strong signal** that manual review is needed.
 
+Warnings may come from:
+
+- ambiguous heuristic inference
+- detected fallback values in code (sometimes multiple fallback for one variable)
+- variables used in code but missing from the .env file
+
 ---
+
+# Report
+
+Running `infer` also produces a report file at `.dnl/infer.report.json`.
+
+This report contains the detailed analysis results: detected fallbacks, unknown variables, preset discoveries, and warnings generated during inference.  
+It can be used for debugging or for automated tooling around DNL.
 
 # Recommended workflow
 
 1. Run `dnl infer`
 2. Generate an initial schema
-3. Carefully review each variable
-4. Manually correct questionable types
-5. Add descriptions and business constraints
-6. Consider the schema the final truth
-   Once the schema is stable, `infer` usually becomes unnecessary.
+3. Review detected fallback values
+4. review detected unknown variables
+5. Manually correct questionable types
+6. Add descriptions and business constraints
+7. Consider the schema the final truth
+
+Once the schema is stable, `infer` usually becomes unnecessary.
 
 ---
 

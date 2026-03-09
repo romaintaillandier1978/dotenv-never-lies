@@ -1,97 +1,111 @@
 # dnl annotate
 
-La commande `dnl annotate` analyse les usages de `process.env` dans le code et ajoute des annotations explicites pour faciliter la migration vers DNL.
+The `dnl annotate` command analyzes `process.env` usages in the code and adds explicit annotations to ease migration to DNL.
 
-Elle n’exécute aucune logique métier et ne modifie jamais le comportement du programme. Elle ajoute uniquement des commentaires destinés au développeur.
+It does not run any business logic and never changes program behavior. It only adds comments intended for the developer.
 
-## Objectif
+Like `infer`, `annotate` relies on the Process.env usage collector ([see related documentation](../api/process-env-usage-collector.md)).
+This shared engine analyzes the code AST and detects the various forms of access to `process.env`.
+`annotate` then interprets these usages to produce readable annotations in the code.
 
-`dnl annotate` rend visibles tous les accès à `process.env` et indique clairement :
+## Purpose
 
-- si la variable est connue du schéma DNL
-- si elle est inconnue
-- si l’accès empêche une analyse fiable (accès global ou dynamique)
+`dnl annotate` makes all accesses to `process.env` visible and clearly indicates:
 
-L’objectif est d’aider à remplacer progressivement `process.env` par des variables validées via DNL.
+- whether the variable is known to the DNL schema
+- whether it is unknown
+- whether the access prevents reliable analysis (global or dynamic access)
 
-## Types d’annotations
+The goal is to help gradually replace `process.env` with variables validated via DNL.
 
-Selon la forme d’accès rencontrée, DNL ajoute une ou plusieurs annotations :
+## Annotation types
 
-- `@dnl-recommendation` : variable connue dans le schéma, mais encore utilisée via `process.env`
-- `@dnl-ignore` : variable absente du schéma, ignorée volontairement
-- `@dnl-dynamic-access` : accès dynamique (`process.env[key]`) empêchant l’analyse par variable
-- `@dnl-global-access` : accès global (`process.env`) empêchant toute analyse fine
+Depending on the access form encountered, DNL adds one or more annotations:
 
-Une même instruction peut contenir plusieurs accès. Dans ce cas, un seul bloc de commentaire est ajouté, mais le rapport reste détaillé pour chaque accès.
+- `@dnl-recommendation`: variable known in the schema but still used via `process.env`
+- `@dnl-ignore`: variable absent from the schema, intentionally ignored
+- `@dnl-dynamic-access`: dynamic access (`process.env[key]`) preventing per-variable analysis
+- `@dnl-global-access`: global access (`process.env`) preventing any fine-grained analysis
 
-## Mode normal
+A single statement may contain multiple accesses. In that case, only one comment block is added, but the report remains detailed for each access.
+
+## Normal mode
 
 ```bash
 dnl annotate
 ```
 
-La commande parcourt le code, ajoute les annotations nécessaires et écrit les fichiers modifiés sur disque.
+The command scans the code, adds the necessary annotations, and writes the modified files to disk.
 
-Ce mode est destiné au développement local.
+This mode is intended for local development.
 
-## Mode suppression
+## Remove mode
 
 ```bash
 dnl annotate --remove
 ```
 
-Supprime toutes les annotations DNL précédemment ajoutées.
+Removes all previously added DNL annotations.
 
-Ce mode est utile pour nettoyer le code ou préparer une nouvelle passe d’annotation.
+This mode is useful for cleaning up the code or preparing a new annotation pass.
 
-## Mode vérification (CI / hooks)
+## Check mode (CI / hooks)
 
 ```bash
 dnl annotate --check
 ```
 
-Ne modifie pas le code. Analyse les accès et retourne un code de sortie exploitable en CI.
+Does not modify the code. Analyzes accesses and returns an exit code suitable for CI.
 
-- `0` si tout est conforme
-- `5` si des erreurs sont détectées
+- `0` if everything is compliant
+- `5` if errors are detected
 
-Options associées :
+Related options:
 
-- `--warn-as-error` : considère les warnings comme des erreurs
-- `--silent-warn` : masque l’affichage des warnings
-- `--verbose` : affiche le détail complet des accès détectés
+- `--warn-as-error`: treat warnings as errors
+- `--silent-warn`: hide warning output
+- `--verbose`: show full detail of detected accesses
 
-Le mode `--check` est recommandé dans les hooks git ou en intégration continue.
+The `--check` mode is recommended in git hooks or continuous integration.
 
-Par exemple, utilisée dans un hook Git, la commande `dnl annotate --check` permet d’empêcher l’introduction d’un nouvel usage de `process.env` par un développeur qui ne connaît pas encore DNL.
+For example, when used in a Git hook, the `dnl annotate --check` command prevents a developer unfamiliar with DNL from introducing new `process.env` usage.
 
-## Philosophie
+## Philosophy
 
-`dnl annotate` ne tente pas de deviner l’intention du développeur.
+`dnl annotate` does not try to guess the developer’s intent.
 
-Il indique ce qu’il voit :
+It reports what it sees:
 
-- accès statique
-- accès dynamique
-- accès global
+- destructured process.env usages
+- static process.env usages
+- dynamic process.env usages
+- global process.env usages
 
-Si le code est modifié après annotation, il appartient au développeur de relancer la commande.
+If the code is modified after annotation, it is up to the developer to run the command again.
 
-Les annotations ne sont pas rétroactives.
+Annotations are not retroactive.
 
-## Workflow recommandé
+## Report
 
-1. Exécuter `dnl annotate`
-2. Remplacer progressivement les usages de `process.env` par des variables DNL
-3. Utiliser `dnl annotate --check` en CI
-4. Supprimer les annotations une fois la migration terminée
+Each execution also generates a machine‑readable report at `.dnl/annotate.report.json`.
 
-## En résumé
+This report summarizes the detected accesses, warnings, and potential errors.  
+It is mainly intended for tooling, CI analysis, or debugging the annotation process.
 
-- `annotate` aide à migrer
-- `--check` protège
-- `--remove` nettoie
+## Recommended workflow
 
-La commande ne fait pas de magie.
-Elle rend explicite ce qui était implicite.
+1. Run `dnl annotate`
+2. Gradually replace `process.env` usages with DNL variables
+3. Remove annotations once migration is complete `dnl annotate --remove`
+4. loop until it's done (or not)
+5. run `dnl annotate --check` to ensure no new `process.env` usages are introduced
+6. optionally, add a githook to run `dnl annotate --check` on every commit
+
+## Summary
+
+- `annotate` helps migrate
+- `--check` protects
+- `--remove` cleans up
+
+The command does not perform magic.
+It makes explicit what was implicit.

@@ -70,6 +70,11 @@ export const verboseInferReport = (report: InferReport, options?: VerboseReportO
                 }
             }
         }
+        if (envVar.fallbacks) {
+            for (const fallback of envVar.fallbacks) {
+                verbose.push(`  -> FALLBACK : ${fallback.fallbackValue} in ${fallback.file}:${fallback.line}`);
+            }
+        }
         for (const warning of envVar.warnings) {
             verbose.push(`  -> WARNING : ${warning}`);
         }
@@ -118,7 +123,7 @@ export const verboseAnnotateReport = (report: AnnotateReport): string[] => {
 
     verbose.push(`\nSummary: ${action} ${report.issues.length} ${what}`);
     if (report.summary.filesScanned) verbose.push(`  - ${report.summary.filesScanned} files scanned`);
-    if (report.summary.accessesProcessed) verbose.push(`  - ${report.summary.accessesProcessed} accesses processed`);
+    if (report.summary.accessesProcessed) verbose.push(`  - ${report.summary.accessesProcessed} process.env usages processed`);
     if (report.summary.commentsAdded) verbose.push(`  - ${report.summary.commentsAdded} comments added`);
     if (report.summary.commentsRemoved) verbose.push(`  - ${report.summary.commentsRemoved} comments removed`);
     if (report.summary.checkErrors) verbose.push(`  - ${report.summary.checkErrors} check errors`);
@@ -176,7 +181,7 @@ const commonPrintAnnotateIssues = (report: AnnotateReport, verbose: string[]): v
 
     verbose.push(`\nSummary: ${report.issues.length} "accesses"`);
     if (report.summary.filesScanned) verbose.push(`  - ${report.summary.filesScanned} files scanned`);
-    if (report.summary.accessesProcessed) verbose.push(`  - ${report.summary.accessesProcessed} accesses processed`);
+    if (report.summary.accessesProcessed) verbose.push(`  - ${report.summary.accessesProcessed} process.env usages processed`);
     if (report.summary.checkErrors) verbose.push(`  - ${report.summary.checkErrors} check errors`);
     if (report.summary.checkWarnings) verbose.push(`  - ${report.summary.checkWarnings} check warnings`);
 };

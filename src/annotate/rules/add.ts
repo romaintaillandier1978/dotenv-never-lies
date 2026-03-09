@@ -5,38 +5,42 @@ import { hasDnlAnnotation } from "../helper.js";
 import { getDefaultEnvValue } from "../../cli/utils/printer.js";
 
 export const addAnnotationRule: AnnotateRule = {
-    match(processEnvAccesses) {
+    match(usages) {
         // If at least one has no annotation, we need to add the annotation
-        return processEnvAccesses.some((pea) => !hasDnlAnnotation(pea.anchor, undefined));
+        return usages.some((u) => !hasDnlAnnotation(u.anchor, undefined));
     },
 
-    async apply(processEnvAccess, ctx): Promise<AnnotateEnvRuleIssue[]> {
+    async apply(usages, ctx): Promise<AnnotateEnvRuleIssue[]> {
         const issues: AnnotateEnvRuleIssue[] = [];
-        const anchor = processEnvAccess[0].anchor;
+        const anchor = usages[0].anchor;
         const old = anchor.getText();
+        const indentMatch = old.match(/^\s*/);
+        const indent = indentMatch ? indentMatch[0] : "";
+        const body = old.trimStart();
 
         // Build an object to know the comment characteristics
-        for (const pea of processEnvAccess) {
+        for (const u of usages) {
             const issue: AnnotateEnvRuleIssue = {
-                nodeText: pea.node.getText(),
+                nodeText: u.node.getText(),
                 annotation: null,
                 messages: [],
-                pos: pea.pos,
+                pos: u.pos,
             };
 
-            switch (pea.kind) {
+            switch (u.kind) {
+                case "destructured":
                 case "static":
-                    if (pea.varName in ctx.envDef.def) {
+                    if (u.varName in ctx.envDef.def) {
                         issue.annotation = DNL_ANNOTATION.recommendation;
-                        const link = getLinkToVar(ctx.project, ctx.schemaPath, pea.varName);
-                        const defaultValue = getDefaultEnvValue(ctx.envDef.def[pea.varName].schema.def);
-                        issue.messages.push(`// @see ${pea.varName} in your DNL schema : ${link}`);
+                        const link = getLinkToVar(ctx.project, ctx.schemaPath, u.varName);
+                        const defaultValue = getDefaultEnvValue(ctx.envDef.def[u.varName].schema.def);
+                        issue.messages.push(`// @see ${u.varName} in your DNL schema : ${link}`);
                         if (defaultValue) {
                             issue.messages.push(`// default value: ${defaultValue}`);
                         }
                     } else {
                         issue.annotation = DNL_ANNOTATION.ignore;
-                        issue.messages.push(`// process.env.${pea.varName} not in your DNL schema`);
+                        issue.messages.push(`// process.env.${u.varName} not in your DNL schema`);
                     }
                     break;
                 case "dynamic":
@@ -52,13 +56,20 @@ export const addAnnotationRule: AnnotateRule = {
         }
 
         // Concat all issues to one unique comment (for one statement).
-        let comment = `// ${issues.map((issue) => issue.annotation).join(" ")}`;
-        // Deduplicate if needed
+        const lines: string[] = [];
+        lines.push(`// ${issues.map((issue) => issue.annotation).join(" ")}`);
+
+        // Deduplicate messages
         const messages = [...new Set(issues.flatMap((issue) => issue.messages))];
         for (const message of messages) {
-            comment += `\n${message}`;
+            lines.push(message);
         }
-        anchor.replaceWithText(`${comment}\n${old}`);
+
+        // Apply indentation to each comment line
+        const comment = lines.map((line) => `${indent}${line}`).join("\n");
+
+        // Reinsert the original statement with its indentation
+        anchor.replaceWithText(`${comment}\n${indent}${body}`);
 
         return issues;
     },

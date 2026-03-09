@@ -2,9 +2,14 @@ import { Node, SourceFile, SyntaxKind } from "ts-morph";
 import { getAnchor, getRelativeFilePath } from "../ast-tools/ast-helpers.js";
 import { ProcessEnvUsages } from "../ast-tools/ast.types.js";
 
-// technical debt : expr.getText() === "process.env" est fragile
-// on ne supporte pas (globalThis.process).env.PORT
+// technical debt: expr.getText() === "process.env" is fragile
+// we don't support (globalThis.process).env.PORT
 
+/**
+ * Collects all process.env usages from a source file.
+ * @param sourceFile - The source file to collect process.env usages from.
+ * @returns An array of process.env usages.
+ */
 export const collectProcessEnvUsages = (sourceFile: SourceFile): ProcessEnvUsages[] => {
     const accesses: ProcessEnvUsages[] = [];
     const relativeFilePath = getRelativeFilePath(sourceFile);
@@ -50,6 +55,12 @@ export const collectProcessEnvUsages = (sourceFile: SourceFile): ProcessEnvUsage
             // process.env (global access) — only if it is not a sub-node of process.env.X or process.env[...]
             if (Node.isIdentifier(expr) && expr.getText() === "process" && node.getName() === "env") {
                 const parent = node.getParent();
+                // Ignore destructuring initializer:
+                // const { PORT } = process.env
+                if (Node.isVariableDeclaration(parent) && parent.getInitializer() === node) {
+                    continue;
+                }
+
                 const isSubNodeOfSpecificAccess = parent && (Node.isPropertyAccessExpression(parent) || Node.isElementAccessExpression(parent));
                 if (!isSubNodeOfSpecificAccess) {
                     accesses.push({ node, kind: "global", anchor, relativeFilePath, pos });

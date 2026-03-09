@@ -198,8 +198,6 @@ program
 
 // #region annotation
 
-// dnl process check | dnl process fix
-
 program
     .command("annotate")
     .description(

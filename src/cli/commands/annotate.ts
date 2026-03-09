@@ -1,6 +1,6 @@
 import dnl from "../../index.js";
 import { ProgramCliOptions } from "./program.js";
-import { collectProcessEnvUsages } from "../../annotate/annotate-collector.js";
+import { collectProcessEnvUsages } from "../../ast-tools/process-env-usage-collector.js";
 import { annotateEngine } from "../../annotate/annotate-engine.js";
 import { Project } from "ts-morph";
 import { AnnotateMode, AnnotateReport, type AnnotateIssue } from "../../annotate/report.type.js";
@@ -115,46 +115,3 @@ export type AnnotateCheckCliOptions = ProgramCliOptions & {
     warn?: boolean;
     warnAsError?: boolean;
 };
-
-// const defaultAnnotateCheckOptions: AnnotateCheckCliOptions = {
-//     warn: true,
-//     warnAsError: false,
-// };
-
-// export const annotateCheckCommand = async (_opts: AnnotateCheckCliOptions): Promise<AnnotateResult> => {
-//     const opts = { ...defaultAnnotateCheckOptions, ..._opts };
-
-//     // Find all ts files in the user project:
-//     const project = new Project({
-//         tsConfigFilePath: "tsconfig.json",
-//     });
-//     const sourceFiles = project.getSourceFiles("src/**/*.{ts,tsx}");
-
-//     for (const sourceFile of sourceFiles) {
-//         report.summary.filesScanned++;
-//         const nodes = collectProcessEnvNodes(sourceFile);
-
-//         if (nodes.length < 1) {
-//             continue;
-//         }
-
-//         // Group by statement: a single statement may contain multiple process.env
-//         // (e.g. process.env.A ?? process.env.B). Modifying the statement invalidates all
-//         // child nodes, so we must only process one node per statement.
-//         const nodePerStatement = groupNodesByStatement(nodes);
-//         // file content before annotation
-//         const before = sourceFile.getFullText();
-//         // annotate the file
-//         for (const node of nodePerStatement) {
-//             await annotateEngine(node, opts.remove ?? false, {
-//                 project,
-//                 sourceFile,
-//                 schemaPath,
-//                 envDef,
-//                 report,
-//             });
-//         }
-//     }
-
-//     return { warnings: [] };
-// };

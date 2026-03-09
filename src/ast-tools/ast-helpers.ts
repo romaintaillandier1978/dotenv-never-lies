@@ -7,14 +7,13 @@ export const getAnchor = (node: Node): Statement | null => {
 };
 
 /** All process.env accesses grouped by statement (key = statement.getStart()). */
-export const groupProcessEnvUsagesByStatementMap = (accesses: ProcessEnvUsages[]): Map<number, ProcessEnvUsages[]> => {
+export const groupProcessEnvUsagesByStatementMap = (usages: ProcessEnvUsages[]): Map<number, ProcessEnvUsages[]> => {
     const byStatement = new Map<number, ProcessEnvUsages[]>();
-    for (const access of accesses) {
-        const statement = access.node.getFirstAncestor((n) => Node.isStatement(n));
-        if (statement) {
-            const key = statement.getStart();
+    for (const u of usages) {
+        if (u.anchor) {
+            const key = u.anchor.getStart();
             const list = byStatement.get(key) ?? [];
-            list.push(access);
+            list.push(u);
             byStatement.set(key, list);
         }
     }

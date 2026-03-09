@@ -22,12 +22,12 @@ export interface AnnotateRule {
     /**
      * Return true if this rule can handle the given AST node
      */
-    match(access: ProcessEnvUsages[], ctx: AnnotateRuleContext): boolean;
+    match(usages: ProcessEnvUsages[], ctx: AnnotateRuleContext): boolean;
 
     /**
      * Apply the rule. Receives all process.env nodes from the same statement.
      * - In check mode: must NOT mutate the AST
      * - In fix mode: MAY mutate the AST
      */
-    apply(accesses: ProcessEnvUsages[], ctx: AnnotateRuleContext): Promise<AnnotateEnvRuleIssue[]>;
+    apply(usages: ProcessEnvUsages[], ctx: AnnotateRuleContext): Promise<AnnotateEnvRuleIssue[]>;
 }
