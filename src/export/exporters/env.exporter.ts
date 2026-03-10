@@ -1,6 +1,15 @@
 import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
+import { DnlExporter, registerExporter } from "../registry.js";
 import { getRawValue, getSource } from "../shared.js";
+
+export const envExporter: DnlExporter = {
+    name: "env",
+    description: ".env file cleaned (without unnecessary comments)",
+    run(envDef, options, warnings) {
+        return exportEnv(envDef, options, warnings);
+    },
+};
 
 export const exportEnv = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
     const source = getSource(options, warnings);
@@ -18,3 +27,5 @@ export const exportEnv = (envDef: EnvDefinitionHelper<EnvDefinition>, options: E
     }
     return args.join("\n");
 };
+
+registerExporter(envExporter);

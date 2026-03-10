@@ -9,19 +9,8 @@ import {
     type ExportResult,
     exportFormatsNames,
 } from "../../export/export.types.js";
-import {
-    exportDockerArgs,
-    exportDockerEnv,
-    exportEnv,
-    exportGithubEnv,
-    exportGithubSecret,
-    exportGitlabEnv,
-    exportJs,
-    exportJson,
-    exportK8sConfigmap,
-    exportK8sSecret,
-    exportTs,
-} from "../../export/exporters/index.js";
+import "../../export/exporters/index.js";
+import { getExporter } from "../../export/registry.js";
 
 export { exportFormatsNames, type ExportFormat, type ExportResult };
 
@@ -64,30 +53,9 @@ export const contentByFormat = (
     options: ExportCliOptions,
     warnings: string[]
 ): string => {
-    switch (format) {
-        case "k8s-configmap":
-            return exportK8sConfigmap(envDef, options, warnings);
-        case "k8s-secret":
-            return exportK8sSecret(envDef, options, warnings);
-        case "ts":
-            return exportTs(envDef, options, warnings);
-        case "js":
-            return exportJs(envDef, options, warnings);
-        case "github-env":
-            return exportGithubEnv(envDef, options, warnings);
-        case "github-secret":
-            return exportGithubSecret(envDef, options, warnings);
-        case "gitlab-env":
-            return exportGitlabEnv(envDef, options, warnings);
-        case "json":
-            return exportJson(envDef, options, warnings);
-        case "env":
-            return exportEnv(envDef, options, warnings);
-        case "docker-args":
-            return exportDockerArgs(envDef, options, warnings);
-        case "docker-env":
-            return exportDockerEnv(envDef, options, warnings);
-        default:
-            throw new UsageError(`Unsupported format: ${format}`);
+    const exporter = getExporter(format);
+    if (!exporter) {
+        throw new UsageError(`Unsupported format: ${format}`);
     }
+    return exporter.run(envDef, options, warnings);
 };

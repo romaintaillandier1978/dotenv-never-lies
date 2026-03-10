@@ -1,8 +1,17 @@
 import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
+import { DnlExporter, registerExporter } from "../registry.js";
 import { getRawValue, getSource, shellEscape } from "../shared.js";
 
-export const exportGithubSecret = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
+export const githubSecretExporter: DnlExporter = {
+    name: "github-secret",
+    description: "GitHub Secrets via gh CLI (repo or organization)",
+    run(envDef, options, warnings) {
+        return exportGithubSecret(envDef, options, warnings);
+    },
+};
+
+const exportGithubSecret = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
     if (options?.hideSecret) {
         warnings.push("The --hide-secret option is incompatible with github-secret");
     }
@@ -24,3 +33,5 @@ export const exportGithubSecret = (envDef: EnvDefinitionHelper<EnvDefinition>, o
 
     return args.join("\n");
 };
+
+registerExporter(githubSecretExporter);

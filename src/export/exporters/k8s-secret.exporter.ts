@@ -1,8 +1,17 @@
 import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
+import { DnlExporter, registerExporter } from "../registry.js";
 import { getRawValue, getSource } from "../shared.js";
 
-export const exportK8sSecret = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
+export const k8sSecretExporter: DnlExporter = {
+    name: "k8s-secret",
+    description: "Kubernetes Secret (sensitive variables only)",
+    run(envDef, options, warnings) {
+        return exportK8sSecret(envDef, options, warnings);
+    },
+};
+
+const exportK8sSecret = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
     const source = getSource(options, warnings);
     const values = envDef.assert({ source });
 
@@ -25,3 +34,5 @@ export const exportK8sSecret = (envDef: EnvDefinitionHelper<EnvDefinition>, opti
 
     return args.join("\n");
 };
+
+registerExporter(k8sSecretExporter);

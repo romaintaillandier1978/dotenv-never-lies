@@ -1,11 +1,31 @@
 import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
-import { exportEnv } from "./env.exporter.js";
+import { DnlExporter, registerExporter } from "../registry.js";
+import { getRawValue, getSource } from "../shared.js";
 
-export const exportGitlabEnv = (
-    envDef: EnvDefinitionHelper<EnvDefinition>,
-    options: ExportOptions,
-    warnings: string[]
-): string => {
-    return exportEnv(envDef, options, warnings);
+export const gitlabEnvExporter: DnlExporter = {
+    name: "gitlab-env",
+    description: "GitLab CI environment variables",
+    run(envDef, options, warnings) {
+        return exportGitlabEnv(envDef, options, warnings);
+    },
 };
+
+const exportGitlabEnv = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
+    const source = getSource(options, warnings);
+    const values = envDef.assert({ source });
+    const args: string[] = [];
+    for (const key of Object.keys(values)) {
+        if (options?.excludeSecret && envDef.def[key].secret) {
+            continue;
+        }
+        if (options?.includeComments && envDef.def[key].description) {
+            args.push(`# ${envDef.def[key].description}`);
+        }
+        const rawValue = getRawValue(key, source, envDef, options);
+        args.push(`${key}=${rawValue}`);
+    }
+    return args.join("\n");
+};
+
+registerExporter(gitlabEnvExporter);

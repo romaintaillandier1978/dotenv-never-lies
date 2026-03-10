@@ -1,8 +1,17 @@
 import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
+import { DnlExporter, registerExporter } from "../registry.js";
 import { getRawValue, getSource } from "../shared.js";
 
-export const exportDockerEnv = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
+export const dockerEnvExporter: DnlExporter = {
+    name: "docker-env",
+    description: "File compatible with Docker `--env-file`",
+    run(envDef, options, warnings) {
+        return exportDockerEnv(envDef, options, warnings);
+    },
+};
+
+const exportDockerEnv = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
     const source = getSource(options, warnings);
     const values = envDef.assert({ source });
     const args: string[] = [];
@@ -19,3 +28,5 @@ export const exportDockerEnv = (envDef: EnvDefinitionHelper<EnvDefinition>, opti
     }
     return args.join("\n");
 };
+
+registerExporter(dockerEnvExporter);

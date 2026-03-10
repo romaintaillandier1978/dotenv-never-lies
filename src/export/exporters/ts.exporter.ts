@@ -1,8 +1,17 @@
 import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
+import { DnlExporter, registerExporter } from "../registry.js";
 import { getSource, getTypedOrRawValue } from "../shared.js";
 
-export const exportTs = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
+export const tsExporter: DnlExporter = {
+    name: "ts",
+    description: "Typed TypeScript object",
+    run(envDef, options, warnings) {
+        return exportTs(envDef, options, warnings);
+    },
+};
+
+const exportTs = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
     const source = getSource(options, warnings);
     const values = envDef.assert({ source });
 
@@ -20,3 +29,5 @@ export const exportTs = (envDef: EnvDefinitionHelper<EnvDefinition>, options: Ex
 
     return `export const env = {\n${middle.join("\n")}\n} as const;`;
 };
+
+registerExporter(tsExporter);

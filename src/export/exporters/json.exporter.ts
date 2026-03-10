@@ -1,8 +1,17 @@
 import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
+import { DnlExporter, registerExporter } from "../registry.js";
 import { getSource, getTypedOrRawValue } from "../shared.js";
 
-export const exportJson = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
+export const jsonExporter: DnlExporter = {
+    name: "json",
+    description: "Key/value JSON object",
+    run(envDef, options, warnings) {
+        return exportJson(envDef, options, warnings);
+    },
+};
+
+const exportJson = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
     if (options?.includeComments) {
         warnings.push("The --include-comments option is ignored for the json format");
     }
@@ -18,3 +27,5 @@ export const exportJson = (envDef: EnvDefinitionHelper<EnvDefinition>, options: 
     }
     return JSON.stringify(args, null, 2);
 };
+
+registerExporter(jsonExporter);
