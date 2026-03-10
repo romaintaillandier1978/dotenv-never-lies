@@ -5,7 +5,7 @@ import { AssertCliOptions, assertCommand } from "./commands/assert.js";
 import { initCliOptions, initCommand } from "./commands/init.js";
 import { InferCliOptions, inferCommand } from "./commands/infer.js";
 import { ExplainCliOptions, explainCommand, printHuman } from "./commands/explain.js";
-import { ExportCliOptions, exportCommand, ExportFormat } from "./commands/export.js";
+import { ExportCliOptions, exportCommand } from "./commands/export.js";
 import { toFile } from "./utils/toFile.js";
 import { DnlError, ExitCodes, ProcessEnvError, ValidationError } from "../errors.js";
 
@@ -16,6 +16,7 @@ import pkg from "../../package.json" with { type: "json" };
 import { TypesCliOptions, typesCommand } from "./commands/types.js";
 import { verboseReport, printWarnings, printErrors } from "./utils/report.js";
 import { AnnotateCliOptions, annotateCommand } from "./commands/annotate.js";
+import { getExporter, listExporters } from "../export/registry.js";
 
 export const dnlPackageJson: PackageJson = pkg as PackageJson;
 
@@ -376,19 +377,6 @@ program
 // #endregion explain
 
 // #region export
-const exportHelp: { [key in ExportFormat]: string } = {
-    "docker-args": "Arguments `--env KEY=VALUE` for `docker run`",
-    "docker-env": "File compatible with Docker `--env-file`",
-    "github-env": "Inject into a GitHub Actions job environment",
-    "github-secret": "GitHub Secrets via gh CLI (repo or organization)",
-    "gitlab-env": "GitLab CI environment variables",
-    "k8s-configmap": "Kubernetes ConfigMap (NON-sensitive variables)",
-    "k8s-secret": "Kubernetes Secret (sensitive variables only)",
-    env: ".env file cleaned (without unnecessary comments)",
-    json: "Key/value JSON object",
-    ts: "Typed TypeScript object",
-    js: "JavaScript object",
-} as const;
 
 program
     .command("export")
@@ -404,7 +392,7 @@ program
     .option("-f, --force", "Overwrite the existing file, in conjunction with -o or --out")
     .option("--k8s-name <name>", "Name for the k8s resource. Default: env-secret for k8s-secret, env-config for k8s-configmap")
     .option("--github-org <org>", "GitHub organization name")
-    .action(async (format: ExportFormat, opts: Except<ExportCliOptions, "format">) => {
+    .action(async (format: string, opts: Except<ExportCliOptions, "format">) => {
         const globalOpts = program.opts<ProgramCliOptions>();
         const { content, warnings, out } = await exportCommand({ ...opts, format, schema: globalOpts.schema });
 
@@ -419,8 +407,8 @@ program
     })
     .addHelpText(
         "after",
-        `\nExport formats:\n${Object.entries(exportHelp)
-            .map(([key, value]) => `  - ${key}: ${value}`)
+        `\nExport formats:\n${listExporters()
+            .map((name: string) => `  - ${name}: ${getExporter(name)?.description ?? ""}`)
             .join("\n")}
         `
     )

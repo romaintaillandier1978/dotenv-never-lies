@@ -1,22 +1,16 @@
-import dnl from "../../index.js";
 import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { UsageError } from "../../errors.js";
 import { ProgramCliOptions } from "./program.js";
-import {
-    type ExportFormat,
-    type ExportOptions,
-    type ExportResult,
-    exportFormatsNames,
-} from "../../export/export.types.js";
+import { type ExportOptions, type ExportResult } from "../../export/export.types.js";
 import "../../export/exporters/index.js";
 import { getExporter } from "../../export/registry.js";
 
-export { exportFormatsNames, type ExportFormat, type ExportResult };
+export { type ExportResult };
 
 export type ExportCliOptions = ProgramCliOptions &
     ExportOptions & {
-        format: ExportFormat;
+        format: string;
         out?: string | undefined;
         force?: boolean;
     };
@@ -38,24 +32,15 @@ export const exportCommand = async (options: ExportCliOptions): Promise<ExportRe
     const envDef = await loadDef(schemaPath);
     const warnings: string[] = [];
 
-    const content = contentByFormat(options.format, envDef, options, warnings);
+    //const content = contentByFormat(options.format, envDef, options, warnings);
+    const exporter = getExporter(options.format);
+    if (!exporter) {
+        throw new UsageError(`Unsupported format: ${options.format}`);
+    }
 
     return {
-        content,
+        content: exporter.run(envDef, options, warnings),
         warnings,
         out: options.out,
     };
-};
-
-export const contentByFormat = (
-    format: ExportFormat,
-    envDef: dnl.EnvDefinitionHelper<dnl.EnvDefinition>,
-    options: ExportCliOptions,
-    warnings: string[]
-): string => {
-    const exporter = getExporter(format);
-    if (!exporter) {
-        throw new UsageError(`Unsupported format: ${format}`);
-    }
-    return exporter.run(envDef, options, warnings);
 };
