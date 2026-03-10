@@ -1,6 +1,7 @@
 ## TODO :
 
 - supprimer sample
+- supprimer la dependance vers dnl-export-dummy
 - ajouter une remarque personnelle sur vrai vécu, gros projet avec 150 variables d'environnement
 
 - doc : parler du preload dotenv :
@@ -21,6 +22,10 @@
 - cli completion
 
 - enregistrer les fichiers d'entrées/sorties dans une conf de dnl. (env.dnl.ts, env.dnl.d.ts, asserter)
+
+- plugin exporters :
+    - mode verbose
+    - paramètre / options spécifiques
 
 ### readme inférence :
 

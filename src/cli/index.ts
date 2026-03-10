@@ -380,6 +380,8 @@ program
 
 program
     .command("export")
+    // .allowUnknownOption(true)
+    // .allowExcessArguments()
     .description("Exports environment variables to a specified format. Variables are exported after being validated against the schema.")
     .argument("<format>", "Export format. See list and examples at the end")
     .option("-s, --source <source>", "Variables source (default: process.env if none provided)")

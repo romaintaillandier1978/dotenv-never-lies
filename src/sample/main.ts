@@ -1,4 +1,5 @@
-import envDefinition from "./env.dnl.js";
-import { Env } from "./types/env.dnl.js";
+// import envDefinition from "./env.dnl.js";
+// import { Env } from "./types/env.dnl.js";
 
-export const env: Env = envDefinition.assert();
+// export const env: Env = envDefinition.assert();
+console.log("Hello, world!");

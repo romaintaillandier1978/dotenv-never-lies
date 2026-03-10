@@ -1,13 +1,13 @@
 import { PressetDef, PresetEntry } from "./presets.types.js";
 import { officialPresetRegistry } from "./official-preset-registry.js";
 import { nodePreset } from "./presets/node.js";
-import { readUserPackageJson } from "../utils/read-user-package-json.js";
+import { readPackageJson } from "../utils/read-user-package-json.js";
 import { areAllSameGenSchemas } from "./helpers.js";
 import { EvaluatedRule } from "./report.types.js";
 
 /** Search in package.json for present presets and help infer specific schema entries */
 export const discoverPresets = (warnings: Array<string>): Array<PressetDef> => {
-    const pkg = readUserPackageJson();
+    const pkg = readPackageJson();
     if (!pkg) return [];
 
     const deps = {

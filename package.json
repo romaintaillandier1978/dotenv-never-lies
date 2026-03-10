@@ -28,7 +28,8 @@
         "sample:init": "yarn build && dnl --schema src/sample/env.dnl.ts  init --out src/sample/.env.out -f ",
         "sample:types": "yarn build && dnl --schema src/sample/env.dnl.ts types -fo src/sample/types/env.dnl.d.ts",
         "sample:annotate": "yarn build && dnl  --schema src/sample/env.dnl.ts  annotate ",
-        "sample:export": "yarn build && dnl --schema src/sample/env.dnl.ts export json --source src/sample/.env"
+        "sample:export:json": "yarn build && dnl --schema src/sample/env.dnl.ts export json --source src/sample/.env",
+        "sample:export:dummy": "yarn build && dnl --schema src/sample/env.dnl.ts export dummy --source src/sample/.env"
     },
     "scripts-descriptions": {
         "desc": "Displays the list of available scripts with their short descriptions.",
@@ -88,6 +89,7 @@
         "zod": ">=4.2.1"
     },
     "dependencies": {
+        "dnl-export-dummy": "file:./src/sample",
         "commander": "^14.0.2",
         "dotenv": "^17.2.3",
         "dotenv-expand": "^12.0.3",

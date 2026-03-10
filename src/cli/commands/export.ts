@@ -4,7 +4,7 @@ import { UsageError } from "../../errors.js";
 import { ProgramCliOptions } from "./program.js";
 import { type ExportOptions, type ExportResult } from "../../export/export.types.js";
 import "../../export/exporters/index.js";
-import { getExporter } from "../../export/registry.js";
+import { listExporters, loaderExporters } from "../../export/registry.js";
 
 export { type ExportResult };
 
@@ -13,9 +13,11 @@ export type ExportCliOptions = ProgramCliOptions &
         format: string;
         out?: string | undefined;
         force?: boolean;
+        [key: string]: unknown;
     };
 
 export const exportCommand = async (options: ExportCliOptions): Promise<ExportResult> => {
+    console.log("exportCommand", JSON.stringify(options, null, 2));
     if (options.githubOrg && options.format !== "github-secret") {
         throw new UsageError("--github-org can only be used with the github-secret format");
     }
@@ -32,10 +34,18 @@ export const exportCommand = async (options: ExportCliOptions): Promise<ExportRe
     const envDef = await loadDef(schemaPath);
     const warnings: string[] = [];
 
-    //const content = contentByFormat(options.format, envDef, options, warnings);
-    const exporter = getExporter(options.format);
+    const exporters = await loaderExporters();
+    console.log(
+        "exporters",
+        JSON.stringify(
+            Array.from(exporters.values()).map((e) => e.name),
+            null,
+            2
+        )
+    );
+    const exporter = exporters.get(options.format);
     if (!exporter) {
-        throw new UsageError(`Unsupported format: ${options.format}`);
+        throw new UsageError(`Unsupported format: ${options.format}. Available formats: ${listExporters().join(", ")}`);
     }
 
     return {
