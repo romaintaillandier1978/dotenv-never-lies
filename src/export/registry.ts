@@ -1,24 +1,22 @@
-import { ExportCliOptions } from "../cli/commands/export.js";
-import { EnvDefinitionHelper } from "../core.js";
-import { EnvDefinition } from "../core.js";
+import { DnlExporter } from "./export.types.js";
 import { createRequire } from "node:module";
 import { readPackageJson } from "../utils/read-user-package-json.js";
 import path from "node:path";
 import fs from "node:fs";
-import { Command } from "commander";
 import { PackageJson } from "type-fest";
 
 const require = createRequire(import.meta.url);
 
-export interface DnlExporter {
-    name: string;
-    description?: string;
-    register?(cmd: Command): Command;
-    run(envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportCliOptions, warnings: string[]): string;
-}
-
+/**
+ * internal, do not use for your own exporters.
+ * Map of registered exporters.
+ */
 const exporters = new Map<string, DnlExporter>();
 
+/**
+ * Register an exporter.
+ * @param exp - The exporter to register.
+ */
 export function registerExporter(exp: DnlExporter) {
     if (exporters.has(exp.name)) {
         throw new Error(`Exporter ${exp.name} already registered`);

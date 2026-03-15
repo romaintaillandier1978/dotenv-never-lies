@@ -10,6 +10,7 @@ export { type ExportResult };
 
 export type ExportCliOptions = ProgramCliOptions &
     ExportOptions & {
+        warnOnDuplicates?: boolean;
         format: string;
         out?: string | undefined;
         force?: boolean;
@@ -21,22 +22,18 @@ export const exportCommand = async (options: ExportCliOptions): Promise<ExportRe
     const warnings: string[] = [];
 
     const exporters = await loaderExporters();
-    // console.log(
-    //     "exporters",
-    //     JSON.stringify(
-    //         Array.from(exporters.values()).map((e) => e.name),
-    //         null,
-    //         2
-    //     )
-    // );
+
     const exporter = exporters.get(options.format);
     if (!exporter) {
         throw new UsageError(`Unsupported format: ${options.format}. Available formats: ${listExporters().join(", ")}`);
     }
 
+    // move ca
+    // const source = getSource(options, warnings);
+    // const values = envDef.assert({ source });
+    // ici
     return {
         content: exporter.run(envDef, options, warnings),
         warnings,
-        out: options.out,
     };
 };

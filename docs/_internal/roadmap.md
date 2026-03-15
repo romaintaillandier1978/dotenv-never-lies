@@ -28,14 +28,12 @@ exemple : dnl add prisma, express
 
 - ne surtout pas faire : créer des prompts intégrés, dépendance a un llm
 
-### registry tiers
+### preset registry tiers
 
 Preset registry architecture
 DNL repose sur deux registres distincts.
 
 existant : Un registry officiel, généré au build-time (official-preset-registry.ts), référence l’ensemble des presets maintenus par DNL. Il est figé, versionné et importé statiquement pour garantir stabilité, typage et absence de surprises à l’exécution.
-
-à faire : Un registry tiers, construit dynamiquement au runtime lors de dnl infer, découvre les presets exposés par les dépendances du projet utilisateur. Ce registre est éphémère, non persistant, et strictement isolé du registry officiel.
 
 Lors de l’inférence, les deux registres seraient fusionnés dans un pool disponible contrôlé, sans qu’un preset tiers puisse écraser un preset officiel. Les presets réellement activés dépendent du mode (discover ou --presets).
 

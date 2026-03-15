@@ -26,6 +26,13 @@
 
 - plugin exporters :
     - mode --dry-run
+    - move
+    ```
+    const source = getSource(options, warnings);
+    const values = envDef.assert({ source });
+    ```
+    vers la fonction run de l'exporter.
+    - publier les types pour exporter !
 
 ### readme inférence :
 

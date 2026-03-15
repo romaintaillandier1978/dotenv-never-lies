@@ -1,6 +1,7 @@
 import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
-import { DnlExporter, registerExporter } from "../registry.js";
+import { DnlExporter } from "../export.types.js";
+import { registerExporter } from "../registry.js";
 import { getRawValue, getSource } from "../shared.js";
 
 type K8sConfigmapExportOptions = ExportOptions & {

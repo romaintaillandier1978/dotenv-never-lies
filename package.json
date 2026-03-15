@@ -11,8 +11,7 @@
     },
     "dnl": {
         "exports": [
-            "src/sample/dist/index.js",
-            "src/sample/dist/index2.js"
+            "dist/sample/dummy-exporter.js"
         ]
     },
     "scripts": {
