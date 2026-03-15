@@ -5,7 +5,7 @@ import { getRawValue, getSource } from "../shared.js";
 
 export const envExporter: DnlExporter = {
     name: "env",
-    description: ".env file cleaned (without unnecessary comments)",
+    description: "Export source (.env or process.env) to another .env file cleaned (without unnecessary comments)",
     run(envDef, options, warnings) {
         return exportEnv(envDef, options, warnings);
     },

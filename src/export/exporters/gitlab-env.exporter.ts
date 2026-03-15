@@ -5,7 +5,16 @@ import { getRawValue, getSource } from "../shared.js";
 
 export const gitlabEnvExporter: DnlExporter = {
     name: "gitlab-env",
-    description: "GitLab CI environment variables",
+    description: "Export source (.env or process.env) to GitLab CI environment variables",
+    register(cmd) {
+        cmd = cmd.addHelpText(
+            "after",
+            `\n# Generate variables for GitLab dotenv artifact
+            dnl export gitlab-env --out variables.env
+            `
+        );
+        return cmd;
+    },
     run(envDef, options, warnings) {
         return exportGitlabEnv(envDef, options, warnings);
     },

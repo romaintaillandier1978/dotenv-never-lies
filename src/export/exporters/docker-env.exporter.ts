@@ -5,7 +5,7 @@ import { getRawValue, getSource } from "../shared.js";
 
 export const dockerEnvExporter: DnlExporter = {
     name: "docker-env",
-    description: "File compatible with Docker `--env-file`",
+    description: "Export variables to a .env file compatible with `docker run --env-file`",
     run(envDef, options, warnings) {
         return exportDockerEnv(envDef, options, warnings);
     },
@@ -15,6 +15,7 @@ const exportDockerEnv = (envDef: EnvDefinitionHelper<EnvDefinition>, options: Ex
     const source = getSource(options, warnings);
     const values = envDef.assert({ source });
     const args: string[] = [];
+
     for (const key of Object.keys(values)) {
         if (options?.excludeSecret && envDef.def[key].secret) {
             continue;

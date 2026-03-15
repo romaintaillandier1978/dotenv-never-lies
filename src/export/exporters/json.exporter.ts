@@ -1,11 +1,14 @@
 import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
 import { DnlExporter, registerExporter } from "../registry.js";
-import { getSource, getTypedOrRawValue } from "../shared.js";
+import { applySerializeTypedOption, getSource, getTypedOrRawValue } from "../shared.js";
 
 export const jsonExporter: DnlExporter = {
     name: "json",
-    description: "Key/value JSON object",
+    description: "Export source (.env or process.env) to a Key/value JSON object",
+    register(cmd) {
+        return applySerializeTypedOption(cmd);
+    },
     run(envDef, options, warnings) {
         return exportJson(envDef, options, warnings);
     },

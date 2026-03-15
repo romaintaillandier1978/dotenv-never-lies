@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 
-import { program, CommanderError } from "commander";
+import { program, CommanderError, Command } from "commander";
 import { AssertCliOptions, assertCommand } from "./commands/assert.js";
 import { initCliOptions, initCommand } from "./commands/init.js";
 import { InferCliOptions, inferCommand } from "./commands/infer.js";
 import { ExplainCliOptions, explainCommand, printHuman } from "./commands/explain.js";
-import { ExportCliOptions, exportCommand } from "./commands/export.js";
+import { exportCommand } from "./commands/export.js";
 import { toFile } from "./utils/toFile.js";
 import { DnlError, ExitCodes, ProcessEnvError, ValidationError } from "../errors.js";
 
 import { ProgramCliOptions } from "./commands/program.js";
-import { Except, PackageJson } from "type-fest";
+import { PackageJson } from "type-fest";
 
 import pkg from "../../package.json" with { type: "json" };
 import { TypesCliOptions, typesCommand } from "./commands/types.js";
 import { verboseReport, printWarnings, printErrors } from "./utils/report.js";
 import { AnnotateCliOptions, annotateCommand } from "./commands/annotate.js";
-import { getExporter, listExporters } from "../export/registry.js";
+import { loaderExporters } from "../export/registry.js";
 
 export const dnlPackageJson: PackageJson = pkg as PackageJson;
 
@@ -378,147 +378,59 @@ program
 
 // #region export
 
-program
-    .command("export")
-    // .allowUnknownOption(true)
-    // .allowExcessArguments()
-    .description("Exports environment variables to a specified format. Variables are exported after being validated against the schema.")
-    .argument("<format>", "Export format. See list and examples at the end")
-    .option("-s, --source <source>", "Variables source (default: process.env if none provided)")
-    .option("--warn-on-duplicates", "Warn on duplicate environment variables instead of failing")
-    .option("--hide-secret", 'Mask sensitive variables (replace with "********")')
-    .option("--exclude-secret", "Exclude sensitive variables (do not show them at all)")
-    .option("--include-comments", "Include comments in the export (does not work with the json format)")
-    .option("--serialize-typed", "Serialize validated runtime values (js/ts/json only). See below for more details.")
-    .option("-o, --out <file>", "Output file")
-    .option("-f, --force", "Overwrite the existing file, in conjunction with -o or --out")
-    .option("--k8s-name <name>", "Name for the k8s resource. Default: env-secret for k8s-secret, env-config for k8s-configmap")
-    .option("--github-org <org>", "GitHub organization name")
-    .action(async (format: string, opts: Except<ExportCliOptions, "format">) => {
-        const globalOpts = program.opts<ProgramCliOptions>();
-        const { content, warnings, out } = await exportCommand({ ...opts, format, schema: globalOpts.schema });
+function applyCommonExportOptions(cmd: Command) {
+    return cmd
+        .option("-s, --source <source>", "Variables source (default: process.env if none provided)")
+        .option("--warn-on-duplicates", "Warn on duplicate environment variables instead of failing")
+        .option("--hide-secret", 'Mask sensitive variables (replace with "********")')
+        .option("--exclude-secret", "Exclude sensitive variables (do not show them at all)")
+        .option("--include-comments", "Include comments in the export (does not work with the json format)")
+        .option("-o, --out <file>", "Output file")
+        .option("-f, --force", "Overwrite the existing file, in conjunction with -o or --out");
+}
 
-        if (out) {
-            await toFile(content, out, opts.force ?? false);
-        } else {
+async function registerExportCommands() {
+    const exportCmd = program.command("export");
+    // Load all plugins, (internal and external)
+    const exporters = await loaderExporters();
+    for (const exporter of exporters.values()) {
+        // build cli for each sub command (one per format) !
+        const sub = exportCmd.command(exporter.name).description(exporter.description ?? "");
+
+        // add common options to all sub commands
+        applyCommonExportOptions(sub);
+
+        // register the command, i.e. apply the options and the help text
+        exporter.register?.(sub);
+
+        // add common help text to docs
+        sub.addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/export.md\n`);
+        sub.addHelpText(
+            "after",
+            `\nPlugin based : build your own exporter !\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/export-plugins.md\n`
+        );
+
+        // add action to the command
+        sub.action(async (opts) => {
+            // execute the command
+            const { content } = await exportCommand({
+                ...opts,
+                format: exporter.name,
+                schema: program.opts().schema,
+            });
+
+            // print the content
+            // TODO : check that.
             console.log(content);
-        }
-        for (const warning of warnings) {
-            console.error(`${warning}`);
-        }
-    })
-    .addHelpText(
-        "after",
-        `\nExport formats:\n${listExporters()
-            .map((name: string) => `  - ${name}: ${getExporter(name)?.description ?? ""}`)
-            .join("\n")}
-        `
-    )
-    .addHelpText(
-        "after",
-        `\nSerialize validated runtime values (js/ts/json only):
-  When the --serialize-typed option is used, runtime values (after Zod transformations and validation) 
-  are serialized instead of the raw (but still validated) values from the source (.env or process.env).
-
-  Example:
-
-  .env file:
-  NODE_CORS_ORIGIN=https://a.site.com;https://b.site.com;https://c.site.com
-
-  env.dnl.ts file:
-  NODE_CORS_ORIGIN: {
-      description: "Allowed frontend URLs separated by semicolons",
-      schema: z.string().transform((v) =>
-          v
-              .split(";")
-              .map((s) => s.trim())
-              .filter(Boolean)
-      ),
-  },
-
-  dnl export json --source .env 
-  {
-      "NODE_CORS_ORIGIN": "https://a.site.com;https://b.site.com;https://c.site.com"
-  }
-  
-  dnl export json --source .env --serialize-typed
-  {
-      "NODE_CORS_ORIGIN": [
-          "https://a.site.com",
-          "https://b.site.com",
-          "https://c.site.com"
-      ]
-  }
-
-        `
-    )
-    .addHelpText(
-        "after",
-        `\nExamples:
-      
-  # --- Simple cases ----------------------------------------------------
-  
-  # Export environment variables as JSON from a .env file
-  dnl export json --source .env
-  
-  # Clean a .env file (remove comments and extraneous lines)
-  dnl export env --source .env --out .env.clean
-  dnl export env --source .env -fo .env
-  
-  
-  # --- Docker / CI ----------------------------------------------------
-  
-  # Export variables as docker-args
-  dnl export docker-args --source .env
-  
-  # Concrete CI example to run a Docker container
-  # (variables are injected dynamically)
-  docker run \\
-    $(dnl export docker-args --source $DOTENV_FILE) \\
-    --restart always \\
-    -d my-image:latest
-  
-  
-  # --- GitHub Actions -------------------------------------------------
-  
-  # Export variables as GitHub secrets (current repo)
-  # Requires gh CLI configured (gh auth login)
-  dnl export github-secret
-  
-  # Export variables as GitHub organization secrets
-  dnl export github-secret --github-org my-org
-  
-  # Example usage in a GitHub Actions job:
-  # (variables are injected into the job environment)
-  dnl export github-env >> $GITHUB_ENV
-  
-  
-  # --- Kubernetes -----------------------------------------------------
-  
-  # Generate a Kubernetes ConfigMap (NON-sensitive variables), from process.env
-  dnl export k8s-configmap --out k8s-configmap.yaml
-  
-  # Generate a Kubernetes Secret from a .env file
-  dnl export k8s-secret --source .env --k8s-name my-secret --out k8s-secret.yaml
-  
-  # Apply the generated files
-  kubectl apply -f k8s-configmap.yaml
-  kubectl apply -f k8s-secret.yaml
-  
-  # note: if no secret is present in the dnl config, for k8s-secret the output will be empty
-  
-  # --- TypeScript / JavaScript ---------------------------------------
-  
-  # Export variables as a typed TypeScript object, or js
-  dnl export ts --out env.generated.ts --serialize-typed
-  dnl export js --out env.generated.js --serialize-typed
-  `
-    )
-    .addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/export.md\n`);
+        });
+    }
+}
 
 // #endregion export
 
 try {
+    await registerExportCommands();
+
     await program.parseAsync(process.argv);
     process.exit(ExitCodes.success);
 } catch (err: unknown) {

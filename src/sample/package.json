@@ -11,6 +11,8 @@
     "name": "dnl-export-dummy",
     "main": "./dist/index.js",
     "dnl": {
-        "export": "./dist/index.js"
+        "exports": [
+            "./dist/index.js"
+        ]
     }
 }

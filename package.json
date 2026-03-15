@@ -9,6 +9,12 @@
         "type": "git",
         "url": "https://github.com/romaintaillandier1978/dotenv-never-lies"
     },
+    "dnl": {
+        "exports": [
+            "src/sample/dist/index.js",
+            "src/sample/dist/index2.js"
+        ]
+    },
     "scripts": {
         "desc": "tsx src/scripts/script-desc.ts",
         "build": "tsc",
@@ -29,6 +35,7 @@
         "sample:types": "yarn build && dnl --schema src/sample/env.dnl.ts types -fo src/sample/types/env.dnl.d.ts",
         "sample:annotate": "yarn build && dnl  --schema src/sample/env.dnl.ts  annotate ",
         "sample:export:json": "yarn build && dnl --schema src/sample/env.dnl.ts export json --source src/sample/.env",
+        "sample:export:ts": "yarn build && dnl --schema src/sample/env.dnl.ts export ts --source src/sample/.env",
         "sample:export:dummy": "yarn build && dnl --schema src/sample/env.dnl.ts export dummy --source src/sample/.env"
     },
     "scripts-descriptions": {
@@ -49,7 +56,10 @@
         "sample:init": "Runs sample initialization.",
         "sample:types": "Runs sample types generation.",
         "sample:annotate": "Runs sample annotation.",
-        "sample:main": "Runs the sample main file."
+        "sample:main": "Runs the sample main file.",
+        "sample:export:json": "Runs sample JSON export.",
+        "sample:export:ts": "Runs sample TS export.",
+        "sample:export:dummy": "Runs sample Dummy export."
     },
     "keywords": [
         "env",

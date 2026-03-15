@@ -3,25 +3,49 @@ import type { ExportOptions } from "../export.types.js";
 import { DnlExporter, registerExporter } from "../registry.js";
 import { getRawValue, getSource, shellEscape } from "../shared.js";
 
+type GithubSecretExportOptions = ExportOptions & {
+    githubOrg?: string;
+};
+
 export const githubSecretExporter: DnlExporter = {
     name: "github-secret",
-    description: "GitHub Secrets via gh CLI (repo or organization)",
+    description: "Export source (.env or process.env) to GitHub Secrets via gh CLI (repo or organization)",
+    // help: `      # Export variables as GitHub secrets (current repo)
+    //   # Requires gh CLI configured (gh auth login)
+    //   dnl export github-secret
+
+    //   # Export variables as GitHub organization secrets
+    //   dnl export github-secret --github-org=my-org`,
+    register(cmd) {
+        cmd = cmd.option("--github-org <org>", "GitHub organization");
+        cmd = cmd.addHelpText(
+            "after",
+            `\n# Requires gh CLI configured (gh auth login)
+    dnl export github-secret
+
+    # Export variables as GitHub secrets (current repo)
+    dnl export github-secret --github-org=my-org
+    `
+        );
+        return cmd;
+    },
     run(envDef, options, warnings) {
         return exportGithubSecret(envDef, options, warnings);
     },
 };
 
-const exportGithubSecret = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
+const exportGithubSecret = (envDef: EnvDefinitionHelper<EnvDefinition>, options: GithubSecretExportOptions, warnings: string[]): string => {
     if (options?.hideSecret) {
         warnings.push("The --hide-secret option is incompatible with github-secret");
     }
-    if (options?.githubOrg && options.githubOrg.includes(" ")) {
+    const githubOrg: string | undefined = options?.githubOrg as string | undefined;
+    if (githubOrg && githubOrg.includes(" ")) {
         warnings.push("github-org contains a space; gh command likely invalid");
     }
     const source = getSource(options, warnings);
     const values = envDef.assert({ source });
 
-    const scopeFlag = options?.githubOrg ? `--org ${shellEscape(options.githubOrg)}` : "";
+    const scopeFlag = githubOrg ? `--org ${shellEscape(githubOrg)}` : "";
 
     const args: string[] = [];
     for (const key of Object.keys(values)) {

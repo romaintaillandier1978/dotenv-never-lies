@@ -5,12 +5,15 @@ import { createRequire } from "node:module";
 import { readPackageJson } from "../utils/read-user-package-json.js";
 import path from "node:path";
 import fs from "node:fs";
+import { Command } from "commander";
+import { PackageJson } from "type-fest";
 
 const require = createRequire(import.meta.url);
 
 export interface DnlExporter {
     name: string;
     description?: string;
+    register?(cmd: Command): Command;
     run(envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportCliOptions, warnings: string[]): string;
 }
 
@@ -34,17 +37,70 @@ export function listExporters(): string[] {
 // Singleton : should not load multiple times
 let pluginsLoaded = false;
 
+export type PackageJsonWithDnlExports = PackageJson & {
+    dnl?: { export?: string; exports?: string[] };
+};
+
+const loadExportsFromPackageJson = (pkg: PackageJsonWithDnlExports | null) => {
+    if (!pkg) return [];
+    const exportsList: string[] = [];
+    if (pkg.dnl?.export) {
+        exportsList.push(pkg.dnl.export);
+    }
+    if (pkg.dnl?.exports) {
+        exportsList.push(...pkg.dnl.exports);
+    }
+    return exportsList;
+};
+
+async function loadExporterFromPath(pluginPath: string, source: string) {
+    let mod: unknown;
+    try {
+        mod = await import(pluginPath);
+    } catch (err) {
+        console.warn(`[dnl] Failed to load exporter plugin "${source}":`, err);
+        return;
+    }
+
+    const plugin = (mod as { default?: unknown })?.default ?? mod;
+
+    if (!plugin || typeof plugin !== "object") {
+        console.warn(`[dnl] Invalid exporter plugin "${source}": module does not export an object.`);
+        return;
+    }
+
+    if (!("name" in plugin && typeof (plugin as DnlExporter).name === "string" && "run" in plugin && typeof (plugin as DnlExporter).run === "function")) {
+        console.warn(`[dnl] Invalid exporter plugin "${source}": missing required fields { name, run }.`);
+        return;
+    }
+
+    try {
+        registerExporter(plugin as DnlExporter);
+    } catch (err) {
+        console.warn(`[dnl] Failed to register exporter plugin "${source}":`, err);
+    }
+}
+
 export const loaderExporters = async () => {
     if (pluginsLoaded) {
-        console.log("exportersalready loaded ", JSON.stringify(exporters, null, 2));
         return exporters;
     }
-    const pkg = readPackageJson();
+
+    const pkg = readPackageJson() as PackageJsonWithDnlExports;
+
+    const rootExports = loadExportsFromPackageJson(pkg);
+
+    for (const exp of rootExports) {
+        const pluginPath = path.resolve(process.cwd(), exp);
+        await loadExporterFromPath(pluginPath, "root");
+    }
+
     const deps = [
         ...(pkg?.dependencies ? Object.keys(pkg.dependencies as Record<string, string>) : []),
         ...(pkg?.devDependencies ? Object.keys(pkg.devDependencies as Record<string, string>) : []),
         ...(pkg?.optionalDependencies ? Object.keys(pkg.optionalDependencies) : []),
     ];
+
     for (const dep of deps) {
         let entry: string;
 
@@ -68,17 +124,15 @@ export const loaderExporters = async () => {
 
         if (!pkgPath) continue;
 
-        const depPkg = readPackageJson(pkgPath) as {
-            dnl?: { export?: string };
-        };
+        const depPkg = readPackageJson(pkgPath) as PackageJsonWithDnlExports;
+        const depExports = loadExportsFromPackageJson(depPkg);
 
-        if (depPkg.dnl?.export) {
-            const pluginPath = path.resolve(path.dirname(pkgPath), depPkg.dnl.export);
-            const plugin = await import(pluginPath);
-            registerExporter(plugin.default ?? plugin);
-            console.debug(`DNL exporter plugin loaded: ${dep}`);
+        for (const exp of depExports) {
+            const pluginPath = path.resolve(path.dirname(pkgPath), exp);
+            await loadExporterFromPath(pluginPath, dep);
         }
     }
+
     pluginsLoaded = true;
     return exporters;
 };

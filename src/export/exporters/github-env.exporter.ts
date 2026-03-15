@@ -5,13 +5,16 @@ import { getRawValue, getSource, shellEscape } from "../shared.js";
 
 export const githubEnvExporter: DnlExporter = {
     name: "github-env",
-    description: "Inject into a GitHub Actions job environment",
+    description: "Export source (.env or process.env) to inject into a GitHub Actions job environment",
     run(envDef, options, warnings) {
         return exportGithubEnv(envDef, options, warnings);
     },
 };
 
 const exportGithubEnv = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
+    if (options?.includeComments) {
+        warnings.push("The --include-comments option is ignored for github-env format");
+    }
     const source = getSource(options, warnings);
     const values = envDef.assert({ source });
 

@@ -5,7 +5,33 @@ import { getRawValue, getSource, shellEscape } from "../shared.js";
 
 export const dockerArgsExporter: DnlExporter = {
     name: "docker-args",
-    description: "Arguments `--env KEY=VALUE` for `docker run`",
+    description: "Export source (.env or process.env) as `--env KEY=VALUE` for `docker run`",
+    //     help: `# Export variables as docker-args
+    //       dnl export docker-args --source .env
+    //       # Concrete CI example to run a Docker container
+    //       # (variables are injected dynamically)
+    //       docker run \\
+    //         $(dnl export docker-args --source $DOTENV_FILE) \\
+    //         --restart always \\
+    //         -d my-image:latest
+    // `,
+    register(cmd) {
+        cmd = cmd.addHelpText(
+            "after",
+            `\nExamples:
+            
+    # Export variables in docker-args format
+    dnl export docker-args --source .env
+    
+    # Concrete CI example to run a Docker container (variables are injected dynamically)
+    docker run \\
+      $(dnl export docker-args --source $DOTENV_FILE) \\
+      --restart always \\
+      -d my-image:latest
+    `
+        );
+        return cmd;
+    },
     run(envDef, options, warnings) {
         return exportDockerArgs(envDef, options, warnings);
     },

@@ -1,11 +1,15 @@
 import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
 import { DnlExporter, registerExporter } from "../registry.js";
-import { getSource, getTypedOrRawValue } from "../shared.js";
+import { applySerializeTypedOption, getSource, getTypedOrRawValue } from "../shared.js";
 
 export const jsExporter: DnlExporter = {
     name: "js",
-    description: "JavaScript object",
+    description: "Export source (.env or process.env) to a JavaScript object",
+    register(cmd) {
+        cmd = applySerializeTypedOption(cmd);
+        return cmd;
+    },
     run(envDef, options, warnings) {
         return exportJs(envDef, options, warnings);
     },
