@@ -1,8 +1,8 @@
-import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
+import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
 import { DnlExporter } from "../export.types.js";
 import { registerExporter } from "../registry.js";
-import { getRawValue, getSource, shellEscape } from "../shared.js";
+import { getRawValue, shellEscape } from "../shared.js";
 
 export const dockerArgsExporter: DnlExporter = {
     name: "docker-args",
@@ -33,17 +33,21 @@ export const dockerArgsExporter: DnlExporter = {
         );
         return cmd;
     },
-    run(envDef, options, warnings) {
-        return exportDockerArgs(envDef, options, warnings);
+    run(envDef, validatedValues, source, options, warnings) {
+        return exportDockerArgs(envDef, validatedValues, source, options, warnings);
     },
 };
 
-const exportDockerArgs = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
+const exportDockerArgs = (
+    envDef: EnvDefinitionHelper<EnvDefinition>,
+    values: InferEnv<EnvDefinition>,
+    source: EnvSource,
+    options: ExportOptions,
+    warnings: string[]
+): string => {
     if (options?.includeComments) {
         warnings.push("The --include-comments option is invalid with the docker-args format");
     }
-    const source = getSource(options, warnings);
-    const values = envDef.assert({ source });
     const args: string[] = [];
     for (const key of Object.keys(values)) {
         if (options?.excludeSecret && envDef.def[key].secret) {

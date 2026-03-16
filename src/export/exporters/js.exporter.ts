@@ -1,8 +1,8 @@
-import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
+import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
 import { DnlExporter } from "../export.types.js";
 import { registerExporter } from "../registry.js";
-import { applySerializeTypedOption, getSource, getTypedOrRawValue } from "../shared.js";
+import { applySerializeTypedOption, getTypedOrRawValue } from "../shared.js";
 
 export const jsExporter: DnlExporter = {
     name: "js",
@@ -11,15 +11,17 @@ export const jsExporter: DnlExporter = {
         cmd = applySerializeTypedOption(cmd);
         return cmd;
     },
-    run(envDef, options, warnings) {
-        return exportJs(envDef, options, warnings);
+    run(envDef, validatedValues, source, options) {
+        return exportJs(envDef, validatedValues, source, options);
     },
 };
 
-const exportJs = (envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string => {
-    const source = getSource(options, warnings);
-    const values = envDef.assert({ source });
-
+const exportJs = (
+    envDef: EnvDefinitionHelper<EnvDefinition>,
+    values: InferEnv<EnvDefinition>,
+    source: EnvSource,
+    options: ExportOptions
+): string => {
     const middle: string[] = [];
     for (const key of Object.keys(values)) {
         if (options?.excludeSecret && envDef.def[key].secret) {

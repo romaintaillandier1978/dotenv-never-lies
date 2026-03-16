@@ -10,7 +10,7 @@ import { Command } from "commander";
  * @param warnings - The warnings to add to.
  * @returns The source of the environment variables.
  */
-export const getSource = (options: ExportOptions & { source?: string }, warnings: string[]): EnvSource => {
+export const getSource = (options: ExportOptions, warnings: string[]): EnvSource => {
     if (options.source) {
         return dnl.readEnvFile(path.resolve(process.cwd(), options.source), { onDuplicate: options.warnOnDuplicates ? "warn" : "error" }, warnings);
     }

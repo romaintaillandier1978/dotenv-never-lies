@@ -1,10 +1,14 @@
-import { EnvDefinitionHelper } from "../core.js";
+import { EnvDefinitionHelper, EnvSource, InferEnv } from "../core.js";
 import { EnvDefinition } from "../core.js";
 import { Command } from "commander";
 /**
  * Options communes utilisées par les exporteurs (sans les options CLI du programme).
  */
 export type ExportOptions = {
+    /**
+     * The source of the environment variables. (option -s, --source of the CLI)
+     */
+    source?: string;
     /**
      * During export process, warn on duplicate environment variables instead of failing. (option --warn-on-duplicates)
      */
@@ -60,11 +64,18 @@ export interface DnlExporter {
      * Run the exporter.
      * Transform the validated environment variables into the desired format.
      * Return the content to be printed to the console or written to a file.
-     * Add warnings if needed.
      * @param envDef - The environment definition, you will have to validate
+     * @param validatedValues - The validated environment variables.
+     * @param source - The source of the environment variables. raw values
      * @param options - The from the command line.
      * @param warnings - The warnings to add to. You can add warnings to the array if needed.
      * @returns The content to be printed to the console or written to a file.
      */
-    run(envDef: EnvDefinitionHelper<EnvDefinition>, options: ExportOptions, warnings: string[]): string;
+    run(
+        envDef: EnvDefinitionHelper<EnvDefinition>,
+        validatedValues: InferEnv<EnvDefinition>,
+        source: EnvSource,
+        options: ExportOptions,
+        warnings: string[]
+    ): string;
 }

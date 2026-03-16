@@ -1,7 +1,7 @@
-import { getSource, getRawValue } from "../export/shared.js";
+import { getRawValue } from "../export/shared.js";
 import { DnlExporter } from "../export/export.types.js";
 import { ExportOptions } from "../export/export.types.js";
-import { EnvDefinition, EnvDefinitionHelper } from "../core.js";
+import { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../core.js";
 
 /**
  * Options for the sample exporter.
@@ -43,8 +43,8 @@ const dummyExporter: DnlExporter = {
         cmd = cmd.addHelpText("after", `\nSample exporter example.\n\nExamples:\n    dnl export sample-exporter --dummy-option=value\n`);
         return cmd;
     },
-    run(envDef, options: SampleExportOptions, warnings) {
-        return exportDummy(envDef, options, warnings);
+    run(envDef, values, source, options: SampleExportOptions, warnings: string[]) {
+        return exportDummy(envDef, values, source, options, warnings);
     },
 };
 
@@ -58,17 +58,21 @@ const dummyExporter: DnlExporter = {
  * The exporter simply reads validated variables and converts
  * them to the desired output format.
  */
-const exportDummy = (envDef: EnvDefinitionHelper<EnvDefinition>, options: SampleExportOptions, warnings: string[]): string => {
-    // Load the variable source (.env file or process.env).
-    // `getSource` also handles duplicate detection and warnings.
-    const source = getSource(options, warnings);
-    // Validate the environment variables against the schema.
-    const values = envDef.assert({ source });
-
+const exportDummy = (
+    envDef: EnvDefinitionHelper<EnvDefinition>,
+    values: InferEnv<EnvDefinition>,
+    source: EnvSource,
+    options: SampleExportOptions,
+    warnings: string[]
+): string => {
     const result: string[] = [];
     if (options.dummyOption) {
         result.push(`dummyOption=${options.dummyOption}`);
     }
+    // If needed, exporters can emit warnings to inform the user
+    // about non-fatal issues related to the export process.
+    warnings.push("Example warning");
+
     // Iterate over all validated environment variables and
     // transform them into the desired output format.
     for (const key of Object.keys(values)) {
@@ -76,9 +80,6 @@ const exportDummy = (envDef: EnvDefinitionHelper<EnvDefinition>, options: Sample
         if (options.excludeSecret && envDef.def[key].secret) continue;
         // add comment if you need to
         if (options.includeComments && envDef.def[key].description) result.push(`# ${envDef.def[key].description}`);
-        // If needed, exporters can emit warnings to inform the user
-        // about non-fatal issues related to the export process.
-        // warnings.push("Example warning");
         // Retrieve the raw value from the selected source.
         // The helper also applies secret masking when required.
         const rawValue = getRawValue(key, source, envDef, options);

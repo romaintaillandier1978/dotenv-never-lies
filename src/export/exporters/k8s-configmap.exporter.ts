@@ -1,8 +1,8 @@
-import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
+import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
 import { DnlExporter } from "../export.types.js";
 import { registerExporter } from "../registry.js";
-import { getRawValue, getSource } from "../shared.js";
+import { getRawValue } from "../shared.js";
 
 type K8sConfigmapExportOptions = ExportOptions & {
     k8sName?: string;
@@ -27,15 +27,18 @@ export const k8sConfigmapExporter: DnlExporter = {
         );
         return cmd;
     },
-    run(envDef, options, warnings) {
-        return exportK8sConfigmap(envDef, options, warnings);
+    run(envDef, validatedValues, source, options, warnings) {
+        return exportK8sConfigmap(envDef, validatedValues, source, options, warnings);
     },
 };
 
-const exportK8sConfigmap = (envDef: EnvDefinitionHelper<EnvDefinition>, options: K8sConfigmapExportOptions, warnings: string[]): string => {
-    const source = getSource(options, warnings);
-    const values = envDef.assert({ source });
-
+const exportK8sConfigmap = (
+    envDef: EnvDefinitionHelper<EnvDefinition>,
+    values: InferEnv<EnvDefinition>,
+    source: EnvSource,
+    options: K8sConfigmapExportOptions,
+    warnings: string[]
+): string => {
     const args: string[] = [];
     args.push(`apiVersion: v1`);
     args.push(`kind: ConfigMap`);

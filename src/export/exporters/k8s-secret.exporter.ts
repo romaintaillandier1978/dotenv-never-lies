@@ -1,8 +1,8 @@
-import type { EnvDefinition, EnvDefinitionHelper } from "../../index.js";
+import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
 import type { ExportOptions } from "../export.types.js";
 import { DnlExporter } from "../export.types.js";
 import { registerExporter } from "../registry.js";
-import { getRawValue, getSource } from "../shared.js";
+import { getRawValue } from "../shared.js";
 
 type K8sSecretExportOptions = ExportOptions & {
     k8sName?: string;
@@ -34,15 +34,17 @@ export const k8sSecretExporter: DnlExporter = {
         );
         return cmd;
     },
-    run(envDef, options, warnings) {
-        return exportK8sSecret(envDef, options, warnings);
+    run(envDef, validatedValues, source, options) {
+        return exportK8sSecret(envDef, validatedValues, source, options);
     },
 };
 
-const exportK8sSecret = (envDef: EnvDefinitionHelper<EnvDefinition>, options: K8sSecretExportOptions, warnings: string[]): string => {
-    const source = getSource(options, warnings);
-    const values = envDef.assert({ source });
-
+const exportK8sSecret = (
+    envDef: EnvDefinitionHelper<EnvDefinition>,
+    values: InferEnv<EnvDefinition>,
+    source: EnvSource,
+    options: K8sSecretExportOptions
+): string => {
     const args: string[] = [];
     args.push(`apiVersion: v1`);
     args.push(`kind: Secret`);

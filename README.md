@@ -368,55 +368,25 @@ The `export` command transforms variables validated by the schema
 into formats directly consumable by other tools (Docker, CI, Kubernetes, scripts…).
 
 The schema remains the source of truth.  
-Values are validated before export.
+Values are validated before export, and validated AND raw values are passed to the exporter.
+
+Example:
 
 ```bash
-dnl export <format>
+dnl export docker-args
 ```
 
-By default, values are read from `process.env`.  
-A `.env` file can be provided via `--source`.
-
-Examples:  
-Export environment variables as JSON from a `.env` file
+Example output:
 
 ```bash
-dnl export json --source .env
+-e NODE_ENV=test -e NODE_PORT=3000 -e FRONT_URL=https://example.com
 ```
 
-Clean a `.env` file (remove comments and extraneous lines)
+See DNL documentation for more formats and options :
+→ [Read export documentation](docs/commands/export.md)
 
-```bash
-dnl export env --source .env --out .env.clean
-dnl export env --source .env --out .env --force
-```
-
-Export variables as `docker-args`
-
-```bash
-dnl export docker-args --source .env
-```
-
-Result:
-
-```bash
--e "NODE_ENV=production" -e "NODE_PORT=3000"
-```
-
-Export for GitHub Actions (variables)
-
-```bash
-dnl export github-env
-```
-
-Result:
-
-```bash
-printf '%s\n' "NODE_ENV=production" >> $GITHUB_ENV
-printf '%s\n' "NODE_PORT=3000" >> $GITHUB_ENV
-```
-
-There are a few more formats and options (see CLI docs `dnl export --help`).
+Export command is based on a plugin system, see how to implement your own exporter :
+→ [Read export plugins documentation](docs/commands/export-plugins.md)
 
 ## Real-life usage
 

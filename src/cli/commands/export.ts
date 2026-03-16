@@ -5,6 +5,7 @@ import { ProgramCliOptions } from "./program.js";
 import { type ExportOptions, type ExportResult } from "../../export/export.types.js";
 import "../../export/exporters/index.js";
 import { listExporters, loaderExporters } from "../../export/registry.js";
+import { getSource } from "../../export/shared.js";
 
 export { type ExportResult };
 
@@ -28,12 +29,10 @@ export const exportCommand = async (options: ExportCliOptions): Promise<ExportRe
         throw new UsageError(`Unsupported format: ${options.format}. Available formats: ${listExporters().join(", ")}`);
     }
 
-    // move ca
-    // const source = getSource(options, warnings);
-    // const values = envDef.assert({ source });
-    // ici
+    const source = getSource(options, warnings);
+    const validatedValues = envDef.assert({ source });
     return {
-        content: exporter.run(envDef, options, warnings),
+        content: exporter.run(envDef, validatedValues, source, options, warnings),
         warnings,
     };
 };
