@@ -2,10 +2,10 @@ import { loadDef } from "../utils/load-schema.js";
 import { resolveSchemaPath } from "../utils/resolve-schema.js";
 import { UsageError } from "../../errors.js";
 import { ProgramCliOptions } from "./program.js";
-import { type ExportOptions, type ExportResult } from "../../export/export.types.js";
+import { ExporterContext, type ExportOptions, type ExportResult } from "../../export/export.types.js";
 import "../../export/exporters/index.js";
 import { listExporters, loaderExporters } from "../../export/registry.js";
-import { getSource } from "../../export/shared.js";
+import { buildVariables, getSource, shellEscape } from "../../export/shared.js";
 
 export { type ExportResult };
 
@@ -30,9 +30,19 @@ export const exportCommand = async (options: ExportCliOptions): Promise<ExportRe
     }
 
     const source = getSource(options, warnings);
-    const validatedValues = envDef.assert({ source });
+    const values = envDef.assert({ source });
+    const variables = buildVariables(envDef, values, source, options);
+
+    const context: ExporterContext<ExportOptions> = {
+        apiVersion: 1,
+        variables,
+        options,
+        warnings,
+        utils: { shellEscape },
+    };
+
     return {
-        content: exporter.run(envDef, validatedValues, source, options, warnings),
+        content: exporter.run(context),
         warnings,
     };
 };

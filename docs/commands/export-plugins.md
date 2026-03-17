@@ -6,6 +6,31 @@ Built-in exporters cover the most common use cases (`.env` files, Docker, GitHub
 
 The mechanism is based on automatic discovery of plugins installed in the project.
 
+## Plugin resolution and override behavior
+
+Exporters are identified by their `name`, which corresponds to the `<format>` used in the CLI:
+
+When multiple exporters share the same name, DNL applies a deterministic override strategy based on loading order.
+
+Exporters are loaded in the following order:
+
+1. Built-in exporters (internal to DNL)
+2. Exporters from project dependencies
+3. Exporters declared in the project's own `package.json`
+
+**If multiple exporters share the same name, the last one loaded wins.**
+
+In practice, this means:
+
+- A project exporter overrides exporters from dependencies
+- A dependency exporter overrides built-in exporters
+
+When an override occurs, DNL prints a warning in the console.
+
+This behavior allows you to customize or replace existing exporters without modifying the DNL core.
+
+## Declaring exporters in package.json
+
 When running `dnl export`, DNL inspects the project's `package.json` and then those of its dependencies. If a package declares a `dnl` section, the paths listed are loaded as exporters.
 
 A plugin can declare a single exporter:

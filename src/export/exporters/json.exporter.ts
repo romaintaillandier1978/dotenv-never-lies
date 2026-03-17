@@ -1,34 +1,25 @@
-import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
-import type { ExportOptions } from "../export.types.js";
-import { DnlExporter } from "../export.types.js";
-import { registerExporter } from "../registry.js";
-import { applySerializeTypedOption, getTypedOrRawValue } from "../shared.js";
+import type { ExporterContext, ExportOptions } from "../export.types.js";
+import { defineExporter } from "../export.types.js";
+import { applySerializeTypedOption } from "../shared.js";
 
-export const jsonExporter: DnlExporter = {
+type JsonExportOptions = ExportOptions & {
+    serializeTyped?: boolean;
+};
+export default defineExporter({
     name: "json",
     description: "Export source (.env or process.env) to a Key/value JSON object",
     register(cmd) {
         return applySerializeTypedOption(cmd);
     },
-    run(envDef, validatedValues, source, options) {
-        return exportJson(envDef, validatedValues, source, options);
-    },
-};
-
-const exportJson = (
-    envDef: EnvDefinitionHelper<EnvDefinition>,
-    values: InferEnv<EnvDefinition>,
-    source: EnvSource,
-    options: ExportOptions
-): string => {
-    const args: Record<string, unknown> = {};
-    for (const key of Object.keys(values)) {
-        if (options?.excludeSecret && envDef.def[key].secret) {
-            continue;
+    run(ctx: ExporterContext<JsonExportOptions>) {
+        const { variables } = ctx;
+        const args: Record<string, unknown> = {};
+        for (const variable of variables) {
+            if (variable.secret) {
+                continue;
+            }
+            args[variable.key] = variable.value;
         }
-        args[key] = getTypedOrRawValue(key, source, values, envDef, options);
-    }
-    return JSON.stringify(args, null, 2);
-};
-
-registerExporter(jsonExporter);
+        return JSON.stringify(args, null, 2);
+    },
+});

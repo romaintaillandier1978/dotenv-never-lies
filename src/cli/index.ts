@@ -95,9 +95,9 @@ program
 program
     .command("infer")
     .description(
-        "Generates a dotenv-never-lies schema from a .env file.\n\n" +
+        "Generates a dotenv-never-lies schema from a .env file.\n" +
             "This command is intended as a starting point when migrating a project to DNL.\n" +
-            "The generated schema must be reviewed and refined manually."
+            "The generated schema must be reviewed and refined manually.\n"
     )
     .option("-s, --source <source>", "Source .env file", ".env")
     .option("-o, --out <file>", "Output DNL file", "env.dnl.ts")
@@ -168,9 +168,9 @@ program
 program
     .command("types")
     .description(
-        "Generate a TypeScript declaration file (.d.ts) from a DNL schema. \n\n" +
+        "Generate a TypeScript declaration file (.d.ts) from a DNL schema. \n" +
             "Use this command after you have finished documenting your DNL schema.\nThis command produces a static, IDE-only representation of your environment contract.\n" +
-            "It enables rich IntelliSense (auto-completion, documentation on hover)."
+            "It enables rich IntelliSense (auto-completion, documentation on hover).\n"
     )
     .option("-o, --out <file>", "Output file")
     .option("-f, --force", "Overwrite the existing file, in conjunction with -o or --out")
@@ -202,8 +202,8 @@ program
 program
     .command("annotate")
     .description(
-        "Annotate process.env usages in the codebase.\n\n" +
-            "This command scans your project and adds contextual annotations to help migrate from process.env to DNL-validated variables."
+        "Annotate process.env usages in the codebase.\n" +
+            "This command scans your project and adds contextual annotations to help migrate from process.env to DNL-validated variables.\n"
     )
     .option("-r, --remove", "Remove all dnl annotations from the codebase")
     .option("-c, --check", "Check process.env usages (CI / git hooks)")
@@ -268,7 +268,7 @@ program
 // #region assert
 program
     .command("assert")
-    .description("Verifies the runtime environment and exits the process if the schema is not satisfied.")
+    .description("Verifies the runtime environment and exits the process if the schema is not satisfied.\n")
     .option("-s, --source <source>", "Variables source (default: process.env)")
     .option("--warn-on-duplicates", "Warn on duplicate environment variables instead of failing")
     .action(async (opts: AssertCliOptions) => {
@@ -308,7 +308,7 @@ program
         "Initialize an environment file from a DNL schema.\n" +
             "This command does NOT read any existing environment variables.\n" +
             "Useful to bootstrap a project or facilitate onboarding of a new developer.\n" +
-            "Only default values defined in the schema are written."
+            "Only default values defined in the schema are written.\n"
     )
     .option("-o, --out <file>", "Output file (default: .env)")
     .option("-f, --force", "Overwrite existing file")
@@ -340,7 +340,7 @@ program
 // #region explain
 program
     .command("explain")
-    .description("Displays the list of known environment variables and their description.")
+    .description("Displays the list of known environment variables and their description.\n")
     .argument("[keys...]", "Keys to explain (0..N). Without argument, all keys.")
     .option("-f, --format <format>", 'Output format ("human" | "json")', "human")
     .action(async (keys: string[] | undefined, opts: ExplainCliOptions) => {
@@ -389,10 +389,34 @@ function applyCommonExportOptions(cmd: Command) {
         .option("-f, --force", "Overwrite the existing file, in conjunction with -o or --out");
 }
 
+function addCommonExportHelpText(cmd: Command) {
+    cmd.addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/export.md\n`);
+    cmd.addHelpText(
+        "after",
+        `\nPlugin based : build your own exporter !\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/export-plugins.md\n`
+    );
+}
+
 async function registerExportCommands() {
-    const exportCmd = program.command("export");
     // Load all plugins, (internal and external)
     const exporters = await loaderExporters();
+    // add common help text to docs
+    const exportCmd = program.command("export");
+    exportCmd.usage("<format> [options]");
+    exportCmd.description("Export environment variables to various formats.\n");
+
+    exportCmd.addHelpText("after", `\n${exporters.size} available export formats\n`);
+    exportCmd.addHelpText(
+        "after",
+        `\nEach format is implemented as a subcommand and can be extended with custom plugins.
+Use "dnl export <format> --help" for details on a specific format.\n
+Examples:
+  dnl export docker-args --out .env.docker
+  dnl export json --source .env
+`
+    );
+    addCommonExportHelpText(exportCmd);
+
     for (const exporter of exporters.values()) {
         // build cli for each sub command (one per format) !
         const sub = exportCmd.command(exporter.name).description(exporter.description ?? "");
@@ -404,11 +428,7 @@ async function registerExportCommands() {
         exporter.register?.(sub);
 
         // add common help text to docs
-        sub.addHelpText("after", `\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/export.md\n`);
-        sub.addHelpText(
-            "after",
-            `\nPlugin based : build your own exporter !\nDocs :\n  https://github.com/romaintaillandier1978/dotenv-never-lies/blob/main/docs/commands/export-plugins.md\n`
-        );
+        addCommonExportHelpText(sub);
 
         // add action to the command
         sub.action(async (opts) => {

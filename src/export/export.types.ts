@@ -1,6 +1,5 @@
-import { EnvDefinitionHelper, EnvSource, InferEnv } from "../core.js";
-import { EnvDefinition } from "../core.js";
 import { Command } from "commander";
+import { registerExporter } from "./registry.js";
 /**
  * Options communes utilisées par les exporteurs (sans les options CLI du programme).
  */
@@ -41,10 +40,39 @@ export type ExportResult = {
     warnings: string[];
 };
 
+export interface ExporterUtils {
+    shellEscape(value: string): string;
+}
+export interface ExportEnvVariable {
+    key: string;
+    value: unknown | undefined;
+    description?: string;
+    secret?: boolean;
+}
+export interface ExporterContext<T extends ExportOptions> {
+    apiVersion: 1;
+
+    variables: ExportEnvVariable[];
+    options: T;
+    warnings: string[];
+
+    utils: ExporterUtils;
+}
+
+// => run(ctx) {
+//   const { values, source } = ctx
+// }
+export function defineExporter<OptionsT extends ExportOptions = ExportOptions, ExporterT extends DnlExporter<OptionsT> = DnlExporter<OptionsT>>(
+    exporter: ExporterT
+): ExporterT {
+    registerExporter(exporter);
+    return exporter;
+}
+
 /**
  * DNL Exporter interface. To build your own exporter, you need to implement this interface.
  */
-export interface DnlExporter {
+export interface DnlExporter<T extends ExportOptions = ExportOptions> {
     /**
      * The name of the exporter, will appears in dnl export --help
      */
@@ -64,18 +92,10 @@ export interface DnlExporter {
      * Run the exporter.
      * Transform the validated environment variables into the desired format.
      * Return the content to be printed to the console or written to a file.
-     * @param envDef - The environment definition, you will have to validate
-     * @param validatedValues - The validated environment variables.
-     * @param source - The source of the environment variables. raw values
-     * @param options - The from the command line.
-     * @param warnings - The warnings to add to. You can add warnings to the array if needed.
+     * The context object is versioned and extensible so new capabilities can be
+     * added without breaking existing exporters.
+     * @param ctx - The context object. It contains the variables, the options, the warnings and the utils.
      * @returns The content to be printed to the console or written to a file.
      */
-    run(
-        envDef: EnvDefinitionHelper<EnvDefinition>,
-        validatedValues: InferEnv<EnvDefinition>,
-        source: EnvSource,
-        options: ExportOptions,
-        warnings: string[]
-    ): string;
+    run(ctx: ExporterContext<T>): string;
 }

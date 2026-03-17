@@ -1,10 +1,7 @@
-import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
-import type { ExportOptions } from "../export.types.js";
-import { DnlExporter } from "../export.types.js";
-import { registerExporter } from "../registry.js";
-import { getRawValue } from "../shared.js";
+import type { ExporterContext, ExportOptions } from "../export.types.js";
+import { defineExporter } from "../export.types.js";
 
-export const gitlabEnvExporter: DnlExporter = {
+export default defineExporter({
     name: "gitlab-env",
     description: "Export source (.env or process.env) to GitLab CI environment variables",
     register(cmd) {
@@ -16,29 +13,18 @@ export const gitlabEnvExporter: DnlExporter = {
         );
         return cmd;
     },
-    run(envDef, validatedValues, source, options) {
-        return exportGitlabEnv(envDef, validatedValues, source, options);
+    run(ctx: ExporterContext<ExportOptions>) {
+        const { options, utils, variables } = ctx;
+        const args: string[] = [];
+        for (const variable of variables) {
+            if (variable.secret) {
+                continue;
+            }
+            if (options?.includeComments && variable.description) {
+                args.push(`# ${variable.description}`);
+            }
+            args.push(`${variable.key}=${utils.shellEscape(String(variable.value))}`);
+        }
+        return args.join("\n");
     },
-};
-
-const exportGitlabEnv = (
-    envDef: EnvDefinitionHelper<EnvDefinition>,
-    values: InferEnv<EnvDefinition>,
-    source: EnvSource,
-    options: ExportOptions
-): string => {
-    const args: string[] = [];
-    for (const key of Object.keys(values)) {
-        if (options?.excludeSecret && envDef.def[key].secret) {
-            continue;
-        }
-        if (options?.includeComments && envDef.def[key].description) {
-            args.push(`# ${envDef.def[key].description}`);
-        }
-        const rawValue = getRawValue(key, source, envDef, options);
-        args.push(`${key}=${rawValue}`);
-    }
-    return args.join("\n");
-};
-
-registerExporter(gitlabEnvExporter);
+});

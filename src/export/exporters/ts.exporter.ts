@@ -1,39 +1,33 @@
-import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
-import type { ExportOptions } from "../export.types.js";
-import { DnlExporter } from "../export.types.js";
-import { registerExporter } from "../registry.js";
-import { applySerializeTypedOption, getTypedOrRawValue } from "../shared.js";
+import type { ExporterContext, ExportOptions } from "../export.types.js";
+import { defineExporter } from "../export.types.js";
+import { applySerializeTypedOption } from "../shared.js";
 
 type TsExportOptions = ExportOptions & {
     serializeTyped?: boolean;
 };
-export const tsExporter: DnlExporter = {
+
+export default defineExporter({
     name: "ts",
     description: "Export source (.env or process.env) to a Typed TypeScript object",
     register(cmd) {
         cmd = applySerializeTypedOption(cmd);
         return cmd;
     },
-    run(envDef, validatedValues, source, options) {
-        return exportTs(envDef, validatedValues, source, options);
+    run(ctx: ExporterContext<TsExportOptions>) {
+        const { options, variables } = ctx;
+        console.log("options exportTs2 " + JSON.stringify(options, null, 2));
+        const middle: string[] = [];
+        for (const variable of variables) {
+            if (variable.secret) {
+                continue;
+            }
+            if (options?.includeComments && variable.description) {
+                middle.push(`    // ${variable.description}`);
+            }
+
+            middle.push(`    ${variable.key}: ${JSON.stringify(variable.value, null, 4).replace(/\n/g, "\n    ")},`);
+        }
+
+        return `export const env = {\n${middle.join("\n")}\n} as const;`;
     },
-};
-
-const exportTs = (envDef: EnvDefinitionHelper<EnvDefinition>, values: InferEnv<EnvDefinition>, source: EnvSource, options: TsExportOptions): string => {
-    const middle: string[] = [];
-    for (const key of Object.keys(values)) {
-        if (options?.excludeSecret && envDef.def[key].secret) {
-            continue;
-        }
-        if (options?.includeComments && envDef.def[key].description) {
-            middle.push(`    // ${envDef.def[key].description}`);
-        }
-
-        // TODO : better spacing ?
-        middle.push(`    ${key}: ${JSON.stringify(getTypedOrRawValue(key, source, values, envDef, options), null, 8)},`);
-    }
-
-    return `export const env = {\n${middle.join("\n")}\n} as const;`;
-};
-
-registerExporter(tsExporter);
+});

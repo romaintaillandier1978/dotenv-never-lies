@@ -17,10 +17,14 @@ const exporters = new Map<string, DnlExporter>();
  * Register an exporter.
  * @param exp - The exporter to register.
  */
+
 export function registerExporter(exp: DnlExporter) {
-    if (exporters.has(exp.name)) {
-        throw new Error(`Exporter ${exp.name} already registered`);
+    const existing = exporters.get(exp.name);
+
+    if (existing) {
+        console.warn(`[dnl] Exporter "${exp.name}" overridden\n`);
     }
+
     exporters.set(exp.name, exp);
 }
 
@@ -52,30 +56,17 @@ const loadExportsFromPackageJson = (pkg: PackageJsonWithDnlExports | null) => {
 };
 
 async function loadExporterFromPath(pluginPath: string, source: string) {
-    let mod: unknown;
+    const before = exporters.size;
+    let exporter: DnlExporter | undefined;
     try {
-        mod = await import(pluginPath);
+        const mod = await import(pluginPath);
+        exporter = mod.default;
     } catch (err) {
         console.warn(`[dnl] Failed to load exporter plugin "${source}":`, err);
         return;
     }
-
-    const plugin = (mod as { default?: unknown })?.default ?? mod;
-
-    if (!plugin || typeof plugin !== "object") {
-        console.warn(`[dnl] Invalid exporter plugin "${source}": module does not export an object.`);
-        return;
-    }
-
-    if (!("name" in plugin && typeof (plugin as DnlExporter).name === "string" && "run" in plugin && typeof (plugin as DnlExporter).run === "function")) {
-        console.warn(`[dnl] Invalid exporter plugin "${source}": missing required fields { name, run }.`);
-        return;
-    }
-
-    try {
-        registerExporter(plugin as DnlExporter);
-    } catch (err) {
-        console.warn(`[dnl] Failed to register exporter plugin "${source}":`, err);
+    if (exporters.size === before) {
+        console.warn(`[dnl] Plugin "${exporter?.name}" did not register any new exporter (might have failed or overridden another exporter = false positive).`);
     }
 }
 
@@ -83,15 +74,9 @@ export const loaderExporters = async () => {
     if (pluginsLoaded) {
         return exporters;
     }
+    // A ce stade, tous les exporters internes sont déjà chargés.
 
     const pkg = readPackageJson() as PackageJsonWithDnlExports;
-
-    const rootExports = loadExportsFromPackageJson(pkg);
-
-    for (const exp of rootExports) {
-        const pluginPath = path.resolve(process.cwd(), exp);
-        await loadExporterFromPath(pluginPath, "root");
-    }
 
     const deps = [
         ...(pkg?.dependencies ? Object.keys(pkg.dependencies as Record<string, string>) : []),
@@ -130,6 +115,17 @@ export const loaderExporters = async () => {
             await loadExporterFromPath(pluginPath, dep);
         }
     }
+
+    // A ce stade tous les exporters des deps ont été chargés.
+
+    const rootExports = loadExportsFromPackageJson(pkg);
+
+    for (const exp of rootExports) {
+        const pluginPath = path.resolve(process.cwd(), exp);
+        await loadExporterFromPath(pluginPath, "userProject");
+    }
+
+    // A ce stade tous les exporters du projet utilisateur ont été chargés.
 
     pluginsLoaded = true;
     return exporters;

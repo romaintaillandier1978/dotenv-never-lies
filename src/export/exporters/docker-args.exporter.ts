@@ -1,21 +1,9 @@
-import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
-import type { ExportOptions } from "../export.types.js";
-import { DnlExporter } from "../export.types.js";
-import { registerExporter } from "../registry.js";
-import { getRawValue, shellEscape } from "../shared.js";
+import type { ExporterContext, ExportOptions } from "../export.types.js";
+import { defineExporter } from "../export.types.js";
 
-export const dockerArgsExporter: DnlExporter = {
+export default defineExporter({
     name: "docker-args",
     description: "Export source (.env or process.env) as `--env KEY=VALUE` for `docker run`",
-    //     help: `# Export variables as docker-args
-    //       dnl export docker-args --source .env
-    //       # Concrete CI example to run a Docker container
-    //       # (variables are injected dynamically)
-    //       docker run \\
-    //         $(dnl export docker-args --source $DOTENV_FILE) \\
-    //         --restart always \\
-    //         -d my-image:latest
-    // `,
     register(cmd) {
         cmd = cmd.addHelpText(
             "after",
@@ -33,30 +21,19 @@ export const dockerArgsExporter: DnlExporter = {
         );
         return cmd;
     },
-    run(envDef, validatedValues, source, options, warnings) {
-        return exportDockerArgs(envDef, validatedValues, source, options, warnings);
-    },
-};
 
-const exportDockerArgs = (
-    envDef: EnvDefinitionHelper<EnvDefinition>,
-    values: InferEnv<EnvDefinition>,
-    source: EnvSource,
-    options: ExportOptions,
-    warnings: string[]
-): string => {
-    if (options?.includeComments) {
-        warnings.push("The --include-comments option is invalid with the docker-args format");
-    }
-    const args: string[] = [];
-    for (const key of Object.keys(values)) {
-        if (options?.excludeSecret && envDef.def[key].secret) {
-            continue;
+    run(ctx: ExporterContext<ExportOptions>) {
+        const { options, utils, variables, warnings } = ctx;
+        if (options?.includeComments) {
+            warnings.push("The --include-comments option is invalid with the docker-args format");
         }
-        const rawValue = getRawValue(key, source, envDef, options);
-        args.push(`-e ${shellEscape(`${key}=${rawValue}`)}`);
-    }
-    return args.join(" ");
-};
-
-registerExporter(dockerArgsExporter);
+        const args: string[] = [];
+        for (const variable of variables) {
+            if (variable.secret) {
+                continue;
+            }
+            args.push(`-e ${utils.shellEscape(`${variable.key}=${variable.value}`)}`);
+        }
+        return args.join(" ");
+    },
+});

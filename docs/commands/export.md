@@ -2,6 +2,10 @@
 
 The `export` command transforms variables **validated** by the DNL schema into formats that can be used directly by other tools: Docker, CI/CD systems, shell scripts, or Kubernetes manifests.
 
+dnl export command provides sub commands. Each sub command, called _exporters_, correspond to a plugin that extends the available formats using a plugin system. Exporters are identified by their `name`s property. This name is used as the `<format>` in the CLI: `dnl export <format> <options>`.
+**If multiple exporters share the same name, the last one loaded wins.**
+The resolution of exporters follows a priority order (project > dependencies > built-in). See export plugins documentation for details [export-plugins.md](export-plugins.md).
+
 ## schema parameter
 
 As with all DNL commands, the schema parameter can be used:

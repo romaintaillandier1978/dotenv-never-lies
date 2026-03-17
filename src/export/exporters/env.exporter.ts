@@ -1,35 +1,21 @@
-import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
-import type { ExportOptions } from "../export.types.js";
-import { DnlExporter } from "../export.types.js";
-import { registerExporter } from "../registry.js";
-import { getRawValue } from "../shared.js";
+import type { ExporterContext, ExportOptions } from "../export.types.js";
+import { defineExporter } from "../export.types.js";
 
-export const envExporter: DnlExporter = {
+export default defineExporter({
     name: "env",
     description: "Export source (.env or process.env) to another .env file cleaned (without unnecessary comments)",
-    run(envDef, validatedValues, source, options) {
-        return exportEnv(envDef, validatedValues, source, options);
+    run(ctx: ExporterContext<ExportOptions>) {
+        const { options, variables } = ctx;
+        const result: string[] = [];
+        for (const variable of variables) {
+            if (variable.secret) {
+                continue;
+            }
+            if (options?.includeComments && variable.description) {
+                result.push(`# ${variable.description}`);
+            }
+            result.push(`${variable.key}=${variable.value}`);
+        }
+        return result.join("\n");
     },
-};
-
-export const exportEnv = (
-    envDef: EnvDefinitionHelper<EnvDefinition>,
-    values: InferEnv<EnvDefinition>,
-    source: EnvSource,
-    options: ExportOptions
-): string => {
-    const result: string[] = [];
-    for (const key of Object.keys(values)) {
-        if (options?.excludeSecret && envDef.def[key].secret) {
-            continue;
-        }
-        if (options?.includeComments && envDef.def[key].description) {
-            result.push(`# ${envDef.def[key].description}`);
-        }
-        const rawValue = getRawValue(key, source, envDef, options);
-        result.push(`${key}=${rawValue}`);
-    }
-    return result.join("\n");
-};
-
-registerExporter(envExporter);
+});

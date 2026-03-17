@@ -1,14 +1,11 @@
-import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
-import type { ExportOptions } from "../export.types.js";
-import { DnlExporter } from "../export.types.js";
-import { registerExporter } from "../registry.js";
-import { getRawValue } from "../shared.js";
+import type { ExporterContext, ExportOptions } from "../export.types.js";
+import { defineExporter } from "../export.types.js";
 
 type K8sConfigmapExportOptions = ExportOptions & {
     k8sName?: string;
 };
 
-export const k8sConfigmapExporter: DnlExporter = {
+export default defineExporter({
     name: "k8s-configmap",
     description: "Export source (.env or process.env) to a Kubernetes ConfigMap (NON-sensitive variables)",
     register(cmd) {
@@ -27,40 +24,28 @@ export const k8sConfigmapExporter: DnlExporter = {
         );
         return cmd;
     },
-    run(envDef, validatedValues, source, options, warnings) {
-        return exportK8sConfigmap(envDef, validatedValues, source, options, warnings);
-    },
-};
 
-const exportK8sConfigmap = (
-    envDef: EnvDefinitionHelper<EnvDefinition>,
-    values: InferEnv<EnvDefinition>,
-    source: EnvSource,
-    options: K8sConfigmapExportOptions,
-    warnings: string[]
-): string => {
-    const args: string[] = [];
-    args.push(`apiVersion: v1`);
-    args.push(`kind: ConfigMap`);
-    args.push(`metadata:`);
+    run(ctx: ExporterContext<K8sConfigmapExportOptions>) {
+        const { options, variables, warnings } = ctx;
+        const args: string[] = [];
+        args.push(`apiVersion: v1`);
+        args.push(`kind: ConfigMap`);
+        args.push(`metadata:`);
 
-    const k8sName = options?.k8sName ?? "env-configmap";
-    args.push(`  name: ${k8sName}`);
-    args.push(`data:`);
+        const k8sName = options?.k8sName ?? "env-configmap";
+        args.push(`  name: ${k8sName}`);
+        args.push(`data:`);
 
-    for (const key of Object.keys(values)) {
-        if (envDef.def[key].secret) {
-            if (options?.excludeSecret) continue;
-            if (!options?.hideSecret) {
-                warnings.push(`Secret ${key} exported in a ConfigMap. Use the k8s-secret format.`);
+        for (const variable of variables) {
+            if (variable.secret) {
+                if (!options?.hideSecret) {
+                    warnings.push(`Secret ${variable.key} exported in a ConfigMap. Use the k8s-secret format.`);
+                }
             }
+
+            args.push(`  ${variable.key}: ${JSON.stringify(variable.value)}`);
         }
 
-        const rawValue = getRawValue(key, source, envDef, options);
-        args.push(`  ${key}: ${JSON.stringify(rawValue)}`);
-    }
-
-    return args.join("\n");
-};
-
-registerExporter(k8sConfigmapExporter);
+        return args.join("\n");
+    },
+});

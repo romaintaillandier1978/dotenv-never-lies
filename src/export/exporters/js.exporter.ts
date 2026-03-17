@@ -1,40 +1,28 @@
-import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
-import type { ExportOptions } from "../export.types.js";
-import { DnlExporter } from "../export.types.js";
-import { registerExporter } from "../registry.js";
-import { applySerializeTypedOption, getTypedOrRawValue } from "../shared.js";
+import type { ExporterContext, ExportOptions } from "../export.types.js";
+import { defineExporter } from "../export.types.js";
+import { applySerializeTypedOption } from "../shared.js";
 
-export const jsExporter: DnlExporter = {
+export default defineExporter({
     name: "js",
     description: "Export source (.env or process.env) to a JavaScript object",
     register(cmd) {
         cmd = applySerializeTypedOption(cmd);
         return cmd;
     },
-    run(envDef, validatedValues, source, options) {
-        return exportJs(envDef, validatedValues, source, options);
+    run(ctx: ExporterContext<ExportOptions>) {
+        const { options, variables } = ctx;
+        const middle: string[] = [];
+        for (const variable of variables) {
+            if (variable.secret) {
+                continue;
+            }
+            if (options?.includeComments && variable.description) {
+                middle.push(`    // ${variable.description}`);
+            }
+
+            middle.push(`    ${variable.key}: ${JSON.stringify(variable.value, null, 2)},`);
+        }
+
+        return `export const env = {\n${middle.join("\n")}\n};`;
     },
-};
-
-const exportJs = (
-    envDef: EnvDefinitionHelper<EnvDefinition>,
-    values: InferEnv<EnvDefinition>,
-    source: EnvSource,
-    options: ExportOptions
-): string => {
-    const middle: string[] = [];
-    for (const key of Object.keys(values)) {
-        if (options?.excludeSecret && envDef.def[key].secret) {
-            continue;
-        }
-        if (options?.includeComments && envDef.def[key].description) {
-            middle.push(`    // ${envDef.def[key].description}`);
-        }
-
-        middle.push(`    ${key}: ${JSON.stringify(getTypedOrRawValue(key, source, values, envDef, options), null, 2)},`);
-    }
-
-    return `export const env = {\n${middle.join("\n")}\n};`;
-};
-
-registerExporter(jsExporter);
+});

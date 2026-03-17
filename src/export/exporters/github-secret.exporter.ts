@@ -1,14 +1,11 @@
-import type { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../../index.js";
-import type { ExportOptions } from "../export.types.js";
-import { DnlExporter } from "../export.types.js";
-import { registerExporter } from "../registry.js";
-import { getRawValue, shellEscape } from "../shared.js";
+import type { ExporterContext, ExportOptions } from "../export.types.js";
+import { defineExporter } from "../export.types.js";
 
 type GithubSecretExportOptions = ExportOptions & {
     githubOrg?: string;
 };
 
-export const githubSecretExporter: DnlExporter = {
+export default defineExporter({
     name: "github-secret",
     description: "Export source (.env or process.env) to GitHub Secrets via gh CLI (repo or organization)",
     // help: `      # Export variables as GitHub secrets (current repo)
@@ -30,36 +27,23 @@ export const githubSecretExporter: DnlExporter = {
         );
         return cmd;
     },
-    run(envDef, validatedValues, source, options, warnings) {
-        return exportGithubSecret(envDef, validatedValues, source, options, warnings);
+    run(ctx: ExporterContext<GithubSecretExportOptions>) {
+        const { options, utils, variables, warnings } = ctx;
+        if (options?.hideSecret) {
+            warnings.push("The --hide-secret option is incompatible with github-secret");
+        }
+        const githubOrg: string | undefined = options?.githubOrg as string | undefined;
+        if (githubOrg && githubOrg.includes(" ")) {
+            warnings.push("github-org contains a space; gh command likely invalid");
+        }
+        const scopeFlag = githubOrg ? `--org ${utils.shellEscape(githubOrg)}` : "";
+
+        const args: string[] = [];
+        for (const variable of variables) {
+            if (!variable.secret) continue;
+            args.push(`printf '%s' ${utils.shellEscape(String(variable.value))} | gh secret set ${variable.key} ${scopeFlag} --body-file -`.trim());
+        }
+
+        return args.join("\n");
     },
-};
-
-const exportGithubSecret = (
-    envDef: EnvDefinitionHelper<EnvDefinition>,
-    values: InferEnv<EnvDefinition>,
-    source: EnvSource,
-    options: GithubSecretExportOptions,
-    warnings: string[]
-): string => {
-    if (options?.hideSecret) {
-        warnings.push("The --hide-secret option is incompatible with github-secret");
-    }
-    const githubOrg: string | undefined = options?.githubOrg as string | undefined;
-    if (githubOrg && githubOrg.includes(" ")) {
-        warnings.push("github-org contains a space; gh command likely invalid");
-    }
-    const scopeFlag = githubOrg ? `--org ${shellEscape(githubOrg)}` : "";
-
-    const args: string[] = [];
-    for (const key of Object.keys(values)) {
-        if (!envDef.def[key].secret) continue;
-        if (options?.excludeSecret) continue;
-        const rawValue = getRawValue(key, source, envDef, options);
-        args.push(`printf '%s' ${shellEscape(rawValue)} | gh secret set ${key} ${scopeFlag} --body-file -`.trim());
-    }
-
-    return args.join("\n");
-};
-
-registerExporter(githubSecretExporter);
+});

@@ -11,7 +11,7 @@
     },
     "dnl": {
         "exports": [
-            "dist/sample/dummy-exporter.js"
+            "dist/sample/sample-exporter.js"
         ]
     },
     "scripts": {

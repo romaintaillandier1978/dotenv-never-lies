@@ -1,7 +1,5 @@
-import { getRawValue } from "../export/shared.js";
-import { DnlExporter } from "../export/export.types.js";
-import { ExportOptions } from "../export/export.types.js";
-import { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../core.js";
+import { defineExporter } from "../export/export.types.js";
+import { exporter } from "../index.js";
 
 /**
  * Options for the sample exporter.
@@ -10,15 +8,26 @@ import { EnvDefinition, EnvDefinitionHelper, EnvSource, InferEnv } from "../core
  * This automatically enables the common CLI options provided
  * by DNL (source selection, secret handling, comments, etc.).
  */
-type SampleExportOptions = ExportOptions & { dummyOption?: string };
+type SampleExportOptions = exporter.ExportOptions & { dummyOption?: string };
 
+// const sampleExporter: exporter.DnlExporter = exporter.defineExporter({
+//     name: "sample-exporter",
+//     description: "Sample exporter",
+//     register(cmd) {
+//         cmd = cmd.option("--dummy-option <value>", "Dummy option");
+//         return cmd;
+//     },
+//     run(ctx) {
+//         return exportDummy(ctx);
+//     },
+// });
 /**
  * Sample exporter plugin.
  *
  * This file is intentionally simple and serves as a reference
  * implementation for writing custom `dnl export` plugins.
  */
-const dummyExporter: DnlExporter = {
+export default defineExporter({
     /**
      * Name of the exporter.
      * This is the command used in the CLI:
@@ -43,54 +52,38 @@ const dummyExporter: DnlExporter = {
         cmd = cmd.addHelpText("after", `\nSample exporter example.\n\nExamples:\n    dnl export sample-exporter --dummy-option=value\n`);
         return cmd;
     },
-    run(envDef, values, source, options: SampleExportOptions, warnings: string[]) {
-        return exportDummy(envDef, values, source, options, warnings);
+    /**
+     * Core function of the exporter.
+     *
+     * At this stage:
+     * - the schema has already been loaded
+     * - the exporter options have been parsed
+     *
+     * The exporter simply reads validated variables and converts
+     * them to the desired output format.
+     */
+    run(ctx: exporter.ExporterContext<SampleExportOptions>) {
+        const { options, variables, warnings } = ctx;
+        const result: string[] = [];
+        if (options.dummyOption) {
+            result.push(`dummyOption=${options.dummyOption}`);
+        }
+        // If needed, exporters can emit warnings to inform the user
+        // about non-fatal issues related to the export process.
+        warnings.push("Example warning");
+
+        // Iterate over all validated environment variables and
+        // transform them into the desired output format.
+        for (const variable of variables) {
+            // exclude secret if you need to
+            if (variable.secret) continue;
+            // add comment if you need to
+            if (options.includeComments && variable.description) result.push(`# ${variable.description}`);
+            // Retrieve the raw value from the selected source.
+            // The helper also applies secret masking when required.
+            // serialise the result !
+            result.push(`${variable.key}=${variable.value}`);
+        }
+        return result.join("\n");
     },
-};
-
-/**
- * Core function of the exporter.
- *
- * At this stage:
- * - the schema has already been loaded
- * - the exporter options have been parsed
- *
- * The exporter simply reads validated variables and converts
- * them to the desired output format.
- */
-const exportDummy = (
-    envDef: EnvDefinitionHelper<EnvDefinition>,
-    values: InferEnv<EnvDefinition>,
-    source: EnvSource,
-    options: SampleExportOptions,
-    warnings: string[]
-): string => {
-    const result: string[] = [];
-    if (options.dummyOption) {
-        result.push(`dummyOption=${options.dummyOption}`);
-    }
-    // If needed, exporters can emit warnings to inform the user
-    // about non-fatal issues related to the export process.
-    warnings.push("Example warning");
-
-    // Iterate over all validated environment variables and
-    // transform them into the desired output format.
-    for (const key of Object.keys(values)) {
-        // exclude secret if you need to
-        if (options.excludeSecret && envDef.def[key].secret) continue;
-        // add comment if you need to
-        if (options.includeComments && envDef.def[key].description) result.push(`# ${envDef.def[key].description}`);
-        // Retrieve the raw value from the selected source.
-        // The helper also applies secret masking when required.
-        const rawValue = getRawValue(key, source, envDef, options);
-        // serialise the result !
-        result.push(`${key}=${rawValue}`);
-    }
-    return result.join("\n");
-};
-
-/**
- * CRITICAL: exporters must be exported as default.
- * The plugin registry automatically loads the default export from each declared plugin module.
- */
-export default dummyExporter;
+});
