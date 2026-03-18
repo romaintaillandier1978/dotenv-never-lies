@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { durationRule } from "../../rules/duration.js";
+import { expectNameInfluence } from "../common/common.js";
 
 describe("Inference rules – duration", () => {
     it("durationRule should match a valid duration", () => {
@@ -23,5 +24,8 @@ describe("Inference rules – duration", () => {
             expect(result).not.toBeNull();
             expect(result?.confidence).toBeLessThan(durationRule.meta.threshold);
         }
+    });
+    it("durationRule name should influence confidence", () => {
+        expectNameInfluence(durationRule, "5s", "REQUEST_TIMEOUT");
     });
 });

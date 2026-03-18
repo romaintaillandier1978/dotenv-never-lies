@@ -24,9 +24,6 @@
 
 - enregistrer les fichiers d'entrées/sorties dans une conf de dnl. (env.dnl.ts, env.dnl.d.ts, asserter)
 
-- plugin exporters :
-    - mode --dry-run
-
 ### readme inférence :
 
 2. No path schéma (and probably never)

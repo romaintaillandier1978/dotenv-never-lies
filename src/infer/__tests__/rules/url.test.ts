@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { urlRule } from "../../rules/url.js";
 import { databaseUrlGenSchema, httpUrlGenSchema } from "../../generated/url.js";
+import { expectNameInfluence } from "../common/common.js";
 
 describe("Inference rules – url", () => {
     it("urlRule should match an HTTP URL", () => {
@@ -38,5 +39,8 @@ describe("Inference rules – url", () => {
             });
             expect(result).toBeNull();
         }
+    });
+    it("urlRule name should influence confidence", () => {
+        expectNameInfluence(urlRule, "https://example.com", "HTTP_URL");
     });
 });

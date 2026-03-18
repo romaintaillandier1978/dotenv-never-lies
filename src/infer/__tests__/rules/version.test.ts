@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { versionRule } from "../../rules/version.js";
 import { versionGenSchema } from "../../generated/version.js";
+import { expectNameInfluence } from "../common/common.js";
 
 describe("Inference rules – version", () => {
     it("versionRule should match a strict semver value", () => {
@@ -36,5 +37,8 @@ describe("Inference rules – version", () => {
             });
             expect(result).toBeNull();
         }
+    });
+    it("versionRule name should influence confidence", () => {
+        expectNameInfluence(versionRule, "1.2.3", "APP_VERSION");
     });
 });

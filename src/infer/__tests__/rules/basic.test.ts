@@ -3,6 +3,7 @@ import { numberRule, emailRule, stringRule } from "../../rules/basic.js";
 import { zEmailGenSchema, zNumberGenSchema, zStringGenSchema } from "../../generated/basic.js";
 import type { InferInput } from "../../infer.types.js";
 import type { HeuristicResult } from "../../heuristic.types.js";
+import { expectNameInfluence } from "../common/common.js";
 
 describe("Inference rules – basic", () => {
     it("numberRule should match a valid number", () => {
@@ -51,6 +52,10 @@ describe("Inference rules – basic", () => {
         expect(result?.generated.code).toBe(zNumberGenSchema.code);
         expect(result!.confidence).toBeGreaterThanOrEqual(numberRule.meta.threshold);
     });
+
+    it("numberRule name should influence confidence", () => {
+        expectNameInfluence(numberRule, "123", "NUMBER");
+    });
 });
 
 describe("Inference rules – email", () => {
@@ -85,6 +90,9 @@ describe("Inference rules – email", () => {
 
         expect(result).toBeNull();
     });
+    it("emailRule name should influence confidence", () => {
+        expectNameInfluence(emailRule, "dev@example.com", "CONTACT_EMAIL");
+    });
 });
 
 describe("Inference rules – string", () => {
@@ -99,4 +107,5 @@ describe("Inference rules – string", () => {
         expect(result?.generated.code).toBe(zStringGenSchema.code);
         expect(result!.confidence).toBeGreaterThanOrEqual(stringRule.meta.threshold);
     });
+    // DO NOT TEST NAME INFLUENCE FOR STRING RULE, IT IS NOT APPLICABLE
 });

@@ -1,6 +1,7 @@
 import { booleanRule } from "../../rules/boolean.js";
 
 import { describe, it, expect } from "vitest";
+import { expectNameInfluence } from "../common/common.js";
 
 describe("Inference rules – boolean", () => {
     it("booleanRule should match strict boolean values", () => {
@@ -33,5 +34,8 @@ describe("Inference rules – boolean", () => {
             });
             expect(result).not.toBeNull();
         }
+    });
+    it("booleanRule name should influence confidence", () => {
+        expectNameInfluence(booleanRule, "true", "IS_ENABLED");
     });
 });

@@ -38,4 +38,5 @@ describe("Inference rules – json", () => {
             expect(result).toBeNull();
         }
     });
+    // DO NOT TEST NAME INFLUENCE FOR JSON RULE, IT IS NOT APPLICABLE
 });

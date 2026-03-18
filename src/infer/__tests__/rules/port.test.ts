@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { portRule } from "../../rules/port.js";
+import { expectNameInfluence } from "../common/common.js";
 
 describe("Inference rules – port", () => {
     it("portRule should match a valid port number", () => {
@@ -24,5 +25,8 @@ describe("Inference rules – port", () => {
 
             expect(result).toBeNull();
         }
+    });
+    it("portRule name should influence confidence", () => {
+        expectNameInfluence(portRule, "8080", "PORT");
     });
 });
