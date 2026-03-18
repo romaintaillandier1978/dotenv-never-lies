@@ -17,3 +17,22 @@ export function expectNameInfluence(rule: HeuristicRule, value: string, nameWith
     const delta = resultWithHint!.confidence - resultNeutral!.confidence;
     expect(delta).toBeGreaterThan(0);
 }
+
+export function expectResilienceSurroundinSpaces(rule: HeuristicRule, value: string, name: string) {
+    const spacedValues = [
+        ` ${value} `,
+        `${value} `,
+        ` ${value}`,
+        `    ${value}   `,
+        ` \t${value} \t`,
+        `\n${value}\n`,
+        `\r${value}\r`,
+        `\n\t${value}\n\t`,
+        `\r\t${value}\r\t`,
+    ];
+    for (const sp of spacedValues) {
+        const result = rule.tryInfer({ name, rawValue: sp });
+        expect(result).not.toBeNull();
+        expect(result!.confidence).toBeGreaterThanOrEqual(rule.meta.threshold);
+    }
+}

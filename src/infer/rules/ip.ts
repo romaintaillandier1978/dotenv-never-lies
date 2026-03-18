@@ -12,7 +12,8 @@ export const ipRule: HeuristicRule<"ip"> = {
         threshold: 5,
     },
     tryInfer({ name, rawValue }) {
-        if (!looksLikeIp(rawValue)) return null;
+        const trimmed = rawValue.trim();
+        if (!looksLikeIp(trimmed)) return null;
 
         let confidence = 5;
         const reasons: string[] = ["Value matches strict ip format"];

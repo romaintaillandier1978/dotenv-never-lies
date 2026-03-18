@@ -3,9 +3,21 @@ import { numberRule, emailRule, stringRule } from "../../rules/basic.js";
 import { zEmailGenSchema, zNumberGenSchema, zStringGenSchema } from "../../generated/basic.js";
 import type { InferInput } from "../../infer.types.js";
 import type { HeuristicResult } from "../../heuristic.types.js";
-import { expectNameInfluence } from "../common/common.js";
+import { expectNameInfluence, expectResilienceSurroundinSpaces } from "../common/common.js";
 
 describe("Inference rules – basic", () => {
+    it("numberRule should not match non-numeric values", () => {
+        const invalidValues = ["123abc", "abc", "12.3.4"];
+
+        for (const rawValue of invalidValues) {
+            const result = numberRule.tryInfer({
+                name: "NUMBER",
+                rawValue,
+            });
+
+            expect(result).toBeNull();
+        }
+    });
     it("numberRule should match a valid number", () => {
         const input: InferInput = {
             name: "NUMBER",
@@ -56,9 +68,25 @@ describe("Inference rules – basic", () => {
     it("numberRule name should influence confidence", () => {
         expectNameInfluence(numberRule, "123", "NUMBER");
     });
+
+    it("numberRule should handle surrounding spaces", () => {
+        expectResilienceSurroundinSpaces(numberRule, "123", "NUMBER");
+    });
 });
 
 describe("Inference rules – email", () => {
+    it("emailRule should not match non-email values", () => {
+        const invalidValues = ["123abc", "abc", "12.3.4", "http://example.com"];
+
+        for (const rawValue of invalidValues) {
+            const result = emailRule.tryInfer({
+                name: "CONTACT_EMAIL",
+                rawValue,
+            });
+
+            expect(result).toBeNull();
+        }
+    });
     it("emailRule should match a valid email-like value", () => {
         const input: InferInput = {
             name: "CONTACT_EMAIL",
@@ -93,19 +121,44 @@ describe("Inference rules – email", () => {
     it("emailRule name should influence confidence", () => {
         expectNameInfluence(emailRule, "dev@example.com", "CONTACT_EMAIL");
     });
+    it("emailRule should handle surrounding spaces", () => {
+        expectResilienceSurroundinSpaces(emailRule, "dev@example.com", "CONTACT_EMAIL");
+    });
 });
 
 describe("Inference rules – string", () => {
     it("stringRule should always fallback to string", () => {
-        const input: InferInput = {
-            name: "ANY_VALUE",
-            rawValue: "whatever",
-        };
-        const result: HeuristicResult | null = stringRule.tryInfer(input);
+        const invalids = [
+            "123abc",
+            "abc",
+            "12.3.4",
+            "http://example.com",
+            "true",
+            "false",
+            "0",
+            "1",
+            "yes",
+            "no",
+            "y",
+            "n",
+            "dev@example.com",
+            '{"key":"value"}',
+        ];
 
-        expect(result).not.toBeNull();
-        expect(result?.generated.code).toBe(zStringGenSchema.code);
-        expect(result!.confidence).toBeGreaterThanOrEqual(stringRule.meta.threshold);
+        for (const invalid of invalids) {
+            const result = stringRule.tryInfer({
+                name: "ANY_VALUE",
+                rawValue: invalid,
+            });
+
+            expect(result).not.toBeNull();
+            expect(result?.generated.code).toBe(zStringGenSchema.code);
+            expect(result!.confidence).toBeGreaterThanOrEqual(stringRule.meta.threshold);
+        }
+    });
+
+    it("stringRule should handle surrounding spaces", () => {
+        expectResilienceSurroundinSpaces(stringRule, "whatever", "ANY_VALUE");
     });
     // DO NOT TEST NAME INFLUENCE FOR STRING RULE, IT IS NOT APPLICABLE
 });

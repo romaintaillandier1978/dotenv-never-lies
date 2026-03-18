@@ -11,11 +11,12 @@ export const portRule: HeuristicRule<"port"> = {
         threshold: 5,
     },
     tryInfer({ name, rawValue }) {
+        const trimmed = rawValue.trim();
         // reject floats, versions (2.0), weird numbers
-        if (!/^\d+$/.test(rawValue)) {
+        if (!/^\d+$/.test(trimmed)) {
             return null;
         }
-        const port = Number(rawValue);
+        const port = Number(trimmed);
         if (!Number.isInteger(port) || port < 1 || port > 65535) {
             return null;
         }

@@ -13,7 +13,8 @@ export const versionRule: HeuristicRule<"version"> = {
         threshold: 5,
     },
     tryInfer({ name, rawValue }) {
-        if (!looksLikeVersion(rawValue)) return null;
+        const trimmed = rawValue.trim();
+        if (!looksLikeVersion(trimmed)) return null;
 
         let confidence = 5;
         const reasons: string[] = ["Value matches strict version format"];

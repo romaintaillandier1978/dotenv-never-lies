@@ -12,6 +12,7 @@ export const durationRule: HeuristicRule<"duration"> = {
         threshold: 5,
     },
     tryInfer({ name, rawValue }) {
+        const trimmed = rawValue.trim();
         let confidence = 0;
         const reasons: string[] = [];
 
@@ -23,7 +24,7 @@ export const durationRule: HeuristicRule<"duration"> = {
         }
 
         // Signal fort : le format
-        if (looksLikeValidDuration(rawValue)) {
+        if (looksLikeValidDuration(trimmed)) {
             confidence += 5;
             reasons.push("Value matches strict duration format (+5)");
         }
