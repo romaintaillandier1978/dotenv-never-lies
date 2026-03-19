@@ -12,7 +12,7 @@ export const portRule: HeuristicRule<"port"> = {
     },
     tryInfer({ name, rawValue }) {
         const trimmed = rawValue.trim();
-        // reject floats, versions (2.0), weird numbers
+        // reject floats, versions (2.0), weird numbers, 3e4
         if (!/^\d+$/.test(trimmed)) {
             return null;
         }
