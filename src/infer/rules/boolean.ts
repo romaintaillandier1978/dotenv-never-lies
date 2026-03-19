@@ -14,7 +14,7 @@ export const booleanRule: HeuristicRule<"boolean"> = {
     tryInfer({ name, rawValue }) {
         if (!looksLikeValidBoolean(rawValue)) return null;
         let confidence = 6; // valeur bool = signal fort
-        const reasons: string[] = ["Value matches strict boolean format"];
+        const reasons: string[] = ["Value matches strict boolean format (+6)"];
         const { matched, reason } = matchesEnvKey(name, BOOLEAN_KEYS);
         if (matched) {
             confidence += 1;

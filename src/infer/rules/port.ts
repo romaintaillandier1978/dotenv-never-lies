@@ -22,7 +22,7 @@ export const portRule: HeuristicRule<"port"> = {
         }
 
         let confidence = 5; // valeur seule = déjà crédible
-        const reasons: string[] = ["Valid TCP/UDP port number"];
+        const reasons: string[] = ["Valid TCP/UDP port number (+5)"];
         const { matched, reason } = matchesEnvKey(name, PORT_KEYS);
         if (matched) {
             confidence += 2;

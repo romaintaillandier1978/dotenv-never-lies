@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { urlRule } from "../../rules/url.js";
 import { databaseUrlGenSchema, httpUrlGenSchema } from "../../generated/url.js";
-import { expectNameInfluence, expectResilienceSurroundinSpaces } from "../common/common.js";
+import { expectNameInfluence, expectResilienceSurroundinSpaces, expectValidToHaveGoodReasons } from "../common/common.js";
 
 describe("Inference rules – url", () => {
     it("urlRule should not match empty values, or non-URL values", () => {
@@ -66,5 +66,21 @@ describe("Inference rules – url", () => {
     });
     it("urlRule should handle surrounding spaces", () => {
         expectResilienceSurroundinSpaces(urlRule, "https://example.com", "HTTP_URL");
+    });
+    it("urlRule should have good reasons", () => {
+        expectValidToHaveGoodReasons(
+            urlRule,
+            [
+                "https://example.com",
+                "http://example.com",
+                "postgres://user:pass@localhost:5432/app",
+                "ws://example.com",
+                "wss://example.com",
+                "queue://example.com",
+                "storage://example.com",
+                "other://example.com",
+            ],
+            "HTTP_URL"
+        );
     });
 });

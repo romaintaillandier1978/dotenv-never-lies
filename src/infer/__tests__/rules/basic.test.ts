@@ -3,7 +3,7 @@ import { numberRule, emailRule, stringRule } from "../../rules/basic.js";
 import { zEmailGenSchema, zNumberGenSchema, zStringGenSchema } from "../../generated/basic.js";
 import type { InferInput } from "../../infer.types.js";
 import type { HeuristicResult } from "../../heuristic.types.js";
-import { expectNameInfluence, expectResilienceSurroundinSpaces } from "../common/common.js";
+import { expectNameInfluence, expectResilienceSurroundinSpaces, expectValidToHaveGoodReasons } from "../common/common.js";
 
 describe("Inference rules – basic", () => {
     it("numberRule should not match non-numeric values", () => {
@@ -72,6 +72,9 @@ describe("Inference rules – basic", () => {
     it("numberRule should handle surrounding spaces", () => {
         expectResilienceSurroundinSpaces(numberRule, "123", "NUMBER");
     });
+    it("numberRule should have good reasons", () => {
+        expectValidToHaveGoodReasons(numberRule, ["123", "+7e6", "-12.5"], "NUMBER");
+    });
 });
 
 describe("Inference rules – email", () => {
@@ -123,6 +126,9 @@ describe("Inference rules – email", () => {
     });
     it("emailRule should handle surrounding spaces", () => {
         expectResilienceSurroundinSpaces(emailRule, "dev@example.com", "CONTACT_EMAIL");
+    });
+    it("emailRule should have good reasons", () => {
+        expectValidToHaveGoodReasons(emailRule, ["dev@example.com"], "CONTACT_EMAIL");
     });
 });
 

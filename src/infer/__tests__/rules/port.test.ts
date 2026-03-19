@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { portRule } from "../../rules/port.js";
-import { expectNameInfluence, expectResilienceSurroundinSpaces } from "../common/common.js";
+import { expectNameInfluence, expectResilienceSurroundinSpaces, expectValidToHaveGoodReasons } from "../common/common.js";
 
 describe("Inference rules – port", () => {
     it("portRule should not match empty values, or non-port values", () => {
@@ -41,5 +41,8 @@ describe("Inference rules – port", () => {
     });
     it("portRule should handle surrounding spaces", () => {
         expectResilienceSurroundinSpaces(portRule, "8080", "PORT");
+    });
+    it("portRule should have good reasons", () => {
+        expectValidToHaveGoodReasons(portRule, ["8080", "5432", "3000"], "PORT");
     });
 });

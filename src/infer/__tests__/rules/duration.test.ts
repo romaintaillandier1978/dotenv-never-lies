@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { durationRule } from "../../rules/duration.js";
-import { expectNameInfluence, expectResilienceSurroundinSpaces } from "../common/common.js";
+import { expectNameInfluence, expectResilienceSurroundinSpaces, expectValidToHaveGoodReasons } from "../common/common.js";
 
 describe("Inference rules – duration", () => {
     it("durationRule should not match empty values, or non-boolean values", () => {
@@ -40,5 +40,8 @@ describe("Inference rules – duration", () => {
     });
     it("durationRule should handle surrounding spaces", () => {
         expectResilienceSurroundinSpaces(durationRule, "5s", "REQUEST_TIMEOUT");
+    });
+    it("durationRule should have good reasons", () => {
+        expectValidToHaveGoodReasons(durationRule, ["5s", "10m", "2h", "3d", "4w", "5M", "6y"], "REQUEST_TIMEOUT");
     });
 });

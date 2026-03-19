@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { keyValueRule } from "../../rules/key-value.js";
-import { expectNameInfluence } from "../common/common.js";
+import { expectNameInfluence, expectValidToHaveGoodReasons } from "../common/common.js";
 
 describe("Inference rules – list", () => {
     it("keyValueRule should  match valid key=value pair", () => {
@@ -58,5 +58,24 @@ describe("Inference rules – list", () => {
     });
     it("keyValueRule name should influence confidence", () => {
         expectNameInfluence(keyValueRule, "a=b", "APP_CONFIG");
+    });
+    it("keyValueRule should have good reasons", () => {
+        expectValidToHaveGoodReasons(
+            keyValueRule,
+            [
+                "a=b",
+                "firstname=Romain",
+                "lastname=Taillandier",
+                "ip=1.2.3.4.5.6",
+                "port=8080",
+                "url=https://example.com",
+                "email=user@example.com",
+                "BOOLE1N=true",
+                "boolean=f",
+                "number=123",
+                "string=hello",
+            ],
+            "APP_CONFIG"
+        );
     });
 });

@@ -24,6 +24,16 @@
 
 - enregistrer les fichiers d'entrées/sorties dans une conf de dnl. (env.dnl.ts, env.dnl.d.ts, asserter)
 
+- dnl infer , refactoriser pour ajouter un type Reason : + améliorer les TU
+
+```ts
+type Reason = {
+    code: "value_match" | "name_match" | "format_invalid"; //....
+    score: number;
+    message: string;
+};
+```
+
 ### readme inférence :
 
 2. No path schéma (and probably never)

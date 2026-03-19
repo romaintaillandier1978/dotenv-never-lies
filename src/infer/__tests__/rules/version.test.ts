@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { versionRule } from "../../rules/version.js";
 import { versionGenSchema } from "../../generated/version.js";
-import { expectNameInfluence, expectResilienceSurroundinSpaces } from "../common/common.js";
+import { expectNameInfluence, expectResilienceSurroundinSpaces, expectValidToHaveGoodReasons } from "../common/common.js";
 
 describe("Inference rules – version", () => {
     it("versionRule should not match empty values, or non-version values", () => {
@@ -53,5 +53,8 @@ describe("Inference rules – version", () => {
     });
     it("versionRule should handle surrounding spaces", () => {
         expectResilienceSurroundinSpaces(versionRule, "1.2.3", "APP_VERSION");
+    });
+    it("versionRule should have good reasons", () => {
+        expectValidToHaveGoodReasons(versionRule, ["1.2.3", "123.345.567336"], "APP_VERSION");
     });
 });

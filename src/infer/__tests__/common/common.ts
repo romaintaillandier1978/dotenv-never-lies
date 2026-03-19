@@ -36,3 +36,20 @@ export function expectResilienceSurroundinSpaces(rule: HeuristicRule, value: str
         expect(result!.confidence).toBeGreaterThanOrEqual(rule.meta.threshold);
     }
 }
+
+export function expectValidToHaveGoodReasons(rule: HeuristicRule, validValues: string[], name: string) {
+    for (const validValue of validValues) {
+        const result = rule.tryInfer({ name, rawValue: validValue });
+        expect(result).not.toBeNull();
+        expect(result!.reasons).toBeDefined();
+        expect(result!.reasons.length).toBeGreaterThan(0);
+
+        const reasonScoreRegex = /\([-+](\d+)\)/;
+        for (const reason of result!.reasons) {
+            const match = reason.match(reasonScoreRegex);
+            const reasonScore = match ? Number(match[1]) : null;
+            expect(reasonScore).toBeDefined();
+            expect(reasonScore).toBeGreaterThan(0);
+        }
+    }
+}

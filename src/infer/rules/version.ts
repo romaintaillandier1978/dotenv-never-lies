@@ -17,7 +17,7 @@ export const versionRule: HeuristicRule<"version"> = {
         if (!looksLikeVersion(trimmed)) return null;
 
         let confidence = 5;
-        const reasons: string[] = ["Value matches strict version format"];
+        const reasons: string[] = ["Value matches strict version format (+5)"];
 
         const { matched, reason } = matchesEnvKey(name, VERSION_KEYS);
         if (matched) {

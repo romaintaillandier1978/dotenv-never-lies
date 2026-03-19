@@ -16,7 +16,7 @@ export const ipRule: HeuristicRule<"ip"> = {
         if (!looksLikeIp(trimmed)) return null;
 
         let confidence = 5;
-        const reasons: string[] = ["Value matches strict ip format"];
+        const reasons: string[] = ["Value matches strict ip format (+5)"];
 
         const { matched, reason } = matchesEnvKey(name, IP_KEYS);
         if (matched) {

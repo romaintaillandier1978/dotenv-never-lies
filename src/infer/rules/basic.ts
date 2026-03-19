@@ -34,7 +34,7 @@ export const numberRule: HeuristicRule<"number"> = {
         if (Number.isNaN(n)) return null;
 
         let confidence = 5;
-        const reasons: string[] = ["Numeric value"];
+        const reasons: string[] = ["Numeric value (+5)"];
 
         const { matched, reason } = matchesEnvKey(name, NUMBER_KEYS);
         if (matched) {
@@ -63,7 +63,7 @@ export const emailRule: HeuristicRule = {
         if (!/^[^@]+@[^@]+\.[^@]+$/.test(rawValue)) return null;
 
         let confidence = 6;
-        const reasons: string[] = ["Email-like value"];
+        const reasons: string[] = ["Email-like value (+6)"];
 
         const { matched, reason } = matchesEnvKey(name, EMAIL_KEYS);
         if (matched) {

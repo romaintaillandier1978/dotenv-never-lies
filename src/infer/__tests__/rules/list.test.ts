@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { listRule } from "../../rules/list.js";
-import { expectNameInfluence } from "../common/common.js";
+import { expectNameInfluence, expectValidToHaveGoodReasons } from "../common/common.js";
 
 describe("Inference rules – list", () => {
     it("listRule should match multiple key-value pairs", () => {
@@ -99,5 +99,8 @@ describe("Inference rules – list", () => {
     });
     it("listRule name should influence confidence", () => {
         expectNameInfluence(listRule, "a=b;c=d", "LABEL_LIST");
+    });
+    it("listRule should have good reasons", () => {
+        expectValidToHaveGoodReasons(listRule, ["a=b;c=d", "a=b,c=d", "a=b&c=d", "a=b;c=d;e=f"], "LABEL_LIST");
     });
 });

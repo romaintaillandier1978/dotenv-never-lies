@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { jsonRule } from "../../rules/json.js";
 import { jsonGenSchemaNoName } from "../../generated/json.js";
-import { expectResilienceSurroundinSpaces } from "../common/common.js";
+import { expectResilienceSurroundinSpaces, expectValidToHaveGoodReasons } from "../common/common.js";
 
 describe("Inference rules – json", () => {
     it("jsonRule should not match empty values, or non-JSON values", () => {
@@ -51,6 +51,9 @@ describe("Inference rules – json", () => {
     });
     it("jsonRule should handle surrounding spaces", () => {
         expectResilienceSurroundinSpaces(jsonRule, '{"key":"value"}', "CONFIG_JSON");
+    });
+    it("jsonRule should have good reasons", () => {
+        expectValidToHaveGoodReasons(jsonRule, ['{"key":"value"}', '["value1","value2"]', '"key"', "123", '"true"', '"false"', '"null"'], "CONFIG_JSON");
     });
     // DO NOT TEST NAME INFLUENCE FOR JSON RULE, IT IS NOT APPLICABLE
 });

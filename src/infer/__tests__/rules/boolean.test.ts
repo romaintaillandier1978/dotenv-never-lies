@@ -1,7 +1,7 @@
 import { booleanRule } from "../../rules/boolean.js";
 
 import { describe, it, expect } from "vitest";
-import { expectNameInfluence, expectResilienceSurroundinSpaces } from "../common/common.js";
+import { expectNameInfluence, expectResilienceSurroundinSpaces, expectValidToHaveGoodReasons } from "../common/common.js";
 
 describe("Inference rules – boolean", () => {
     it("booleanRule should not match empty values, or non-boolean values", () => {
@@ -50,5 +50,8 @@ describe("Inference rules – boolean", () => {
     });
     it("booleanRule should handle surrounding spaces", () => {
         expectResilienceSurroundinSpaces(booleanRule, "true", "IS_ENABLED");
+    });
+    it("booleanRule should have good reasons", () => {
+        expectValidToHaveGoodReasons(booleanRule, ["true", "false", "0", "1", "yes", "no", "y", "n"], "IS_ENABLED");
     });
 });
